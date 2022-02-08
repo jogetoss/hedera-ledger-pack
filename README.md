@@ -1,6 +1,8 @@
 # Description
 
-This repository is meant to serve as a general template for how to set up new repositories in the JogetOSS organization. 
+The Hedera Ledger Pack integrates Hedera with Joget, and allows you to design Joget apps that interacts with the Hedera DLT.
+
+Documentation and sample app coming soon.
 
 # Getting Help
 
