@@ -1,0 +1,167 @@
+[
+    {
+       "title":"@@process.hederaGenerateAccountTool.header.config@@",
+       "properties":[
+            {
+                "name":"operatorId",
+                "label":"@@hedera.prop.operatorId@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"operatorKey",
+                "label":"@@hedera.prop.operatorKey@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"networkType",
+                "label":"@@hedera.prop.networkType@@",
+                "description":"@@hedera.prop.networkType.desc@@",
+                "type":"selectbox",
+                "options" : [{
+                    "value" : "mainnet",
+                    "label" : "@@hedera.prop.networkType.mainnet@@"
+                },{
+                    "value" : "previewnet",
+                    "label" : "@@hedera.prop.networkType.previewnet@@"
+                },{
+                    "value" : "testnet",
+                    "label" : "@@hedera.prop.networkType.testnet@@"
+                }],
+                "value":"testnet"
+            },
+            {
+                "name":"fundTestAccount",
+                "label":"@@process.hederaGenerateAccountTool.fundTestAccount@@",
+                "type":"checkbox",
+                "value":"true",
+                "options":[
+                    {"value":"true", "label":""}
+                ],
+                "control_field":"networkType",
+                "control_value":"previewnet|testnet",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"enableMultiSig",
+                "label":"@@process.hederaGenerateAccountTool.enableMultiSig@@",
+                "type":"checkbox",
+                "options":[
+                    {"value":"true", "label":""}
+                ]
+            },
+            {
+                "name" : "formDefIdGetData",
+                "label" : "@@process.hederaGenerateAccountTool.formDefIdGetData@@",
+                "type" : "selectbox",
+                "required":"True",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/formsWithCustomTable/options",
+                "control_field":"enableMultiSig",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"getMnemonicField",
+                "label":"@@process.hederaGenerateAccountTool.getMnemonicField@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId:formDefIdGetData",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"enableMultiSig",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"accountIdsToSign",
+                "label":"@@process.hederaGenerateAccountTool.accountIdsToSign@@",
+                "description":"@@process.hederaGenerateAccountTool.accountIdsToSign.desc@@",
+                "type":"textfield",
+                "required":"True",
+                "control_field":"enableMultiSig",
+                "control_value":"true",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title":"@@process.hederaGenerateAccountTool.header.storeToForm@@",
+        "properties":[
+            {
+                "name" : "formDefId",
+                "label" : "@@process.hederaGenerateAccountTool.formId@@",
+                "type" : "selectbox",
+                "required":"True",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/formsWithCustomTable/options"
+            },
+            {
+                "label": "@@process.hederaGenerateAccountTool.header.fieldMapping@@",
+                "type":"header"
+            },
+            {
+                "name":"accountMnemonicField",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountMnemonicField@@",
+                "description":"@@process.hederaGenerateAccountTool.fieldMapping.accountMnemonicField.desc@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"accountOwnerField",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountOwnerField@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"accountOwnerValue",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountOwnerValue@@",
+                "description":"@@process.hederaGenerateAccountTool.fieldMapping.accountOwnerValue.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"isTestAccount",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.isTestAccount@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"isMultiSigAccount",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.isMultiSigAccount@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"accountSigners",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountSigners@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "required":"True",
+                "control_field":"enableMultiSig",
+                "control_value":"true",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaGenerateAccountTool.header.storeToWorkflowVariable@@",
+        "properties" : [
+            {
+                "name":"wfResponseStatus",
+                "label":"@@process.hederaGenerateAccountTool.wfMapping.wfResponseStatus@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            },
+            {
+                "name":"wfIsTestAccount",
+                "label":"@@process.hederaGenerateAccountTool.wfMapping.wfIsTestAccount@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            }
+        ]
+    }
+]

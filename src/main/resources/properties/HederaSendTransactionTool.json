@@ -1,0 +1,116 @@
+[
+    {
+       "title":"@@process.hederaSendTransactionTool.header.config@@",
+       "properties":[
+            {
+                "name":"operatorId",
+                "label":"@@hedera.prop.operatorId@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"operatorKey",
+                "label":"@@hedera.prop.operatorKey@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"networkType",
+                "label":"@@hedera.prop.networkType@@",
+                "description":"@@hedera.prop.networkType.desc@@",
+                "type":"selectbox",
+                "options" : [{
+                    "value" : "mainnet",
+                    "label" : "@@hedera.prop.networkType.mainnet@@"
+                },{
+                    "value" : "previewnet",
+                    "label" : "@@hedera.prop.networkType.previewnet@@"
+                },{
+                    "value" : "testnet",
+                    "label" : "@@hedera.prop.networkType.testnet@@"
+                }],
+                "value":"testnet"
+            }
+        ]
+    },
+    {
+        "title":"@@process.hederaSendTransactionTool.header.transactionDetails@@",
+        "properties":[
+            {
+                "name":"senderAccountId",
+                "label":"@@process.hederaSendTransactionTool.senderAccountId@@",
+                "description":"@@process.hederaSendTransactionTool.senderAccountId.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"accountMnemonic",
+                "label":"@@process.hederaSendTransactionTool.accountMnemonic@@",
+                "description":"@@process.hederaSendTransactionTool.accountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"receiverAccountId",
+                "label":"@@process.hederaSendTransactionTool.receiverAccountId@@",
+                "description":"@@process.hederaSendTransactionTool.receiverAccountId.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"amount",
+                "label":"@@process.hederaSendTransactionTool.amount@@",
+                "description":"@@process.hederaSendTransactionTool.amount.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"enableScheduledTransaction",
+                "label":"@@process.hederaGenerateAccountTool.enableScheduledTransaction@@",
+                "type":"checkbox",
+                "options":[
+                    {"value":"true", "label":""}
+                ]
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaSendTransactionTool.header.storeToWorkflowVariable@@",
+        "properties" : [
+            {
+                "name":"wfScheduleId",
+                "label":"@@process.hederaSendTransactionTool.wfMapping.wfScheduleId@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "required":"True",
+                "control_field":"enableScheduledTransaction",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wfTransactionValidated",
+                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionValidated@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            },
+            {
+                "name":"wfConsensusTimestamp",
+                "label":"@@process.hederaSendTransactionTool.wfMapping.wfConsensusTimestamp@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            },
+            {
+                "name":"wfTransactionId",
+                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionId@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            },
+            {
+                "name":"wfTransactionExplorerUrl",
+                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionExplorerUrl@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+            }
+        ]
+    }
+]

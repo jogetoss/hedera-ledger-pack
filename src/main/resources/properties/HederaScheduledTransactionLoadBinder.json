@@ -1,0 +1,96 @@
+[
+    {
+       "title":"@@form.hederaScheduledTransactionLoadBinder.header.config@@",
+       "properties":[
+            {
+                "name":"operatorId",
+                "label":"@@hedera.prop.operatorId@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"operatorKey",
+                "label":"@@hedera.prop.operatorKey@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"networkType",
+                "label":"@@hedera.prop.networkType@@",
+                "description":"@@hedera.prop.networkType.desc@@",
+                "type":"selectbox",
+                "options" : [{
+                    "value" : "mainnet",
+                    "label" : "@@hedera.prop.networkType.mainnet@@"
+                },{
+                    "value" : "previewnet",
+                    "label" : "@@hedera.prop.networkType.previewnet@@"
+                },{
+                    "value" : "testnet",
+                    "label" : "@@hedera.prop.networkType.testnet@@"
+                }],
+                "value":"testnet"
+            },
+            {
+                "name":"scheduleId",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.scheduleId@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.scheduleId.desc@@",
+                "type":"textfield",
+                "required":"True"
+            }
+        ]
+    },
+    {
+        "title":"@@form.hederaScheduledTransactionLoadBinder.header.mapToFields@@",
+        "properties":[
+            {
+                "name":"scheduledTransactionIdField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.scheduledTransactionIdField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.scheduledTransactionIdField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"transactionSignatoriesField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.transactionSignatoriesField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.transactionSignatoriesField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"transactionMemoField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.transactionMemoField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.transactionMemoField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"creatorAccountIdField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.creatorAccountIdField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.creatorAccountIdField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"payerAccountIdField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.payerAccountIdField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.payerAccountIdField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"expirationTimeField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.expirationTimeField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.expirationTimeField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"executedAtField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.executedAtField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.executedAtField.desc@@",
+                "type":"textfield"
+            },
+            {
+                "name":"deletedAtField",
+                "label":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.deletedAtField@@",
+                "description":"@@form.hederaScheduledTransactionLoadBinder.mapToFields.deletedAtField.desc@@",
+                "type":"textfield"
+            }
+        ]
+    }
+]
