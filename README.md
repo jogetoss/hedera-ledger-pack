@@ -2,7 +2,7 @@
 
 The Hedera Ledger Pack integrates Hedera with Joget, and allows you to design Joget apps that interacts with the Hedera DLT.
 
-Documentation and sample app coming soon.
+Do see [documentation and sample app](https://dev.joget.org/community/display/marketplace/Hedera+Ledger+Pack).
 
 # Getting Help
 
