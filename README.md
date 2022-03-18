@@ -4,6 +4,8 @@ The Hedera Ledger Pack integrates Hedera with Joget, and allows you to design Jo
 
 Do see [documentation and sample app](https://dev.joget.org/community/display/marketplace/Hedera+Ledger+Pack).
 
+> :warning: **This project is in early development stages and not ready for production use.**
+
 # Getting Help
 
 JogetOSS is a community-led team for open source software related to the [Joget](https://www.joget.org) no-code/low-code application platform.
