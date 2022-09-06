@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -18,6 +18,8 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.PluginUtil;
 import org.joget.plugin.base.DefaultApplicationPlugin;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
@@ -33,7 +35,7 @@ public class HederaGenerateAccountTool extends DefaultApplicationPlugin {
 
     @Override
     public String getVersion() {
-        return "7.0.0";
+        return PluginUtil.getProjectVersion(this.getClass());
     }
 
     @Override
@@ -56,7 +58,7 @@ public class HederaGenerateAccountTool extends DefaultApplicationPlugin {
         boolean isTest = false;
         boolean isMultiSig = false;
         
-        if ((HederaUtil.TESTNET_NAME).equals(networkType) || (HederaUtil.PREVIEWNET_NAME).equals(networkType)) {
+        if ((BackendUtil.TESTNET_NAME).equals(networkType) || (BackendUtil.PREVIEWNET_NAME).equals(networkType)) {
             isTest = true;
         }
         
@@ -65,7 +67,7 @@ public class HederaGenerateAccountTool extends DefaultApplicationPlugin {
         
         try {
             AccountId newAccountId = null;
-            final Client client = HederaUtil.getHederaClient(operatorId, operatorKey, networkType);
+            final Client client = BackendUtil.getHederaClient(operatorId, operatorKey, networkType);
             
             if (client != null) {
                 String encryptedMnemonic = "";
@@ -81,12 +83,12 @@ public class HederaGenerateAccountTool extends DefaultApplicationPlugin {
                     
                     KeyList keyList = new KeyList();
                     
-                    for (String accountId : accountIdsToSign.split(HederaUtil.MULTI_VALUE_DELIMITER)) {
+                    for (String accountId : accountIdsToSign.split(PluginUtil.MULTI_VALUE_DELIMITER)) {
                         FormRowSet accountRowSet = appService.loadFormData(appDef.getId(), appDef.getVersion().toString(), formDefIdGetData, accountId);
                         if (!accountRowSet.isEmpty()) {
                             FormRow accountData = accountRowSet.get(0);
-                            Mnemonic signerMnemonic = Mnemonic.fromString(HederaUtil.decrypt(accountData.getProperty(getMnemonicField)));
-                            PublicKey signerPublicKey = HederaUtil.derivePublicKeyFromMnemonic(signerMnemonic);
+                            Mnemonic signerMnemonic = Mnemonic.fromString(PluginUtil.decrypt(accountData.getProperty(getMnemonicField)));
+                            PublicKey signerPublicKey = PluginUtil.derivePublicKeyFromMnemonic(signerMnemonic);
                             
                             keyList.add(signerPublicKey);
                         }
@@ -97,12 +99,12 @@ public class HederaGenerateAccountTool extends DefaultApplicationPlugin {
                     newAccountTransaction.setKey(keyList);
                 } else {
                     final Mnemonic mnemonic = Mnemonic.generate24();
-                    PublicKey publicKey = HederaUtil.derivePublicKeyFromMnemonic(mnemonic);
+                    PublicKey publicKey = PluginUtil.derivePublicKeyFromMnemonic(mnemonic);
                     //Account Mnemonic MUST be secured at all times.
                     /* 
                         See HederaUtil encrypt & decrypt method to implement your preferred algo if you wish to do so
                     */
-                    encryptedMnemonic = HederaUtil.encrypt(mnemonic.toString());
+                    encryptedMnemonic = PluginUtil.encrypt(mnemonic.toString());
                     
                     newAccountTransaction.setKey(publicKey);
                 }

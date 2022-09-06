@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountInfo;
@@ -14,6 +14,8 @@ import org.joget.apps.form.model.FormLoadElementBinder;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
 public class HederaAccountLoadBinder extends FormBinder implements FormLoadBinder, FormLoadElementBinder {
@@ -25,7 +27,7 @@ public class HederaAccountLoadBinder extends FormBinder implements FormLoadBinde
 
     @Override
     public String getVersion() {
-        return "7.0.0";
+        return PluginUtil.getProjectVersion(this.getClass());
     }
 
     @Override
@@ -52,7 +54,7 @@ public class HederaAccountLoadBinder extends FormBinder implements FormLoadBinde
         FormRowSet rows = new FormRowSet();
         
         try {
-            final Client client = HederaUtil.getHederaClient(operatorId, operatorKey, networkType);
+            final Client client = BackendUtil.getHederaClient(operatorId, operatorKey, networkType);
             
             if (client != null) {
                 AccountInfo accountInfo = new AccountInfoQuery()

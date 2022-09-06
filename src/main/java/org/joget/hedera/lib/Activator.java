@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,12 +13,14 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) {
         registrationList = new ArrayList<ServiceRegistration>();
 
-        //Register plugin here
+        //Process Tool plugins
         registrationList.add(context.registerService(HederaGenerateAccountTool.class.getName(), new HederaGenerateAccountTool(), null));
         registrationList.add(context.registerService(HederaSendTransactionTool.class.getName(), new HederaSendTransactionTool(), null));
+        registrationList.add(context.registerService(HederaSignScheduledTransactionTool.class.getName(), new HederaSignScheduledTransactionTool(), null));
+    
+        //Form Binder plugins
         registrationList.add(context.registerService(HederaAccountLoadBinder.class.getName(), new HederaAccountLoadBinder(), null));
         registrationList.add(context.registerService(HederaScheduledTransactionLoadBinder.class.getName(), new HederaScheduledTransactionLoadBinder(), null));
-        registrationList.add(context.registerService(HederaSignScheduledTransactionTool.class.getName(), new HederaSignScheduledTransactionTool(), null));
     }
 
     public void stop(BundleContext context) {

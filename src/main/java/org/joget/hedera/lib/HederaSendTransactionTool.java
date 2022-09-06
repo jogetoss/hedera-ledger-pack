@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
@@ -17,6 +17,10 @@ import com.hedera.hashgraph.sdk.ScheduleCreateTransaction;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.sdk.TransferTransaction;
+import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.ExplorerUtil;
+import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 
 public class HederaSendTransactionTool extends DefaultApplicationPlugin {
 
@@ -27,7 +31,7 @@ public class HederaSendTransactionTool extends DefaultApplicationPlugin {
 
     @Override
     public String getVersion() {
-        return "7.0.0";
+        return PluginUtil.getProjectVersion(this.getClass());
     }
 
     @Override
@@ -50,12 +54,12 @@ public class HederaSendTransactionTool extends DefaultApplicationPlugin {
             TransactionRecord transactionRecord = null;
             
             final String senderAccountId = WorkflowUtil.processVariable(getPropertyString("senderAccountId"), "", wfAssignment);
-            final String accountMnemonic = HederaUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
             final String receiverAccountId = WorkflowUtil.processVariable(getPropertyString("receiverAccountId"), "", wfAssignment);
             final String amount = WorkflowUtil.processVariable(getPropertyString("amount"), "", wfAssignment);
             final String enableScheduledTxFlag = getPropertyString("enableScheduledTransaction");
             
-            final Client client = HederaUtil.getHederaClient(operatorId, operatorKey, networkType);
+            final Client client = BackendUtil.getHederaClient(operatorId, operatorKey, networkType);
             
             if (client != null) {
                 AccountId senderAccount = AccountId.fromString(senderAccountId);
@@ -84,7 +88,7 @@ public class HederaSendTransactionTool extends DefaultApplicationPlugin {
                         LogUtil.warn(getClass().getName(), "Plugin execution stopped. Invalid mnemonic encountered.");
                         return null;
                     }
-                    final PrivateKey senderPrivateKey = HederaUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+                    final PrivateKey senderPrivateKey = PluginUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
                     transferTransaction.freezeWith(client);
                     transferTransaction.sign(senderPrivateKey);
                     transactionResponse = transferTransaction.execute(client);
@@ -133,7 +137,7 @@ public class HederaSendTransactionTool extends DefaultApplicationPlugin {
                 workflowManager,
                 wfAssignment.getActivityId(), 
                 wfConsensusTimestamp, 
-                HederaUtil.convertInstantToZonedDateTimeString(transactionRecord.consensusTimestamp)
+                TransactionUtil.convertInstantToZonedDateTimeString(transactionRecord.consensusTimestamp)
         );
         
         storeValuetoActivityVar(
@@ -143,7 +147,7 @@ public class HederaSendTransactionTool extends DefaultApplicationPlugin {
                 transactionRecord.transactionId.toString()
         );
         
-        String transactionExplorerUrl = HederaUtil.getTransactionExplorerUrl(networkType, transactionRecord.transactionId.toString());
+        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(networkType, transactionRecord.transactionId.toString());
         storeValuetoActivityVar(
                 workflowManager, 
                 wfAssignment.getActivityId(), 

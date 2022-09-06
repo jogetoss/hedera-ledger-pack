@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.ScheduleId;
@@ -13,6 +13,9 @@ import org.joget.apps.form.model.FormLoadElementBinder;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
 public class HederaScheduledTransactionLoadBinder extends FormBinder implements FormLoadBinder, FormLoadElementBinder {
@@ -24,7 +27,7 @@ public class HederaScheduledTransactionLoadBinder extends FormBinder implements 
 
     @Override
     public String getVersion() {
-        return "7.0.0";
+        return PluginUtil.getProjectVersion(this.getClass());
     }
 
     @Override
@@ -51,7 +54,7 @@ public class HederaScheduledTransactionLoadBinder extends FormBinder implements 
         FormRowSet rows = new FormRowSet();
         
         try {
-            final Client client = HederaUtil.getHederaClient(operatorId, operatorKey, networkType);
+            final Client client = BackendUtil.getHederaClient(operatorId, operatorKey, networkType);
             
             if (client != null) {
                 ScheduleId scheduleIdObj = ScheduleId.fromString(scheduleId);
@@ -83,11 +86,11 @@ public class HederaScheduledTransactionLoadBinder extends FormBinder implements 
                 //The Hedera account paying for the execution of this scheduled transaction
                 row = addRow(row, payerAccountIdField, scheduleInfo.payerAccountId.toString());
                 //The date and time when this scheduled transaction will expire
-                row = addRow(row, expirationTimeField, HederaUtil.convertInstantToZonedDateTimeString(scheduleInfo.expirationTime));
+                row = addRow(row, expirationTimeField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.expirationTime));
                 //The time the schedule transaction was executed. If the schedule transaction has not executed this field will be left null.
-                row = addRow(row, executedAtField, HederaUtil.convertInstantToZonedDateTimeString(scheduleInfo.executedAt));
+                row = addRow(row, executedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.executedAt));
                 //The consensus time the schedule transaction was deleted. If the schedule transaction was not deleted, this field will be left null.
-                row = addRow(row, deletedAtField, HederaUtil.convertInstantToZonedDateTimeString(scheduleInfo.deletedAt));
+                row = addRow(row, deletedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.deletedAt));
                 
                 rows.add(row);
             }

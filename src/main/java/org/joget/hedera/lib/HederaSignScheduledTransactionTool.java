@@ -1,4 +1,4 @@
-package org.joget.marketplace;
+package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Mnemonic;
@@ -12,6 +12,8 @@ import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.PluginUtil;
 import org.joget.plugin.base.DefaultApplicationPlugin;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
@@ -27,7 +29,7 @@ public class HederaSignScheduledTransactionTool extends DefaultApplicationPlugin
 
     @Override
     public String getVersion() {
-        return "7.0.0";
+        return PluginUtil.getProjectVersion(this.getClass());
     }
 
     @Override
@@ -49,13 +51,13 @@ public class HederaSignScheduledTransactionTool extends DefaultApplicationPlugin
         try {
             TransactionRecord transactionRecord = null;
             
-            final Client client = HederaUtil.getHederaClient(operatorId, operatorKey, networkType);
+            final Client client = BackendUtil.getHederaClient(operatorId, operatorKey, networkType);
             
             if (client != null) {
 //                final String signerAccountId = WorkflowUtil.processVariable(getPropertyString("signerAccountId"), "", wfAssignment);
-                final String signerMnemonic = HederaUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("signerMnemonic"), "", wfAssignment));
-                final PrivateKey signerPrivateKey = HederaUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
-                final PublicKey signerPublicKey = HederaUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+                final String signerMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("signerMnemonic"), "", wfAssignment));
+                final PrivateKey signerPrivateKey = PluginUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+                final PublicKey signerPublicKey = PluginUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
                 
                 final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
                 ScheduleId scheduleIdObj = ScheduleId.fromString(scheduleId);
