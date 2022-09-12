@@ -8,14 +8,14 @@ import java.time.format.DateTimeFormatter;
 public class TransactionUtil {
     
     public static String convertInstantToZonedDateTimeString(Instant timeStamp) {
-        if (timeStamp == null) {
-            return "";
-        }
-        
         return convertInstantToZonedDateTimeString(timeStamp, null);
     }
     
     public static String convertInstantToZonedDateTimeString(Instant timeStamp, String zoneId) {
+        if (timeStamp == null) {
+            return "";
+        }
+        
         String dateTimeFormat = "yyyy-MM-dd hh:mm:ss a z";
         
         //Default to UTC timezone

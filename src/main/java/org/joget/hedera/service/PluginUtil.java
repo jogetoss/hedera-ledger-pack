@@ -29,16 +29,12 @@ public class PluginUtil {
     
     //Feel free to implement more secure encryption algo
     public static String encrypt(String content) {
-        content = SecurityUtil.encrypt(content);
-        
-        return content;
+        return SecurityUtil.encrypt(content);
     }
     
     //Feel free to implement more secure encryption algo, and decrypt accordingly
     public static String decrypt(String content) {
-        content = SecurityUtil.decrypt(content);
-        
-        return content;
+        return SecurityUtil.decrypt(content);
     }
     
     public static PrivateKey derivePrivateKeyFromMnemonic(Mnemonic mnemonic) {

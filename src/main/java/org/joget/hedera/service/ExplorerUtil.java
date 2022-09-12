@@ -2,33 +2,36 @@ package org.joget.hedera.service;
 
 public class ExplorerUtil {
     
-    //Using DragonGlass Hedera explorer
-    public static final String TESTNET_TX_EXPLORER_URL = "https://testnet.dragonglass.me/hedera/transactions/";
-    public static final String PREVIEWNET_TX_EXPLORER_URL = "";
-    public static final String MAINNET_TX_EXPLORER_URL = "https://app.dragonglass.me/hedera/transactions/";
+    private static final String DRAGONGLASS_TYPE = "dragonglass";
+    
+    //Hedera explorer links
+    public static final String DRAGONGLASS_MAINNET = "https://app.dragonglass.me/hedera/";
+    public static final String DRAGONGLASS_TESTNET = "https://testnet.dragonglass.me/hedera/";
+    public static final String DRAGONGLASS_PREVIEWNET = ""; //Not available
+
     
     public static String getTransactionExplorerUrl(String networkType, String transactionId) {
-        String transactionUrl = "";
+        return getTransactionExplorerUrl(networkType, transactionId, "");
+    }
+    
+    public static String getTransactionExplorerUrl(String networkType, String transactionId, String explorerType) {
+        //No need to return immediately, in case user wants to show link as is
+        if (transactionId == null || transactionId.isBlank()) {
+            transactionId = "";
+        }
+
+        String explorerUrl;
         
-        switch (networkType) {
-            case BackendUtil.MAINNET_NAME:
-                transactionUrl = MAINNET_TX_EXPLORER_URL;
-                break;
-            case BackendUtil.PREVIEWNET_NAME:
-                // At the time of developing this, no handy previewnet explorers available yet
-                break;
+        switch (explorerType) {
+            case DRAGONGLASS_TYPE:
             default:
-                transactionUrl = TESTNET_TX_EXPLORER_URL;
+                explorerUrl = (BackendUtil.MAINNET_NAME).equals(networkType) ? DRAGONGLASS_MAINNET : DRAGONGLASS_TESTNET;
+                explorerUrl += "transactions/";
                 break;
         }
         
-        if (transactionUrl.isEmpty()) {
-            return null;
-        }
+        explorerUrl += transactionId.replaceAll("[^0-9]","");
         
-        //Remove any characters from string except numbers, to adapt to dragonglass url format
-        transactionUrl += transactionId.replaceAll("[^0-9]","");
-        
-        return transactionUrl;
+        return explorerUrl;
     }
 }

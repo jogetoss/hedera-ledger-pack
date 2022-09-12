@@ -3,6 +3,7 @@ package org.joget.hedera.service;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import java.util.Map;
 import org.joget.commons.util.LogUtil;
 
 public class BackendUtil {
@@ -11,7 +12,11 @@ public class BackendUtil {
     public static final String PREVIEWNET_NAME = "previewnet";
     public static final String TESTNET_NAME = "testnet";
     
-    public static Client getHederaClient(String operatorId, String operatorKey, String networkType) {
+    public static Client getHederaClient(Map properties) {
+        
+        final String operatorId = (String) properties.get("operatorId");
+        final String operatorKey = (String) properties.get("operatorKey");
+        final String networkType = getNetworkType(properties);
         
         final AccountId operatorAccountId = AccountId.fromString(operatorId);
         final PrivateKey operatorPrivateKey = PrivateKey.fromString(operatorKey);
@@ -40,5 +45,14 @@ public class BackendUtil {
         }
         
         return client;
+    }
+    
+    public static String getNetworkType(Map properties) {
+        return (String) properties.get("networkType");
+    }
+    
+    public static boolean isTestnet(Map properties) {
+        String networkType = (String) properties.get("networkType");
+        return !(BackendUtil.MAINNET_NAME).equals(networkType);
     }
 }
