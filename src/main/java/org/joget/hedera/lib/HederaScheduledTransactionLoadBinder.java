@@ -35,15 +35,18 @@ public class HederaScheduledTransactionLoadBinder extends HederaFormBinderAbstra
     }
     
     @Override
+    public boolean isInputDataValid() {
+        final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
+
+        //Prevent error thrown from empty value and invalid hash variable
+        return !scheduleId.isEmpty() && !scheduleId.startsWith("#");
+    }
+    
+    @Override
     public FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
             throws TimeoutException, PrecheckStatusException {
         
         final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
-
-        //Prevent error thrown from empty value and invalid hash variable
-        if (scheduleId.isEmpty() || scheduleId.startsWith("#")) {
-            return null;
-        }
 
         ScheduleInfo scheduleInfo = new ScheduleInfoQuery()
             .setScheduleId(ScheduleId.fromString(scheduleId))

@@ -15,6 +15,14 @@ import org.joget.hedera.service.PluginUtil;
 public abstract class HederaFormBinderAbstract extends FormBinder implements FormLoadBinder {
     
     /**
+     * Used to validate necessary input values prior to executing API calls. This method is wrapped by load().
+     * @return A boolean value to continue or skip plugin execution. Default value is true.
+     */
+    public boolean isInputDataValid() {
+        return true;
+    }
+    
+    /**
      * Loads data based on a primary key. This method is wrapped by load().
      * @param client The Hedera client to execute queries and actions
      * @param element The element to load the data into.
@@ -25,11 +33,17 @@ public abstract class HederaFormBinderAbstract extends FormBinder implements For
     public abstract FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData)
             throws TimeoutException, PrecheckStatusException;
     
+    @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
-        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        if (!isInputDataValid()) {
+            LogUtil.debug(getClassName(), "Invalid input(s) detected. Aborting plugin execution.");
+            return null;
+        }
         
         FormRowSet rows = new FormRowSet();
+        
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
         try {
             final Client client = BackendUtil.getHederaClient(getProperties());

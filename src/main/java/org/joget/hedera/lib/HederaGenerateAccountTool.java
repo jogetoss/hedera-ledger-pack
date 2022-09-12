@@ -49,7 +49,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
     public Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
-        final String fundTestAccountFlag = getPropertyString("fundTestAccount");
+        final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
         final String formDefIdGetData = getPropertyString("formDefIdGetData");
         final String getMnemonicField = getPropertyString("getMnemonicField");
         final String accountIdsToSign = WorkflowUtil.processVariable(getPropertyString("accountIdsToSign"), "", wfAssignment);
@@ -93,7 +93,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             newAccountTransaction.setKey(publicKey);
         }
 
-        if (isTest && "true".equals(fundTestAccountFlag)) {
+        if (isTest && fundTestAccount) {
             fundTestAccount(newAccountTransaction);
         }
 
@@ -154,6 +154,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         if (row != null && !field.isEmpty()) {
             row.put(field, value);
         }
+        
         return row;
     }
     

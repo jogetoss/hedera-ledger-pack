@@ -25,7 +25,7 @@ public class ExplorerUtil {
         switch (explorerType) {
             case DRAGONGLASS_TYPE:
             default:
-                explorerUrl = (BackendUtil.MAINNET_NAME).equals(networkType) ? DRAGONGLASS_MAINNET : DRAGONGLASS_TESTNET;
+                explorerUrl = BackendUtil.isTestnet(networkType) ? DRAGONGLASS_TESTNET : DRAGONGLASS_MAINNET;
                 explorerUrl += "transactions/";
                 break;
         }

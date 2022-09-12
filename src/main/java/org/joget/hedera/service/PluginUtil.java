@@ -47,11 +47,6 @@ public class PluginUtil {
     }
     
     public static PublicKey derivePublicKeyFromMnemonic(Mnemonic mnemonic) {
-        try {
-            return mnemonic.toPrivateKey().getPublicKey();
-        } catch (BadMnemonicException ex) {
-            LogUtil.error(PluginUtil.class.getName(), ex, "Unable to derive key from mnemonic phrase. Reason: " + ex.reason.toString());
-            return null;
-        }
+        return derivePrivateKeyFromMnemonic(mnemonic).getPublicKey();
     }
 }

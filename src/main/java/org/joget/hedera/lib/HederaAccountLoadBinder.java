@@ -35,16 +35,19 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
     }
     
     @Override
+    public boolean isInputDataValid() {
+        final String accountId = WorkflowUtil.processVariable(getPropertyString("accountId"), "", null);
+
+        //Prevent error thrown from empty value and invalid hash variable
+        return !accountId.isEmpty() && !accountId.startsWith("#");
+    }
+    
+    @Override
     public FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
             throws TimeoutException, PrecheckStatusException {
         
         final String accountId = WorkflowUtil.processVariable(getPropertyString("accountId"), "", null);
 
-        //Prevent error thrown from empty value and invalid hash variable
-        if (accountId.isEmpty() || accountId.startsWith("#")) {
-            return null;
-        }
-        
         AccountInfo accountInfo = new AccountInfoQuery()
             .setAccountId(AccountId.fromString(accountId))
             .execute(client);

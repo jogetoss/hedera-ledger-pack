@@ -51,7 +51,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
         final String receiverAccountId = WorkflowUtil.processVariable(getPropertyString("receiverAccountId"), "", wfAssignment);
         final String amount = WorkflowUtil.processVariable(getPropertyString("amount"), "", wfAssignment);
-        final String enableScheduledTxFlag = getPropertyString("enableScheduledTransaction");
+        final boolean enableScheduledTx = "true".equals(getPropertyString("enableScheduledTransaction"));
 
         AccountId senderAccount = AccountId.fromString(senderAccountId);
         AccountId receiverAccount = AccountId.fromString(receiverAccountId);
@@ -67,7 +67,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
         TransactionResponse transactionResponse;
 
-        if ("true".equals(enableScheduledTxFlag)) {
+        if (enableScheduledTx) {
             ScheduleCreateTransaction scheduledTransaction = new ScheduleCreateTransaction()
                 .setScheduledTransaction(transferTransaction)
                 .setAdminKey(client.getOperatorPublicKey())

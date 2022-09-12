@@ -32,6 +32,7 @@ public class BackendUtil {
                 case PREVIEWNET_NAME:
                     client = Client.forPreviewnet();
                     break;
+                case TESTNET_NAME:
                 default:
                     client = Client.forTestnet();
                     break;
@@ -52,7 +53,11 @@ public class BackendUtil {
     }
     
     public static boolean isTestnet(Map properties) {
-        String networkType = (String) properties.get("networkType");
-        return !(BackendUtil.MAINNET_NAME).equals(networkType);
+        String networkType = getNetworkType(properties);
+        return isTestnet(networkType);
+    }
+    
+    public static boolean isTestnet(String networkType) {
+        return !(MAINNET_NAME).equals(networkType);
     }
 }
