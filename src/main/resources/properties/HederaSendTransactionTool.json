@@ -9,11 +9,20 @@
         "title":"@@process.hederaSendTransactionTool.header.transactionDetails@@",
         "properties":[
             {
+                "name":"formDefId",
+                "label":"@@process.hederaSendTransactionTool.formDefId@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+            },
+            {
                 "name":"senderAccountId",
                 "label":"@@process.hederaSendTransactionTool.senderAccountId@@",
                 "description":"@@process.hederaSendTransactionTool.senderAccountId.desc@@",
-                "type":"textfield",
-                "required":"True"
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
                 "name":"accountMnemonic",
@@ -26,15 +35,19 @@
                 "name":"receiverAccountId",
                 "label":"@@process.hederaSendTransactionTool.receiverAccountId@@",
                 "description":"@@process.hederaSendTransactionTool.receiverAccountId.desc@@",
-                "type":"textfield",
-                "required":"True"
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
                 "name":"amount",
                 "label":"@@process.hederaSendTransactionTool.amount@@",
                 "description":"@@process.hederaSendTransactionTool.amount.desc@@",
-                "type":"textfield",
-                "required":"True"
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
                 "name":"enableScheduledTransaction",

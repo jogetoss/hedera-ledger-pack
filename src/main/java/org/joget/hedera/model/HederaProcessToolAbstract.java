@@ -18,7 +18,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
      * Used to validate necessary input values prior to executing API calls. This method is wrapped by execute().
      * @return A boolean value to continue or skip plugin execution. Default value is true.
      */
-    public boolean isInputDataValid() {
+    public boolean isInputDataValid(Map props, WorkflowAssignment wfAssignment) {
         return true;
     }
     
@@ -37,12 +37,12 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
     
     @Override
     public Object execute(Map props) {
-        if (!isInputDataValid()) {
+        WorkflowAssignment wfAssignment = (WorkflowAssignment) props.get("workflowAssignment");
+        
+        if (!isInputDataValid(props, wfAssignment)) {
             LogUtil.debug(getClassName(), "Invalid input(s) detected. Aborting plugin execution.");
             return null;
         }
-        
-        WorkflowAssignment wfAssignment = (WorkflowAssignment) props.get("workflowAssignment");
         
         Object result = null;
         

@@ -20,6 +20,10 @@ import com.hedera.hashgraph.sdk.TransactionRecord;
 import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.concurrent.TimeoutException;
+import org.joget.apps.app.model.AppDefinition;
+import org.joget.apps.app.service.AppService;
+import org.joget.apps.form.model.FormRow;
+import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
@@ -29,6 +33,10 @@ import org.joget.hedera.service.TransactionUtil;
 
 public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
+    AppService appService;
+    AppDefinition appDef;
+    WorkflowManager workflowManager;
+    
     @Override
     public String getName() {
         return "Hedera Send Transaction Tool";
@@ -46,25 +54,73 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         return AppUtil.readPluginResource(getClassName(), "/properties/HederaSendTransactionTool.json", new String[]{backendConfigs, wfVarMappings}, true, PluginUtil.MESSAGE_PATH);
     }
     
+    protected void initUtils(Map props) {
+        ApplicationContext ac = AppUtil.getApplicationContext();
+        
+        appService = (AppService) ac.getBean("appService");
+        appDef = (AppDefinition) props.get("appDef");
+        workflowManager = (WorkflowManager) ac.getBean("workflowManager");
+    }
+    
+    @Override
+    public boolean isInputDataValid(Map props, WorkflowAssignment wfAssignment) {
+        initUtils(props);
+        
+        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+        
+        try {
+            Mnemonic.fromString(accountMnemonic);
+        } catch (BadMnemonicException ex) {
+            LogUtil.warn(getClassName(), "Send transaction aborted. Sender account encountered bad/invalid mnemonic phrase.");
+            return false;
+        } catch (Exception ex) {
+            LogUtil.error(getClassName(), ex, "Send transaction aborted. Unexpected error when attempting to validate mnemonic phrase.");
+            return false;
+        }
+        
+        String formDefId = getPropertyString("formDefId");
+        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+        
+        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        
+        if (rowSet == null || rowSet.isEmpty()) {
+            LogUtil.warn(getClassName(), "Send transaction aborted. No record found with record ID '" + primaryKey + "' from this form '" + formDefId + "'");
+            return false;
+        }
+        
+        return true;
+    }
+    
     @Override
     public Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
-
-        final String senderAccountId = WorkflowUtil.processVariable(getPropertyString("senderAccountId"), "", wfAssignment);
+        
+        initUtils(props);
+        
+        String formDefId = getPropertyString("formDefId");
+        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+        
+        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        
+        FormRow row = rowSet.get(0);
+        
+        final String senderAccountId = row.getProperty(getPropertyString("senderAccountId"));
         final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        final String receiverAccountId = WorkflowUtil.processVariable(getPropertyString("receiverAccountId"), "", wfAssignment);
-        final String amount = WorkflowUtil.processVariable(getPropertyString("amount"), "", wfAssignment);
+        final String receiverAccountId = row.getProperty(getPropertyString("receiverAccountId"));
+        final String amount = row.getProperty(getPropertyString("amount"));
         final boolean enableScheduledTx = "true".equals(getPropertyString("enableScheduledTransaction"));
 
-        AccountId senderAccount = AccountId.fromString(senderAccountId);
-        AccountId receiverAccount = AccountId.fromString(receiverAccountId);
-
+        final AccountId senderAccount = AccountId.fromString(senderAccountId);
+        final AccountId receiverAccount = AccountId.fromString(receiverAccountId);
+        final PrivateKey senderPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+        
         //1 hbar = 100,000,000 tinybars
         Hbar amountHbar = Hbar.fromString(amount);
 
         TransferTransaction transferTransaction = new TransferTransaction()
-            .addHbarTransfer(senderAccount, amountHbar.negated())
-            .addHbarTransfer(receiverAccount, amountHbar);
+                .addHbarTransfer(senderAccount, amountHbar.negated())
+                .addHbarTransfer(receiverAccount, amountHbar);
+                
               //Can set a transaction memo of string up to max length of 100
 //                    .setTransactionMemo("joget transfer test")
 
@@ -75,16 +131,11 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
                 .setScheduledTransaction(transferTransaction)
                 .setAdminKey(client.getOperatorPublicKey())
                 .setPayerAccountId(senderAccount)
-                .freezeWith(client);
+                .freezeWith(client)
+                .sign(senderPrivateKey);
             transactionResponse = scheduledTransaction.execute(client);
         } else {
-            if (accountMnemonic == null || accountMnemonic.isEmpty()) {
-                LogUtil.warn(getClassName(), "Plugin execution stopped. Invalid mnemonic encountered.");
-                return null;
-            }
-            final PrivateKey senderPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-            transferTransaction.freezeWith(client);
-            transferTransaction.sign(senderPrivateKey);
+            transferTransaction.freezeWith(client).sign(senderPrivateKey);
             transactionResponse = transferTransaction.execute(client);
         }
 
@@ -104,33 +155,26 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         String wfConsensusTimestamp = getPropertyString("wfConsensusTimestamp");
         String wfTransactionId = getPropertyString("wfTransactionId");
         String wfTransactionExplorerUrl = getPropertyString("wfTransactionExplorerUrl");
-
-        ApplicationContext ac = AppUtil.getApplicationContext();
-        WorkflowManager workflowManager = (WorkflowManager) ac.getBean("workflowManager");
         
         storeValuetoActivityVar(
-                workflowManager, 
                 wfAssignment.getActivityId(), 
                 wfScheduleId, 
                 transactionRecord.receipt.scheduleId != null ? transactionRecord.receipt.scheduleId.toString() : ""
         );
         
         storeValuetoActivityVar(
-                workflowManager, 
                 wfAssignment.getActivityId(), 
                 wfTransactionValidated, 
                 transactionRecord.receipt.status.toString()
         );
         
         storeValuetoActivityVar(
-                workflowManager,
                 wfAssignment.getActivityId(), 
                 wfConsensusTimestamp, 
                 TransactionUtil.convertInstantToZonedDateTimeString(transactionRecord.consensusTimestamp)
         );
         
         storeValuetoActivityVar(
-                workflowManager, 
                 wfAssignment.getActivityId(), 
                 wfTransactionId, 
                 transactionRecord.transactionId.toString()
@@ -138,14 +182,13 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         
         String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(networkType, transactionRecord.transactionId.toString());
         storeValuetoActivityVar(
-                workflowManager, 
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 
                 transactionExplorerUrl != null ? transactionExplorerUrl : "Not available"
         );
     }
     
-    private void storeValuetoActivityVar(WorkflowManager workflowManager, String activityId, String variable, String value) {
+    private void storeValuetoActivityVar(String activityId, String variable, String value) {
         if (!variable.isEmpty() && value != null) {
             workflowManager.activityVariable(activityId, variable, value);
         }
