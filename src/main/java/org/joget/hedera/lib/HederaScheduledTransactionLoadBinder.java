@@ -31,7 +31,8 @@ public class HederaScheduledTransactionLoadBinder extends HederaFormBinderAbstra
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClass().getName(), "/properties/HederaScheduledTransactionLoadBinder.json", null, true, PluginUtil.MESSAGE_PATH);
+        String backendConfigs = PluginUtil.readGenericBackendConfigs(getClassName());
+        return AppUtil.readPluginResource(getClass().getName(), "/properties/HederaScheduledTransactionLoadBinder.json", new String[]{backendConfigs}, true, PluginUtil.MESSAGE_PATH);
     }
     
     @Override

@@ -2,35 +2,7 @@
     {
        "title":"@@process.hederaSendTransactionTool.header.config@@",
        "properties":[
-            {
-                "name":"operatorId",
-                "label":"@@hedera.prop.operatorId@@",
-                "type":"textfield",
-                "required":"True"
-            },
-            {
-                "name":"operatorKey",
-                "label":"@@hedera.prop.operatorKey@@",
-                "type":"textfield",
-                "required":"True"
-            },
-            {
-                "name":"networkType",
-                "label":"@@hedera.prop.networkType@@",
-                "description":"@@hedera.prop.networkType.desc@@",
-                "type":"selectbox",
-                "options" : [{
-                    "value" : "mainnet",
-                    "label" : "@@hedera.prop.networkType.mainnet@@"
-                },{
-                    "value" : "previewnet",
-                    "label" : "@@hedera.prop.networkType.previewnet@@"
-                },{
-                    "value" : "testnet",
-                    "label" : "@@hedera.prop.networkType.testnet@@"
-                }],
-                "value":"testnet"
-            }
+            %s
         ]
     },
     {
@@ -66,7 +38,7 @@
             },
             {
                 "name":"enableScheduledTransaction",
-                "label":"@@process.hederaGenerateAccountTool.enableScheduledTransaction@@",
+                "label":"@@process.hederaSendTransactionTool.enableScheduledTransaction@@",
                 "type":"checkbox",
                 "options":[
                     {"value":"true", "label":""}
@@ -75,7 +47,7 @@
         ]
     },
     {
-        "title" : "@@process.hederaSendTransactionTool.header.storeToWorkflowVariable@@",
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
         "properties" : [
             {
                 "name":"wfScheduleId",
@@ -87,30 +59,7 @@
                 "control_value":"true",
                 "control_use_regex":"false"
             },
-            {
-                "name":"wfTransactionValidated",
-                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionValidated@@",
-                "type":"selectbox",
-                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
-            },
-            {
-                "name":"wfConsensusTimestamp",
-                "label":"@@process.hederaSendTransactionTool.wfMapping.wfConsensusTimestamp@@",
-                "type":"selectbox",
-                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
-            },
-            {
-                "name":"wfTransactionId",
-                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionId@@",
-                "type":"selectbox",
-                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
-            },
-            {
-                "name":"wfTransactionExplorerUrl",
-                "label":"@@process.hederaSendTransactionTool.wfMapping.wfTransactionExplorerUrl@@",
-                "type":"selectbox",
-                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
-            }
+            %s
         ]
     }
 ]

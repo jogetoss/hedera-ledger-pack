@@ -31,7 +31,8 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/HederaAccountLoadBinder.json", null, true, PluginUtil.MESSAGE_PATH);
+        String backendConfigs = PluginUtil.readGenericBackendConfigs(getClassName());
+        return AppUtil.readPluginResource(getClassName(), "/properties/HederaAccountLoadBinder.json", new String[]{backendConfigs}, true, PluginUtil.MESSAGE_PATH);
     }
     
     @Override

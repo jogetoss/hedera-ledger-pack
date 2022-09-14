@@ -1,11 +1,8 @@
 package org.joget.hedera.service;
 
-import com.hedera.hashgraph.sdk.BadMnemonicException;
-import com.hedera.hashgraph.sdk.Mnemonic;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.PublicKey;
 import java.io.IOException;
 import java.util.Properties;
+import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.commons.util.SecurityUtil;
 
@@ -27,6 +24,14 @@ public class PluginUtil {
         return projectProp.getProperty("version");
     }
     
+    public static String readGenericBackendConfigs(String className) {
+        return AppUtil.readPluginResource(className, "/properties/genericBackendConfigs.json");
+    }
+    
+    public static String readGenericWorkflowVariableMappings(String className) {
+        return AppUtil.readPluginResource(className, "/properties/genericWfVarMappings.json");
+    }
+    
     //Feel free to implement more secure encryption algo
     public static String encrypt(String content) {
         return SecurityUtil.encrypt(content);
@@ -35,18 +40,5 @@ public class PluginUtil {
     //Feel free to implement more secure encryption algo, and decrypt accordingly
     public static String decrypt(String content) {
         return SecurityUtil.decrypt(content);
-    }
-    
-    public static PrivateKey derivePrivateKeyFromMnemonic(Mnemonic mnemonic) {
-        try {
-            return mnemonic.toPrivateKey();
-        } catch (BadMnemonicException ex) {
-            LogUtil.error(PluginUtil.class.getName(), ex, "Unable to derive key from mnemonic phrase. Reason: " + ex.reason.toString());
-            return null;
-        }
-    }
-    
-    public static PublicKey derivePublicKeyFromMnemonic(Mnemonic mnemonic) {
-        return derivePrivateKeyFromMnemonic(mnemonic).getPublicKey();
     }
 }

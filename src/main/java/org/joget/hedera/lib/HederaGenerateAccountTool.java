@@ -21,6 +21,7 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.model.WorkflowAssignment;
@@ -42,7 +43,8 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
     
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/HederaGenerateAccountTool.json", null, true, PluginUtil.MESSAGE_PATH);
+        String backendConfigs = PluginUtil.readGenericBackendConfigs(getClassName());
+        return AppUtil.readPluginResource(getClassName(), "/properties/HederaGenerateAccountTool.json", new String[]{backendConfigs}, true, PluginUtil.MESSAGE_PATH);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
                 if (!accountRowSet.isEmpty()) {
                     FormRow accountData = accountRowSet.get(0);
                     Mnemonic signerMnemonic = Mnemonic.fromString(PluginUtil.decrypt(accountData.getProperty(getMnemonicField)));
-                    PublicKey signerPublicKey = PluginUtil.derivePublicKeyFromMnemonic(signerMnemonic);
+                    PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(signerMnemonic);
 
                     keyList.add(signerPublicKey);
                 }
@@ -83,7 +85,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             newAccountTransaction.setKey(keyList);
         } else {
             final Mnemonic mnemonic = Mnemonic.generate24();
-            PublicKey publicKey = PluginUtil.derivePublicKeyFromMnemonic(mnemonic);
+            PublicKey publicKey = AccountUtil.derivePublicKeyFromMnemonic(mnemonic);
             //Account Mnemonic MUST be secured at all times.
             /* 
                 See HederaUtil encrypt & decrypt method to implement your preferred algo if you wish to do so

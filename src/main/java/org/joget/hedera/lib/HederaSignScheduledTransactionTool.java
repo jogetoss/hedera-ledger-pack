@@ -17,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
@@ -37,7 +38,8 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/HederaSignScheduledTransactionTool.json", null, true, PluginUtil.MESSAGE_PATH);
+        String backendConfigs = PluginUtil.readGenericBackendConfigs(getClassName());
+        return AppUtil.readPluginResource(getClassName(), "/properties/HederaSignScheduledTransactionTool.json", new String[]{backendConfigs}, true, PluginUtil.MESSAGE_PATH);
     }
     
     @Override
@@ -46,8 +48,8 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
             
 //        final String signerAccountId = WorkflowUtil.processVariable(getPropertyString("signerAccountId"), "", wfAssignment);
         final String signerMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("signerMnemonic"), "", wfAssignment));
-        final PrivateKey signerPrivateKey = PluginUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
-        final PublicKey signerPublicKey = PluginUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+        final PrivateKey signerPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+        final PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
 
         final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
         ScheduleId scheduleIdObj = ScheduleId.fromString(scheduleId);

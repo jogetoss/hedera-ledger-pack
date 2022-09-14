@@ -2,35 +2,8 @@
     {
        "title":"@@process.hederaSignScheduledTransactionTool.header.config@@",
        "properties":[
-            {
-                "name":"operatorId",
-                "label":"@@hedera.prop.operatorId@@",
-                "type":"textfield",
-                "required":"True"
-            },
-            {
-                "name":"operatorKey",
-                "label":"@@hedera.prop.operatorKey@@",
-                "type":"textfield",
-                "required":"True"
-            },
-            {
-                "name":"networkType",
-                "label":"@@hedera.prop.networkType@@",
-                "description":"@@hedera.prop.networkType.desc@@",
-                "type":"selectbox",
-                "options" : [{
-                    "value" : "mainnet",
-                    "label" : "@@hedera.prop.networkType.mainnet@@"
-                },{
-                    "value" : "previewnet",
-                    "label" : "@@hedera.prop.networkType.previewnet@@"
-                },{
-                    "value" : "testnet",
-                    "label" : "@@hedera.prop.networkType.testnet@@"
-                }],
-                "value":"testnet"
-            },
+            %s
+            ,
             {
                 "name":"scheduleId",
                 "label":"@@process.hederaSignScheduledTransactionTool.scheduleId@@",
@@ -53,7 +26,7 @@
         ]
     },
     {
-        "title" : "@@process.hederaSignScheduledTransactionTool.header.storeToWorkflowVariable@@",
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
         "properties" : [
             {
                 "name":"wfResponseStatus",

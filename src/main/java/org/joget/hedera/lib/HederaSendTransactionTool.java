@@ -21,6 +21,7 @@ import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.concurrent.TimeoutException;
 import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
@@ -40,7 +41,9 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/HederaSendTransactionTool.json", null, true, PluginUtil.MESSAGE_PATH);
+        String backendConfigs = PluginUtil.readGenericBackendConfigs(getClassName());
+        String wfVarMappings = PluginUtil.readGenericWorkflowVariableMappings(getClassName());
+        return AppUtil.readPluginResource(getClassName(), "/properties/HederaSendTransactionTool.json", new String[]{backendConfigs, wfVarMappings}, true, PluginUtil.MESSAGE_PATH);
     }
     
     @Override
@@ -79,7 +82,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
                 LogUtil.warn(getClassName(), "Plugin execution stopped. Invalid mnemonic encountered.");
                 return null;
             }
-            final PrivateKey senderPrivateKey = PluginUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+            final PrivateKey senderPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
             transferTransaction.freezeWith(client);
             transferTransaction.sign(senderPrivateKey);
             transactionResponse = transferTransaction.execute(client);

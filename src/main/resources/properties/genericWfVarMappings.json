@@ -1,0 +1,25 @@
+{
+    "name":"wfTransactionValidated",
+    "label":"@@hedera.prop.wfMapping.wfTransactionValidated@@",
+    "type":"selectbox",
+    "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+},
+{
+    "name":"wfConsensusTimestamp",
+    "label":"@@hedera.prop.wfMapping.wfConsensusTimestamp@@",
+    "type":"selectbox",
+    "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+},
+{
+    "name":"wfTransactionId",
+    "label":"@@hedera.prop.wfMapping.wfTransactionId@@",
+    "type":"selectbox",
+    "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+},
+{
+    "name":"wfTransactionExplorerUrl",
+    "label":"@@hedera.prop.wfMapping.wfTransactionExplorerUrl@@",
+    "type":"selectbox",
+    "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options"
+}
+            
