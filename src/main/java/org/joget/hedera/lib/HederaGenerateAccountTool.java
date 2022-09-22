@@ -15,8 +15,6 @@ import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import org.joget.apps.app.model.AppDefinition;
-import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
@@ -24,10 +22,7 @@ import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
-import org.joget.workflow.model.WorkflowAssignment;
-import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
-import org.springframework.context.ApplicationContext;
 
 public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
 
@@ -48,7 +43,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
     }
 
     @Override
-    protected Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected Object runTool(Map props, Client client) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
@@ -63,10 +58,6 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         AccountCreateTransaction newAccountTransaction = new AccountCreateTransaction();
 
         if (isMultiSig) {
-            ApplicationContext ac = AppUtil.getApplicationContext();
-            AppService appService = (AppService) ac.getBean("appService");
-            AppDefinition appDef = (AppDefinition) props.get("appDef");
-
             KeyList keyList = new KeyList();
 
             for (String accountId : accountIdsToSign.split(PluginUtil.MULTI_VALUE_DELIMITER)) {
@@ -106,8 +97,8 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
 
         AccountInfo newAccountInfo = new AccountInfoQuery().setAccountId(newAccountId).execute(client);
 
-        storeToForm(wfAssignment, props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
-        storeToWorkflowVariable(wfAssignment, props, isTest, receipt);
+        storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
+        storeToWorkflowVariable(props, isTest, receipt);
             
         return newAccountId;
     }
@@ -117,14 +108,10 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         newAccountTransaction.setInitialBalance(Hbar.from(50));
     }
     
-    protected void storeToForm(WorkflowAssignment wfAssignment, Map properties, boolean isTest, final String encryptedMnemonic, final boolean isMultiSig, final String accountSigners, final AccountInfo account) {
+    protected void storeToForm(Map properties, boolean isTest, final String encryptedMnemonic, final boolean isMultiSig, final String accountSigners, final AccountInfo account) {
         String formDefId = getPropertyString("formDefId");
         
         if (formDefId != null && formDefId.trim().length() > 0) {
-            ApplicationContext ac = AppUtil.getApplicationContext();
-            AppService appService = (AppService) ac.getBean("appService");
-            AppDefinition appDef = (AppDefinition) properties.get("appDef");
-
             String accountMnemonicField = getPropertyString("accountMnemonicField");
             String accountOwnerField = getPropertyString("accountOwnerField");
             String accountOwnerValue = WorkflowUtil.processVariable(getPropertyString("accountOwnerValue"), "", wfAssignment);
@@ -160,18 +147,15 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         return row;
     }
     
-    protected void storeToWorkflowVariable(WorkflowAssignment wfAssignment, Map properties, boolean isTest, final TransactionReceipt receipt) {
+    protected void storeToWorkflowVariable(Map properties, boolean isTest, final TransactionReceipt receipt) {
         String wfResponseStatus = getPropertyString("wfResponseStatus");
         String wfIsTestAccount = getPropertyString("wfIsTestAccount");
         
-        ApplicationContext ac = AppUtil.getApplicationContext();
-        WorkflowManager workflowManager = (WorkflowManager) ac.getBean("workflowManager");
-        
-        storeValuetoActivityVar(workflowManager, wfAssignment.getActivityId(), wfResponseStatus, receipt.status.toString());
-        storeValuetoActivityVar(workflowManager, wfAssignment.getActivityId(), wfIsTestAccount, String.valueOf(isTest));
+        storeValuetoActivityVar(wfAssignment.getActivityId(), wfResponseStatus, receipt.status.toString());
+        storeValuetoActivityVar(wfAssignment.getActivityId(), wfIsTestAccount, String.valueOf(isTest));
     }
     
-    private void storeValuetoActivityVar(WorkflowManager workflowManager, String activityId, String variable, String value) {
+    private void storeValuetoActivityVar(String activityId, String variable, String value) {
         if (!variable.isEmpty()) {
             workflowManager.activityVariable(activityId, variable, value);
         }

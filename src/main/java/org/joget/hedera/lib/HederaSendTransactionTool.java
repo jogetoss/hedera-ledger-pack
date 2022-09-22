@@ -3,10 +3,7 @@ package org.joget.hedera.lib;
 import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
-import org.joget.workflow.model.WorkflowAssignment;
-import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
-import org.springframework.context.ApplicationContext;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.BadMnemonicException;
@@ -20,8 +17,6 @@ import com.hedera.hashgraph.sdk.TransactionRecord;
 import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.concurrent.TimeoutException;
-import org.joget.apps.app.model.AppDefinition;
-import org.joget.apps.app.service.AppService;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaProcessToolAbstract;
@@ -32,10 +27,6 @@ import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 
 public class HederaSendTransactionTool extends HederaProcessToolAbstract {
-
-    AppService appService;
-    AppDefinition appDef;
-    WorkflowManager workflowManager;
     
     @Override
     public String getName() {
@@ -54,18 +45,8 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         return AppUtil.readPluginResource(getClassName(), "/properties/HederaSendTransactionTool.json", new String[]{backendConfigs, wfVarMappings}, true, PluginUtil.MESSAGE_PATH);
     }
     
-    protected void initUtils(Map props) {
-        ApplicationContext ac = AppUtil.getApplicationContext();
-        
-        appService = (AppService) ac.getBean("appService");
-        appDef = (AppDefinition) props.get("appDef");
-        workflowManager = (WorkflowManager) ac.getBean("workflowManager");
-    }
-    
     @Override
-    public boolean isInputDataValid(Map props, WorkflowAssignment wfAssignment) {
-        initUtils(props);
-        
+    public boolean isInputDataValid(Map props) {
         final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
         
         try {
@@ -92,10 +73,8 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
     }
     
     @Override
-    protected Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected Object runTool(Map props, Client client) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
-        
-        initUtils(props);
         
         String formDefId = getPropertyString("formDefId");
         final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
@@ -141,12 +120,12 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
         TransactionRecord transactionRecord = transactionResponse.getRecord(client);
 
-        storeToWorkflowVariable(wfAssignment, props, transactionRecord);
+        storeToWorkflowVariable(props, transactionRecord);
 
         return transactionRecord;
     }
     
-    protected void storeToWorkflowVariable(WorkflowAssignment wfAssignment, Map properties, TransactionRecord transactionRecord) {
+    protected void storeToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
         
         final String networkType = BackendUtil.getNetworkType(properties);
         

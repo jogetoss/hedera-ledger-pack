@@ -19,10 +19,7 @@ import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
-import org.joget.workflow.model.WorkflowAssignment;
-import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
-import org.springframework.context.ApplicationContext;
 
 public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstract {
 
@@ -43,7 +40,7 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
     }
     
     @Override
-    protected Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected Object runTool(Map props, Client client) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
             
 //        final String signerAccountId = WorkflowUtil.processVariable(getPropertyString("signerAccountId"), "", wfAssignment);
@@ -69,21 +66,18 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
             .execute(client)
             .getRecord(client);
 
-        storeToWorkflowVariable(wfAssignment, transactionRecord);
+        storeToWorkflowVariable(transactionRecord);
 
         return transactionRecord;
     }
     
-    protected void storeToWorkflowVariable(WorkflowAssignment wfAssignment, TransactionRecord transactionRecord) {
+    protected void storeToWorkflowVariable(TransactionRecord transactionRecord) {
         String wfResponseStatus = getPropertyString("wfResponseStatus");
         
-        ApplicationContext ac = AppUtil.getApplicationContext();
-        WorkflowManager workflowManager = (WorkflowManager) ac.getBean("workflowManager");
-        
-        storeValuetoActivityVar(workflowManager, wfAssignment.getActivityId(), wfResponseStatus, transactionRecord.receipt.status.toString());
+        storeValuetoActivityVar(wfAssignment.getActivityId(), wfResponseStatus, transactionRecord.receipt.status.toString());
     }
     
-    private void storeValuetoActivityVar(WorkflowManager workflowManager, String activityId, String variable, String value) {
+    private void storeValuetoActivityVar(String activityId, String variable, String value) {
         if (!variable.isEmpty() && value != null) {
             workflowManager.activityVariable(activityId, variable, value);
         }
