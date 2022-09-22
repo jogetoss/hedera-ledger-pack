@@ -104,8 +104,9 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
     }
     
     private void fundTestAccount(AccountCreateTransaction newAccountTransaction) {
+        // At time of writing, operator accounts will always be 10,000 hbars, topped up every 24 hours.
         // Can make the initial balance a configurable plugin property if you want to
-        newAccountTransaction.setInitialBalance(Hbar.from(50));
+        newAccountTransaction.setInitialBalance(Hbar.from(100));
     }
     
     protected void storeToForm(Map properties, boolean isTest, final String encryptedMnemonic, final boolean isMultiSig, final String accountSigners, final AccountInfo account) {
