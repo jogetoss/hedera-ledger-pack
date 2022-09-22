@@ -44,7 +44,7 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
     }
     
     @Override
-    public FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
+    protected FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
             throws TimeoutException, PrecheckStatusException {
         
         final String accountId = WorkflowUtil.processVariable(getPropertyString("accountId"), "", null);

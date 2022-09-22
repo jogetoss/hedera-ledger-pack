@@ -44,7 +44,7 @@ public class HederaScheduledTransactionLoadBinder extends HederaFormBinderAbstra
     }
     
     @Override
-    public FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
+    protected FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
             throws TimeoutException, PrecheckStatusException {
         
         final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);

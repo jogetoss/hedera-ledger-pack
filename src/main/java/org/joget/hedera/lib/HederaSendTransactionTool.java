@@ -92,7 +92,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
     }
     
     @Override
-    public Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         initUtils(props);

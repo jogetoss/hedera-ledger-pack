@@ -30,7 +30,7 @@ public abstract class HederaFormBinderAbstract extends FormBinder implements For
      * @param formData
      * @return A Collection of Map objects. Each Map object contains property=value pairs to represent a data row.
      */
-    public abstract FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData)
+    protected abstract FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData)
             throws TimeoutException, PrecheckStatusException;
     
     @Override

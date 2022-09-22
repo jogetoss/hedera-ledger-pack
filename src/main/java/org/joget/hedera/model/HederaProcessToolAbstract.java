@@ -32,7 +32,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
      * @param wfAssignment
      * @return is not used for now
      */
-    public abstract Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected abstract Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException;
     
     @Override

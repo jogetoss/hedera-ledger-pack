@@ -48,7 +48,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
     }
 
     @Override
-    public Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
+    protected Object runTool(Map props, Client client, WorkflowAssignment wfAssignment) 
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
