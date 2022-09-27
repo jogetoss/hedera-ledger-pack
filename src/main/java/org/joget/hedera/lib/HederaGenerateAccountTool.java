@@ -98,7 +98,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         AccountInfo newAccountInfo = new AccountInfoQuery().setAccountId(newAccountId).execute(client);
 
         storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
-        storeToWorkflowVariable(props, isTest, receipt);
+        storeAdditionalDataToWorkflowVariable(props, isTest, receipt);
             
         return newAccountId;
     }
@@ -148,17 +148,19 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         return row;
     }
     
-    protected void storeToWorkflowVariable(Map properties, boolean isTest, final TransactionReceipt receipt) {
+    protected void storeAdditionalDataToWorkflowVariable(Map properties, boolean isTest, final TransactionReceipt receipt) {
         String wfResponseStatus = getPropertyString("wfResponseStatus");
         String wfIsTestAccount = getPropertyString("wfIsTestAccount");
         
-        storeValuetoActivityVar(wfAssignment.getActivityId(), wfResponseStatus, receipt.status.toString());
-        storeValuetoActivityVar(wfAssignment.getActivityId(), wfIsTestAccount, String.valueOf(isTest));
-    }
-    
-    private void storeValuetoActivityVar(String activityId, String variable, String value) {
-        if (!variable.isEmpty()) {
-            workflowManager.activityVariable(activityId, variable, value);
-        }
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfResponseStatus, 
+                receipt.status.toString()
+        );
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfIsTestAccount, 
+                String.valueOf(isTest)
+        );
     }
 }

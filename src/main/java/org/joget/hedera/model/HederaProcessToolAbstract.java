@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.BadMnemonicException;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
+import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.model.AppDefinition;
@@ -11,7 +12,9 @@ import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 import org.joget.plugin.base.DefaultApplicationPlugin;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
@@ -89,6 +92,47 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
         }
         
         return result;
+    }
+    
+    protected void storeGenericTxDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
+        
+        String wfTransactionValidated = getPropertyString("wfTransactionValidated");
+        String wfConsensusTimestamp = getPropertyString("wfConsensusTimestamp");
+        String wfTransactionId = getPropertyString("wfTransactionId");
+        String wfTransactionExplorerUrl = getPropertyString("wfTransactionExplorerUrl");
+        
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfTransactionValidated, 
+                transactionRecord.receipt.status.toString()
+        );
+        
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfConsensusTimestamp, 
+                TransactionUtil.convertInstantToZonedDateTimeString(transactionRecord.consensusTimestamp)
+        );
+        
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfTransactionId, 
+                transactionRecord.transactionId.toString()
+        );
+        
+        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord.transactionId.toString());
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfTransactionExplorerUrl, 
+                transactionExplorerUrl != null ? transactionExplorerUrl : "Not available"
+        );
+    }
+    
+    protected void storeValuetoActivityVar(String activityId, String variable, String value) {
+        if (activityId == null || activityId.isEmpty() || variable.isEmpty() || value == null) {
+            return;
+        }
+        
+        workflowManager.activityVariable(activityId, variable, value);
     }
     
     @Override

@@ -66,20 +66,18 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
             .execute(client)
             .getRecord(client);
 
-        storeToWorkflowVariable(transactionRecord);
+        storeAdditionalDataToWorkflowVariable(transactionRecord);
 
         return transactionRecord;
     }
     
-    protected void storeToWorkflowVariable(TransactionRecord transactionRecord) {
+    protected void storeAdditionalDataToWorkflowVariable(TransactionRecord transactionRecord) {
         String wfResponseStatus = getPropertyString("wfResponseStatus");
         
-        storeValuetoActivityVar(wfAssignment.getActivityId(), wfResponseStatus, transactionRecord.receipt.status.toString());
-    }
-    
-    private void storeValuetoActivityVar(String activityId, String variable, String value) {
-        if (!variable.isEmpty() && value != null) {
-            workflowManager.activityVariable(activityId, variable, value);
-        }
+        storeValuetoActivityVar(
+                wfAssignment.getActivityId(), 
+                wfResponseStatus, 
+                transactionRecord.receipt.status.toString()
+        );
     }
 }

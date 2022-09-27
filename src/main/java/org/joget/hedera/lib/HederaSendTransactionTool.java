@@ -21,9 +21,7 @@ import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
-import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
-import org.joget.hedera.service.TransactionUtil;
 
 public class HederaSendTransactionTool extends HederaProcessToolAbstract {
     
@@ -119,54 +117,19 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
         TransactionRecord transactionRecord = transactionResponse.getRecord(client);
 
-        storeToWorkflowVariable(props, transactionRecord);
+        storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+        storeAdditionalDataToWorkflowVariable(props, transactionRecord);
 
         return transactionRecord;
     }
     
-    protected void storeToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
-        
+    protected void storeAdditionalDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
         String wfScheduleId = getPropertyString("wfScheduleId");
-        String wfTransactionValidated = getPropertyString("wfTransactionValidated");
-        String wfConsensusTimestamp = getPropertyString("wfConsensusTimestamp");
-        String wfTransactionId = getPropertyString("wfTransactionId");
-        String wfTransactionExplorerUrl = getPropertyString("wfTransactionExplorerUrl");
         
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfScheduleId, 
                 transactionRecord.receipt.scheduleId != null ? transactionRecord.receipt.scheduleId.toString() : ""
         );
-        
-        storeValuetoActivityVar(
-                wfAssignment.getActivityId(), 
-                wfTransactionValidated, 
-                transactionRecord.receipt.status.toString()
-        );
-        
-        storeValuetoActivityVar(
-                wfAssignment.getActivityId(), 
-                wfConsensusTimestamp, 
-                TransactionUtil.convertInstantToZonedDateTimeString(transactionRecord.consensusTimestamp)
-        );
-        
-        storeValuetoActivityVar(
-                wfAssignment.getActivityId(), 
-                wfTransactionId, 
-                transactionRecord.transactionId.toString()
-        );
-        
-        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord.transactionId.toString());
-        storeValuetoActivityVar(
-                wfAssignment.getActivityId(), 
-                wfTransactionExplorerUrl, 
-                transactionExplorerUrl != null ? transactionExplorerUrl : "Not available"
-        );
-    }
-    
-    private void storeValuetoActivityVar(String activityId, String variable, String value) {
-        if (!variable.isEmpty() && value != null) {
-            workflowManager.activityVariable(activityId, variable, value);
-        }
     }
 }
