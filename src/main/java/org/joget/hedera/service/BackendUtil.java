@@ -53,11 +53,6 @@ public class BackendUtil {
     }
     
     public static boolean isTestnet(Map properties) {
-        String networkType = getNetworkType(properties);
-        return isTestnet(networkType);
-    }
-    
-    public static boolean isTestnet(String networkType) {
-        return !(MAINNET_NAME).equals(networkType);
+        return !(MAINNET_NAME).equals(getNetworkType(properties));
     }
 }

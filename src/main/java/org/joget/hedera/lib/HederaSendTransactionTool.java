@@ -21,7 +21,6 @@ import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
-import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
@@ -127,8 +126,6 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
     
     protected void storeToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
         
-        final String networkType = BackendUtil.getNetworkType(properties);
-        
         String wfScheduleId = getPropertyString("wfScheduleId");
         String wfTransactionValidated = getPropertyString("wfTransactionValidated");
         String wfConsensusTimestamp = getPropertyString("wfConsensusTimestamp");
@@ -159,7 +156,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
                 transactionRecord.transactionId.toString()
         );
         
-        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(networkType, transactionRecord.transactionId.toString());
+        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord.transactionId.toString());
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 

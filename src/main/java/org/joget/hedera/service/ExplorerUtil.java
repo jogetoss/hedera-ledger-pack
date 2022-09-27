@@ -1,5 +1,7 @@
 package org.joget.hedera.service;
 
+import java.util.Map;
+
 public class ExplorerUtil {
     
     private static final String DRAGONGLASS_TYPE = "dragonglass";
@@ -10,11 +12,11 @@ public class ExplorerUtil {
     public static final String DRAGONGLASS_PREVIEWNET = ""; //Not available
 
     
-    public static String getTransactionExplorerUrl(String networkType, String transactionId) {
-        return getTransactionExplorerUrl(networkType, transactionId, "");
+    public static String getTransactionExplorerUrl(Map properties, String transactionId) {
+        return getTransactionExplorerUrl(properties, transactionId, "");
     }
     
-    public static String getTransactionExplorerUrl(String networkType, String transactionId, String explorerType) {
+    public static String getTransactionExplorerUrl(Map properties, String transactionId, String explorerType) {
         //No need to return immediately, in case user wants to show link as is
         if (transactionId == null || transactionId.isBlank()) {
             transactionId = "";
@@ -25,7 +27,7 @@ public class ExplorerUtil {
         switch (explorerType) {
             case DRAGONGLASS_TYPE:
             default:
-                explorerUrl = BackendUtil.isTestnet(networkType) ? DRAGONGLASS_TESTNET : DRAGONGLASS_MAINNET;
+                explorerUrl = BackendUtil.isTestnet(properties) ? DRAGONGLASS_TESTNET : DRAGONGLASS_MAINNET;
                 explorerUrl += "transactions/";
                 break;
         }
