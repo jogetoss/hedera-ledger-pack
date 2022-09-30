@@ -141,7 +141,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                 
                 storeNftDataToForm(props, row, tokenId, transactionRecord);
             } else {
-                transactionRecord = mintMoreNativeToken(row, null)
+                transactionRecord = mintMoreNativeToken(client, row, null)
                         .freezeWith(client)
                         .sign(minterPrivateKey)
                         .execute(client)
@@ -253,16 +253,31 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                 .addMetadata(ipfsCid.getBytes());
     }
     
-    private TokenMintTransaction mintMoreNativeToken(FormRow row, String tokenId) {
+    private TokenMintTransaction mintMoreNativeToken(Client client, FormRow row, String tokenId) 
+            throws TimeoutException, PrecheckStatusException {
+        
         if (tokenId == null || tokenId.isBlank()) {
             tokenId = row.getProperty(getPropertyString("tokenId"));
         }
         
+        TokenInfo tokenInfo = new TokenInfoQuery()
+                .setTokenId(TokenId.fromString(tokenId))
+                .execute(client);
+        
         final String additionalAmountToMint = row.getProperty(getPropertyString("additionalAmountToMint"));
+        
+        double additionalAmountToMintDouble = Double.parseDouble(additionalAmountToMint);
+        
+        for (int i = 0; i < tokenInfo.decimals; i++) {
+            additionalAmountToMintDouble = additionalAmountToMintDouble * 10;
+        }
+        
+        //If "Additional Amount To Mint" exceeds the configured token decimals, the exceeded numbers are ignored.
+        int additionalAmountToMintInt = (int) additionalAmountToMintDouble;
         
         return new TokenMintTransaction()
                 .setTokenId(TokenId.fromString(tokenId))
-                .setAmount(Integer.parseInt(additionalAmountToMint));
+                .setAmount(additionalAmountToMintInt);
     }
     
     private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {
