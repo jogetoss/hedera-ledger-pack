@@ -162,11 +162,21 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
     private TokenCreateTransaction createAsNativeToken(FormRow row, TokenCreateTransaction tokenCreateTransaction) {
         final String amountToMint = row.getProperty(getPropertyString("amountToMint"));
         final String tokenDecimals = row.getProperty(getPropertyString("tokenDecimals"));
-
+        
+        double amountToMintDouble = Double.parseDouble(amountToMint);
+        final int tokenDecimalsInt = Integer.parseInt(tokenDecimals);
+        
+        for (int i = 0; i < tokenDecimalsInt; i++) {
+            amountToMintDouble = amountToMintDouble * 10;
+        }
+        
+        //If "Amount To Mint" above exceeds the configured token decimals, the exceeded numbers are ignored.
+        int amountToMintInt = (int) amountToMintDouble;
+        
         return tokenCreateTransaction
                 .setTokenType(TokenType.FUNGIBLE_COMMON)
-                .setInitialSupply(Integer.parseInt(amountToMint))
-                .setDecimals(Integer.parseInt(tokenDecimals))
+                .setInitialSupply(amountToMintInt)
+                .setDecimals(tokenDecimalsInt)
                 .setSupplyType(TokenSupplyType.INFINITE);
     }
     
