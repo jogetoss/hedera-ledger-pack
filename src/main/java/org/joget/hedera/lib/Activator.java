@@ -17,6 +17,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(HederaGenerateAccountTool.class.getName(), new HederaGenerateAccountTool(), null));
         registrationList.add(context.registerService(HederaSendTransactionTool.class.getName(), new HederaSendTransactionTool(), null));
         registrationList.add(context.registerService(HederaSignScheduledTransactionTool.class.getName(), new HederaSignScheduledTransactionTool(), null));
+        registrationList.add(context.registerService(HederaMintTokenTool.class.getName(), new HederaMintTokenTool(), null));
     
         //Form Binder plugins
         registrationList.add(context.registerService(HederaAccountLoadBinder.class.getName(), new HederaAccountLoadBinder(), null));
