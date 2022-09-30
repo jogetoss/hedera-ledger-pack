@@ -45,6 +45,15 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
     }
     
     /**
+     * Used to validate necessary input values prior to executing main logic. This method is wrapped by execute().
+     * @return A boolean value to continue or abort plugin execution. Default value is true.
+     */
+    public boolean isInputDataValidWithClient(Map props, Client client) 
+            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+        return true;
+    }
+    
+    /**
      * To execute logic in a process tool. This method is wrapped by execute().
      * 
      * A org.joget.workflow.model.WorkflowAssignment object is passed as "workflowAssignment" property when it is available.
@@ -74,9 +83,18 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
         try {
             final Client client = BackendUtil.getHederaClient(props);
             
-            if (client != null) {
-                result = runTool(props, client);
+            if (client == null) {
+                LogUtil.warn(getClassName(), "Something went wrong upon initializing hedera client. Aborting plugin execution.");
+                return null;
             }
+            
+            if (!isInputDataValidWithClient(props, client)) {
+                LogUtil.debug(getClassName(), "Invalid input(s) detected. Aborting plugin execution.");
+                return null;
+            }
+
+            result = runTool(props, client);
+            
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to timeout.");
         } catch (PrecheckStatusException ex) {

@@ -10,6 +10,8 @@ import com.hedera.hashgraph.sdk.PublicKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TokenCreateTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenInfo;
+import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenMintTransaction;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
@@ -47,7 +49,60 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
     
     @Override
     public boolean isInputDataValid(Map props) {
-        //Do validations
+        String formDefId = getPropertyString("formDefId");
+        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+        
+        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        
+        if (rowSet == null || rowSet.isEmpty()) {
+            LogUtil.warn(getClassName(), "Mint transaction aborted. No record found with record ID '" + primaryKey + "' from this form '" + formDefId + "'.");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public boolean isInputDataValidWithClient(Map props, Client client) 
+            throws TimeoutException, PrecheckStatusException, BadMnemonicException {
+        
+        String formDefId = getPropertyString("formDefId");
+        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+        
+        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        
+        FormRow row = rowSet.get(0);
+        
+        final boolean mintMore = "mintMore".equalsIgnoreCase(getPropertyString("tokenIdHandling"));
+        final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
+        
+        if (mintMore) {
+            final String tokenId = row.getProperty(getPropertyString("tokenId"));
+            
+            TokenInfo tokenInfo = new TokenInfoQuery()
+                .setTokenId(TokenId.fromString(tokenId))
+                .execute(client);
+            
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+            
+            if (tokenInfo.supplyKey != null && !(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
+                LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for minter account.");
+                    return false;
+            }
+            
+            if (mintTypeNft) {
+                if (!(tokenInfo.tokenType).equals(TokenType.NON_FUNGIBLE_UNIQUE)) {
+                    LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not an NFT.");
+                    return false;
+                }
+            } else {
+                if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
+                    LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+                    return false;
+                }
+            }
+        }
         
         return true;
     }
@@ -147,6 +202,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
 //            .setKycKey(minterPubKey) //The key which can grant or revoke KYC of an account for the token's transactions. If empty, KYC is not required, and KYC grant or revoke operations are not possible.
             .setPauseKey(minterPubKey) //The key that has the authority to pause or unpause a token. Pausing a token prevents the token from participating in all transactions.
             .setSupplyKey(minterPubKey) //The key which can change the total supply of a token. This key is used to authorize token mint and burn transactions. If this is left empty, minting/burning tokens is not possible.
+//            .setMaxSupply(5000) //Set max supply for token. For NFT, defines how many serial numbers can exist for a token.
             .setFreezeDefault(false);
 //            .setMaxTransactionFee(Hbar.fromString(maxFeeAmount));
     }
