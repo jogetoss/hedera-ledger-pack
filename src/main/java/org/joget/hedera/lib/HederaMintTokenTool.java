@@ -88,7 +88,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             
             if (tokenInfo.supplyKey != null && !(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
                 LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for minter account.");
-                    return false;
+                return false;
             }
             
             if (mintTypeNft) {
@@ -219,15 +219,9 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         final String amountToMint = row.getProperty(getPropertyString("amountToMint"));
         final String tokenDecimals = row.getProperty(getPropertyString("tokenDecimals"));
         
-        double amountToMintDouble = Double.parseDouble(amountToMint);
         final int tokenDecimalsInt = Integer.parseInt(tokenDecimals);
         
-        for (int i = 0; i < tokenDecimalsInt; i++) {
-            amountToMintDouble = amountToMintDouble * 10;
-        }
-        
-        //If "Amount To Mint" above exceeds the configured token decimals, the exceeded numbers are ignored.
-        int amountToMintInt = (int) amountToMintDouble;
+        final int amountToMintInt = calcTokenAmountBasedOnDecimals(amountToMint, tokenDecimalsInt);
         
         return tokenCreateTransaction
                 .setTokenType(TokenType.FUNGIBLE_COMMON)
@@ -260,24 +254,28 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             tokenId = row.getProperty(getPropertyString("tokenId"));
         }
         
+        final String additionalAmountToMint = row.getProperty(getPropertyString("additionalAmountToMint"));
+        
         TokenInfo tokenInfo = new TokenInfoQuery()
                 .setTokenId(TokenId.fromString(tokenId))
                 .execute(client);
         
-        final String additionalAmountToMint = row.getProperty(getPropertyString("additionalAmountToMint"));
-        
-        double additionalAmountToMintDouble = Double.parseDouble(additionalAmountToMint);
-        
-        for (int i = 0; i < tokenInfo.decimals; i++) {
-            additionalAmountToMintDouble = additionalAmountToMintDouble * 10;
-        }
-        
-        //If "Additional Amount To Mint" exceeds the configured token decimals, the exceeded numbers are ignored.
-        int additionalAmountToMintInt = (int) additionalAmountToMintDouble;
+        final int additionalAmountToMintInt = calcTokenAmountBasedOnDecimals(additionalAmountToMint, tokenInfo.decimals);
         
         return new TokenMintTransaction()
                 .setTokenId(TokenId.fromString(tokenId))
                 .setAmount(additionalAmountToMintInt);
+    }
+    
+    private int calcTokenAmountBasedOnDecimals(String precalcAmount, int decimalPoints) {
+        double actualAmountDouble = Double.parseDouble(precalcAmount);
+        
+        for (int i = 0; i < decimalPoints; i++) {
+            actualAmountDouble = actualAmountDouble * 10;
+        }
+        
+        //If "token amount" exceeds the configured token decimals, the exceeded numbers are ignored.
+        return (int) actualAmountDouble;
     }
     
     private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {
