@@ -52,7 +52,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         String formDefId = getPropertyString("formDefId");
         final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
         
-        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        FormRowSet rowSet = getFormRecord(formDefId, null);
         
         if (rowSet == null || rowSet.isEmpty()) {
             LogUtil.warn(getClassName(), "Mint transaction aborted. No record found with record ID '" + primaryKey + "' from this form '" + formDefId + "'.");
@@ -67,9 +67,8 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             throws TimeoutException, PrecheckStatusException, BadMnemonicException {
         
         String formDefId = getPropertyString("formDefId");
-        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
         
-        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        FormRowSet rowSet = getFormRecord(formDefId, null);
         
         FormRow row = rowSet.get(0);
         
@@ -112,9 +111,8 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         String formDefId = getPropertyString("formDefId");
-        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
         
-        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        FormRowSet rowSet = getFormRecord(formDefId, null);
         
         FormRow row = rowSet.get(0);
         
@@ -309,14 +307,9 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         newRow = addRow(newRow, minterAccountField, minterAccountId);
         newRow = addRow(newRow, isTestnetField, String.valueOf(isTest));
         
-        FormRowSet rowSet = new FormRowSet();
-        rowSet.add(newRow);
-
-        if (!rowSet.isEmpty()) {
-            FormRowSet storedData = appService.storeFormData(appDef.getId(), appDef.getVersion().toString(), formDefId, rowSet, null);
-            if (storedData == null) {
-                LogUtil.warn(getClassName(), "Unable to store token data to form. Encountered invalid form ID of '" + formDefId + "'.");
-            }
+        FormRowSet storedData = storeFormRow(formDefId, newRow);
+        if (storedData == null) {
+            LogUtil.warn(getClassName(), "Unable to store token data to form. Encountered invalid form ID of '" + formDefId + "'.");
         }
     }
     
@@ -344,14 +337,9 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         newRow = addRow(newRow, minterAccountField, minterAccountId);
         newRow = addRow(newRow, isNftOnTestnetField, String.valueOf(isTest));
         
-        FormRowSet rowSet = new FormRowSet();
-        rowSet.add(newRow);
-
-        if (!rowSet.isEmpty()) {
-            FormRowSet storedData = appService.storeFormData(appDef.getId(), appDef.getVersion().toString(), formDefId, rowSet, null);
-            if (storedData == null) {
-                LogUtil.warn(getClassName(), "Unable to store NFT data to form. Encountered invalid form ID of '" + formDefId + "'.");
-            }
+        FormRowSet storedData = storeFormRow(formDefId, newRow);
+        if (storedData == null) {
+            LogUtil.warn(getClassName(), "Unable to store NFT data to form. Encountered invalid form ID of '" + formDefId + "'.");
         }
     }
     

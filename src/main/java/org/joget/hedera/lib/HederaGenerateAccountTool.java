@@ -18,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
+import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
@@ -61,7 +62,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             KeyList keyList = new KeyList();
 
             for (String accountId : accountIdsToSign.split(PluginUtil.MULTI_VALUE_DELIMITER)) {
-                FormRowSet accountRowSet = appService.loadFormData(appDef.getId(), appDef.getVersion().toString(), formDefIdGetData, accountId);
+                FormRowSet accountRowSet = getFormRecord(formDefIdGetData, accountId);
                 if (!accountRowSet.isEmpty()) {
                     FormRow accountData = accountRowSet.get(0);
                     Mnemonic signerMnemonic = Mnemonic.fromString(PluginUtil.decrypt(accountData.getProperty(getMnemonicField)));
@@ -120,8 +121,6 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             String isMultiSigAccountField = getPropertyString("isMultiSigAccount");
             String accountSignersField = getPropertyString("accountSigners");
             
-            FormRowSet rowSet = new FormRowSet();
-            
             FormRow row = new FormRow();
             
             //Account ID set as Record ID
@@ -132,10 +131,9 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             row = addRow(row, isMultiSigAccountField, String.valueOf(isMultiSig));
             row = addRow(row, accountSignersField, isMultiSig ? accountSigners : "");
 
-            rowSet.add(row);
-
-            if (!rowSet.isEmpty()) {
-                appService.storeFormData(appDef.getId(), appDef.getVersion().toString(), formDefId, rowSet, null);
+            FormRowSet storedData = storeFormRow(formDefId, row);
+            if (storedData == null) {
+                LogUtil.warn(getClassName(), "Unable to store account data to form. Encountered invalid form ID of '" + formDefId + "'.");
             }
         }
     }

@@ -10,6 +10,8 @@ import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
+import org.joget.apps.form.model.FormRow;
+import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.ExplorerUtil;
@@ -110,6 +112,22 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
         }
         
         return result;
+    }
+    
+    protected FormRowSet getFormRecord(String formDefId, String primaryKey) {        
+        //If no primary key defined, attempt to retrieve from process instance context
+        if (primaryKey == null || primaryKey.isBlank()) {
+            primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+        }
+        
+        return appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+    }
+    
+    protected FormRowSet storeFormRow(String formDefId, FormRow formRow) {
+        FormRowSet rowSet = new FormRowSet();
+        rowSet.add(formRow);
+        
+        return appService.storeFormData(appDef.getId(), appDef.getVersion().toString(), formDefId, rowSet, null);
     }
     
     protected void storeGenericTxDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {

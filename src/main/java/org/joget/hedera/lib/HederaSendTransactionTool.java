@@ -59,7 +59,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
         String formDefId = getPropertyString("formDefId");
         final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
         
-        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        FormRowSet rowSet = getFormRecord(formDefId, null);
         
         if (rowSet == null || rowSet.isEmpty()) {
             LogUtil.warn(getClassName(), "Send transaction aborted. No record found with record ID '" + primaryKey + "' from this form '" + formDefId + "'");
@@ -74,9 +74,8 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         String formDefId = getPropertyString("formDefId");
-        final String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
         
-        FormRowSet rowSet = appService.loadFormData(appDef.getAppId(), appDef.getVersion().toString(), formDefId, primaryKey);
+        FormRowSet rowSet = getFormRecord(formDefId, null);
         
         FormRow row = rowSet.get(0);
         
