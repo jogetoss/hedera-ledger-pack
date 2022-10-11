@@ -146,7 +146,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                         .getRecord(client);
             }
         } else { // value is "createNew"
-            TokenCreateTransaction genericTokenCreateTransaction = createGenericToken(row, minterAccount, minterPublicKey);
+            TokenCreateTransaction genericTokenCreateTransaction = createGenericToken(row, minterAccount, minterPublicKey, client.getOperatorPublicKey());
 
             if (mintTypeNft) {
                 TransactionRecord createTokenTxRecord = createAsNft(row, genericTokenCreateTransaction)
@@ -182,27 +182,124 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         return transactionRecord;
     }
     
-    private TokenCreateTransaction createGenericToken(FormRow row, AccountId minterAccount, PublicKey minterPubKey) {
+    private TokenCreateTransaction createGenericToken(FormRow row, AccountId minterAccount, PublicKey minterPubKey, PublicKey operatorPubKey) {
         final String tokenName = row.getProperty(getPropertyString("tokenName"));
         final String tokenSymbol = row.getProperty(getPropertyString("tokenSymbol"));
         final String tokenMemo = row.getProperty(getPropertyString("tokenMemo"));
-//        final String maxFeeAmount = row.getProperty(getPropertyString("maxFeeAmount"));
+//        final String maxFeeAmount = row.getProperty(getPropertyString("maxFeeAmount")); //Look into custom fees features in the future
 
-        //Look into custom fees features in the future
-        return new TokenCreateTransaction()
+        final String adminKey = getPropertyString("adminKey");
+        final String freezeKey = getPropertyString("freezeKey");
+        final String wipeKey = getPropertyString("wipeKey");
+        final String kycKey = getPropertyString("kycKey");
+        final String pauseKey = getPropertyString("pauseKey");
+        final String supplyKey = getPropertyString("supplyKey");
+        
+        TokenCreateTransaction tokenCreateTx = new TokenCreateTransaction()
             .setTokenName(tokenName)
             .setTokenSymbol(tokenSymbol)
             .setTokenMemo(tokenMemo) //A short publicly visible memo about the token.
-            .setTreasuryAccountId(minterAccount) //This account will receive the specified initial supply and any additional tokens that are minted. If tokens are burned, the supply will decreased from the treasury account.
-            .setAdminKey(minterPubKey) //The key which can perform token update and token delete operations on the token. The admin key has the authority to change the supply key, freeze key, pause key, wipe key, and KYC key. It can also update the treasury account of the token. If empty, the token can be perceived as immutable.
-            .setFreezeKey(minterPubKey) //The key which can sign to freeze or unfreeze an account for token transactions. If empty, freezing is not possible.
-            .setWipeKey(minterPubKey) //The key which can wipe the token balance of an account. If empty, wipe is not possible.
-//            .setKycKey(minterPubKey) //The key which can grant or revoke KYC of an account for the token's transactions. If empty, KYC is not required, and KYC grant or revoke operations are not possible.
-            .setPauseKey(minterPubKey) //The key that has the authority to pause or unpause a token. Pausing a token prevents the token from participating in all transactions.
-            .setSupplyKey(minterPubKey) //The key which can change the total supply of a token. This key is used to authorize token mint and burn transactions. If this is left empty, minting/burning tokens is not possible.
-//            .setMaxSupply(5000) //Set max supply for token. For NFT, defines how many serial numbers can exist for a token.
+            /*  
+                This account will receive the specified initial supply and any additional tokens that are minted. 
+                If tokens are burned, the supply will decreased from the treasury account.
+            */
+            .setTreasuryAccountId(minterAccount)
             .setFreezeDefault(false);
+                
+            /*
+                The key which can perform token update and token delete operations on the token. 
+                The admin key has the authority to change the supply key, freeze key, pause key, wipe key, and KYC key. 
+                It can also update the treasury account of the token. If empty, the token can be perceived as immutable.
+            */
+            switch (adminKey) {
+                case "operator":
+                    tokenCreateTx.setAdminKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setAdminKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            /* 
+                The key which can sign to freeze or unfreeze an account for token transactions. 
+                If empty, freezing is not possible.
+            */
+            switch (freezeKey) {
+                case "operator":
+                    tokenCreateTx.setFreezeKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setFreezeKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            //The key which can wipe the token balance of an account. If empty, wipe is not possible.
+            switch (wipeKey) {
+                case "operator":
+                    tokenCreateTx.setWipeKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setWipeKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            /*
+                The key which can grant or revoke KYC of an account for the token's transactions. 
+                If empty, KYC is not required, and KYC grant or revoke operations are not possible.
+            */
+            switch (kycKey) {
+                case "operator":
+                    tokenCreateTx.setKycKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setKycKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            /*
+                The key that has the authority to pause or unpause a token. 
+                Pausing a token prevents the token from participating in all transactions.
+            */
+            switch (pauseKey) {
+                case "operator":
+                    tokenCreateTx.setPauseKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setPauseKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            /*
+                The key which can change the total supply of a token. 
+                This key is used to authorize token mint and burn transactions. 
+                If this is left empty, minting/burning tokens is not possible.
+            */
+            switch (supplyKey) {
+                case "operator":
+                    tokenCreateTx.setSupplyKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setSupplyKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+                
+            //Set max supply for token. For NFT, defines how many serial numbers can exist for a token.
+//            .setMaxSupply(5000)
 //            .setMaxTransactionFee(Hbar.fromString(maxFeeAmount));
+
+        return tokenCreateTx;
     }
     
     private TokenCreateTransaction createAsNft(FormRow row, TokenCreateTransaction tokenCreateTransaction) {
