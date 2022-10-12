@@ -362,6 +362,27 @@
                     }
                 ],
                 "value":"minter"
+            },
+            {
+                "name":"feeScheduleKey",
+                "label":"@@process.hederaMintTokenTool.feeScheduleKey@@",
+                "description":"@@process.hederaMintTokenTool.feeScheduleKey.desc@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "disabled",
+                        "label" : "@@process.hederaMintTokenTool.keys.disabled@@"
+                    },
+                    {
+                        "value" : "operator",
+                        "label" : "@@process.hederaMintTokenTool.keys.operator@@"
+                    },
+                    {
+                        "value" : "minter",
+                        "label" : "@@process.hederaMintTokenTool.keys.minter@@"
+                    }
+                ],
+                "value":"minter"
             }
         ]
     },

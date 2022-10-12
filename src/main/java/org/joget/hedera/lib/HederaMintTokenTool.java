@@ -196,6 +196,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         final String kycKey = getPropertyString("kycKey");
         final String pauseKey = getPropertyString("pauseKey");
         final String supplyKey = getPropertyString("supplyKey");
+        final String feeScheduleKey = getPropertyString("feeScheduleKey");
         
         TokenCreateTransaction tokenCreateTx = new TokenCreateTransaction()
             .setTokenName(tokenName)
@@ -292,6 +293,21 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                     break;
                 case "minter":
                     tokenCreateTx.setSupplyKey(minterPubKey);
+                    break;
+                default:
+                    break;
+            }
+            
+            /*
+                The key that can change the token's custom fee schedule. 
+                A custom fee schedule token without a fee schedule key is immutable.
+            */
+            switch (feeScheduleKey) {
+                case "operator":
+                    tokenCreateTx.setFeeScheduleKey(operatorPubKey);
+                    break;
+                case "minter":
+                    tokenCreateTx.setFeeScheduleKey(minterPubKey);
                     break;
                 default:
                     break;
