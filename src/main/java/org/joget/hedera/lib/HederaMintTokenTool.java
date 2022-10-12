@@ -146,10 +146,12 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                         .getRecord(client);
             }
         } else { // value is "createNew"
-            TokenCreateTransaction genericTokenCreateTransaction = createGenericToken(row, minterAccount, minterPublicKey, client.getOperatorPublicKey());
+            TokenCreateTransaction genericTokenCreateTx = createGenericToken(row, minterAccount, minterPublicKey, client.getOperatorPublicKey());
 
+            genericTokenCreateTx = setTokenMaxSupply(row, genericTokenCreateTx);
+            
             if (mintTypeNft) {
-                TransactionRecord createTokenTxRecord = createAsNft(row, genericTokenCreateTransaction)
+                TransactionRecord createTokenTxRecord = createAsNft(row, genericTokenCreateTx)
                         .freezeWith(client)
                         .sign(minterPrivateKey)
                         .execute(client)
@@ -167,7 +169,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                 
                 storeNftDataToForm(props, row, tokenId, transactionRecord);
             } else {
-                transactionRecord = createAsNativeToken(row, genericTokenCreateTransaction)
+                transactionRecord = createAsNativeToken(row, genericTokenCreateTx)
                         .freezeWith(client)
                         .sign(minterPrivateKey)
                         .execute(client)
@@ -205,7 +207,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             */
             .setTreasuryAccountId(minterAccount)
             .setFreezeDefault(false);
-                
+            
             /*
                 The key which can perform token update and token delete operations on the token. 
                 The admin key has the authority to change the supply key, freeze key, pause key, wipe key, and KYC key. 
@@ -294,23 +296,42 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                 default:
                     break;
             }
-                
-            //Set max supply for token. For NFT, defines how many serial numbers can exist for a token.
-//            .setMaxSupply(5000)
+
 //            .setMaxTransactionFee(Hbar.fromString(maxFeeAmount));
 
         return tokenCreateTx;
     }
     
-    private TokenCreateTransaction createAsNft(FormRow row, TokenCreateTransaction tokenCreateTransaction) {
-        return tokenCreateTransaction
-                .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
-                .setInitialSupply(0)
-                .setDecimals(0)
-                .setSupplyType(TokenSupplyType.FINITE);
+    private TokenCreateTransaction setTokenMaxSupply(FormRow row, TokenCreateTransaction genericTokenCreateTx) {
+        final String maxSupply = row.getProperty(getPropertyString("maxSupply"));
+        final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
+        final String tokenDecimals = row.getProperty(getPropertyString("tokenDecimals"));
+        
+        //Set max supply for token. For NFT, defines how many serial numbers can exist for a token.
+        if (maxSupply != null && !maxSupply.isBlank()) {
+            genericTokenCreateTx.setSupplyType(TokenSupplyType.FINITE);
+            
+            if (mintTypeNft) {
+                genericTokenCreateTx.setMaxSupply(Integer.parseInt(maxSupply));
+            } else {
+                final int maxSupplyInt = calcTokenAmountBasedOnDecimals(maxSupply, Integer.parseInt(tokenDecimals));
+                genericTokenCreateTx.setMaxSupply(maxSupplyInt);
+            }
+        } else {
+            genericTokenCreateTx.setSupplyType(TokenSupplyType.INFINITE);
+        }
+        
+        return genericTokenCreateTx;
     }
     
-    private TokenCreateTransaction createAsNativeToken(FormRow row, TokenCreateTransaction tokenCreateTransaction) {
+    private TokenCreateTransaction createAsNft(FormRow row, TokenCreateTransaction genericTokenCreateTx) {
+        return genericTokenCreateTx
+                .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
+                .setInitialSupply(0)
+                .setDecimals(0);
+    }
+    
+    private TokenCreateTransaction createAsNativeToken(FormRow row, TokenCreateTransaction genericTokenCreateTx) {
         final String amountToMint = row.getProperty(getPropertyString("amountToMint"));
         final String tokenDecimals = row.getProperty(getPropertyString("tokenDecimals"));
         
@@ -318,11 +339,10 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         
         final int amountToMintInt = calcTokenAmountBasedOnDecimals(amountToMint, tokenDecimalsInt);
         
-        return tokenCreateTransaction
+        return genericTokenCreateTx
                 .setTokenType(TokenType.FUNGIBLE_COMMON)
                 .setInitialSupply(amountToMintInt)
-                .setDecimals(tokenDecimalsInt)
-                .setSupplyType(TokenSupplyType.INFINITE);
+                .setDecimals(tokenDecimalsInt);
     }
     
     private TokenMintTransaction mintMoreNft(FormRow row, String tokenId) {

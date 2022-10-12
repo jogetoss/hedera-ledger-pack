@@ -140,6 +140,14 @@
                 "control_field":"mintType",
                 "control_value":"nft",
                 "control_use_regex":"false"
+            },
+            {
+                "name":"maxSupply",
+                "label":"@@process.hederaMintTokenTool.maxSupply@@",
+                "description":"@@process.hederaMintTokenTool.maxSupply.desc@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             }
         ]
     },
@@ -237,7 +245,7 @@
             {
                 "name":"adminKeyDisabledCaution",
                 "type":"label",
-                "value":"CAUTION: If \"Admin Key\" is disabled, token properties & supply & keys are PERMANENT upon mint!",
+                "value":"@@process.hederaMintTokenTool.adminKeyDisabledCaution.value@@",
                 "control_field":"adminKey",
                 "control_value":"disabled",
                 "control_use_regex":"false"
@@ -308,7 +316,7 @@
             {
                 "name":"kycKeyEnabledCaution",
                 "type":"label",
-                "value":"NOTE: If \"KYC Key\" is enabled, token receivers must be associated with the token & explicitly granted KYC before transacting with the token.",
+                "value":"@@process.hederaMintTokenTool.kycKeyEnabledCaution.value@@",
                 "control_field":"kycKey",
                 "control_value":"operator|minter",
                 "control_use_regex":"true"
