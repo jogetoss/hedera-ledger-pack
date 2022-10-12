@@ -1,11 +1,17 @@
 package org.joget.hedera.lib;
 
+import com.hedera.hashgraph.sdk.AccountBalance;
+import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountInfo;
 import com.hedera.hashgraph.sdk.AccountInfoQuery;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.HbarUnit;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
+import com.hedera.hashgraph.sdk.TokenId;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
@@ -52,18 +58,44 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
         AccountInfo accountInfo = new AccountInfoQuery()
             .setAccountId(AccountId.fromString(accountId))
             .execute(client);
-
-        //Get form fields from plugin properties
-        String balanceField = getPropertyString("balanceField");
+        
+        AccountBalance accountBalances = new AccountBalanceQuery()
+            .setAccountId(AccountId.fromString(accountId))
+            .execute(client);
+        
+        String hbarBalanceField = getPropertyString("hbarBalanceField");
+        Object[] tokenBalances = (Object[]) getProperty("tokenBalances");
         String accountMemoField = getPropertyString("accountMemoField");
         String accountIsDeletedField = getPropertyString("accountIsDeletedField");
         String receiverSignatureRequiredField = getPropertyString("receiverSignatureRequiredField");
         String ownedNftsField = getPropertyString("ownedNftsField");
         String sendRecordThresholdField = getPropertyString("sendRecordThresholdField");
         String receiveRecordThresholdField = getPropertyString("receiveRecordThresholdField");
-
+        
         FormRow row = new FormRow();
-        row = addRow(row, balanceField, accountInfo.balance.toString(HbarUnit.HBAR));
+        row = addRow(row, hbarBalanceField, accountInfo.balance.toString(HbarUnit.HBAR));
+        for (Object o : tokenBalances) {
+            Map mapping = (HashMap) o;
+            String tokenId = mapping.get("tokenId").toString();
+            String formFieldId = mapping.get("formFieldId").toString();
+            
+            Map tokenMap = accountBalances.tokens;
+            
+            if (tokenMap.isEmpty()) {
+                row = addRow(row, formFieldId, "No balance found");
+                continue;
+            }
+            
+            Long tokenBalance = accountBalances.tokens.get(TokenId.fromString(tokenId));
+            
+            if (tokenBalance == null) {
+                row = addRow(row, formFieldId, "No balance found");
+                continue;
+            }
+            
+            int tokenDecimal = accountBalances.tokenDecimals.get(TokenId.fromString(tokenId));
+            row = addRow(row, formFieldId, String.valueOf(deriveTokenAmountBasedOnDecimals(tokenBalance, tokenDecimal)));
+        }
         row = addRow(row, accountMemoField, accountInfo.accountMemo);
         row = addRow(row, accountIsDeletedField, String.valueOf(accountInfo.isDeleted));
         row = addRow(row, receiverSignatureRequiredField, String.valueOf(accountInfo.isReceiverSignatureRequired));
@@ -75,6 +107,13 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
         rows.add(row);
         
         return rows;
+    }
+    
+    private BigDecimal deriveTokenAmountBasedOnDecimals(long actualAmount, int decimalPoints) {
+        BigDecimal unscaled = new BigDecimal(actualAmount);
+        BigDecimal scaled = unscaled.scaleByPowerOfTen(-decimalPoints);
+        
+        return scaled;
     }
     
     private FormRow addRow(FormRow row, String field, String value) {

@@ -17,40 +17,65 @@
         "title":"@@form.hederaAccountLoadBinder.header.mapToFields@@",
         "properties":[
             {
-                "name":"balanceField",
-                "label":"@@form.hederaAccountLoadBinder.mapToFields.balanceField@@",
-                "type":"textfield",
-                "required":"True"
+                "name":"hbarBalanceField",
+                "label":"@@form.hederaAccountLoadBinder.mapToFields.hbarBalanceField@@",
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
+            },
+            {
+                "name":"tokenBalances",
+                "label":"@@form.hederaAccountLoadBinder.mapToFields.tokenBalances@@",
+                "type":"grid",
+                "columns":[
+                    {
+                        "key":"tokenId",
+                        "label":"@@form.hederaAccountLoadBinder.mapToFields.tokenBalances.tokenId@@",
+                        "required":"True"
+                    },
+                    {
+                        "key":"formFieldId",
+                        "label":"@@form.hederaAccountLoadBinder.mapToFields.tokenBalances.formFieldId@@",
+                        "type":"selectbox",
+                        "options_callback" : "FormBuilder.getFieldOptions",
+                        "required":"True"
+                    }
+                ]
             },
             {
                 "name":"accountMemoField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.accountMemoField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
                 "name":"accountIsDeletedField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.accountIsDeletedField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
                 "name":"receiverSignatureRequiredField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.receiverSignatureRequiredField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
                 "name":"ownedNftsField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.ownedNftsField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
                 "name":"sendRecordThresholdField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.sendRecordThresholdField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
                 "name":"receiveRecordThresholdField",
                 "label":"@@form.hederaAccountLoadBinder.mapToFields.receiveRecordThresholdField@@",
-                "type":"textfield"
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions"
             }
         ]
     }

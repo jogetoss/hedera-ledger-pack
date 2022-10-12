@@ -16,6 +16,7 @@ import com.hedera.hashgraph.sdk.TokenMintTransaction;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
 import com.hedera.hashgraph.sdk.TransactionRecord;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
@@ -399,14 +400,11 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
     }
     
     private int calcTokenAmountBasedOnDecimals(String precalcAmount, int decimalPoints) {
-        double actualAmountDouble = Double.parseDouble(precalcAmount);
-        
-        for (int i = 0; i < decimalPoints; i++) {
-            actualAmountDouble = actualAmountDouble * 10;
-        }
+        BigDecimal unscaled = new BigDecimal(precalcAmount);
+        BigDecimal scaled = unscaled.scaleByPowerOfTen(decimalPoints);
         
         //If "token amount" exceeds the configured token decimals, the exceeded numbers are ignored.
-        return (int) actualAmountDouble;
+        return scaled.intValue();
     }
     
     private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {
