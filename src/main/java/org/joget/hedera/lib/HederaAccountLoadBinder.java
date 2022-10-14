@@ -9,7 +9,6 @@ import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.HbarUnit;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.TokenId;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -21,6 +20,7 @@ import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.hedera.model.HederaFormBinderAbstract;
 import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
 public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements FormLoadElementBinder {
@@ -94,7 +94,7 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
             }
             
             int tokenDecimal = accountBalances.tokenDecimals.get(TokenId.fromString(tokenId));
-            row = addRow(row, formFieldId, String.valueOf(deriveTokenAmountBasedOnDecimals(tokenBalance, tokenDecimal)));
+            row = addRow(row, formFieldId, String.valueOf(TransactionUtil.deriveTokenAmountBasedOnDecimals(tokenBalance, tokenDecimal)));
         }
         row = addRow(row, accountMemoField, accountInfo.accountMemo);
         row = addRow(row, accountIsDeletedField, String.valueOf(accountInfo.isDeleted));
@@ -107,13 +107,6 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
         rows.add(row);
         
         return rows;
-    }
-    
-    private BigDecimal deriveTokenAmountBasedOnDecimals(long actualAmount, int decimalPoints) {
-        BigDecimal unscaled = new BigDecimal(actualAmount);
-        BigDecimal scaled = unscaled.scaleByPowerOfTen(-decimalPoints);
-        
-        return scaled;
     }
     
     private FormRow addRow(FormRow row, String field, String value) {

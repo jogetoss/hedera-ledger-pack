@@ -16,7 +16,6 @@ import com.hedera.hashgraph.sdk.TokenMintTransaction;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
 import com.hedera.hashgraph.sdk.TransactionRecord;
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
@@ -27,6 +26,7 @@ import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
 public class HederaMintTokenTool extends HederaProcessToolAbstract {
@@ -331,7 +331,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
             if (mintTypeNft) {
                 genericTokenCreateTx.setMaxSupply(Integer.parseInt(maxSupply));
             } else {
-                final int maxSupplyInt = calcTokenAmountBasedOnDecimals(maxSupply, Integer.parseInt(tokenDecimals));
+                final int maxSupplyInt = TransactionUtil.calcActualTokenAmountBasedOnDecimals(maxSupply, Integer.parseInt(tokenDecimals));
                 genericTokenCreateTx.setMaxSupply(maxSupplyInt);
             }
         } else {
@@ -354,7 +354,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         
         final int tokenDecimalsInt = Integer.parseInt(tokenDecimals);
         
-        final int amountToMintInt = calcTokenAmountBasedOnDecimals(amountToMint, tokenDecimalsInt);
+        final int amountToMintInt = TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToMint, tokenDecimalsInt);
         
         return genericTokenCreateTx
                 .setTokenType(TokenType.FUNGIBLE_COMMON)
@@ -392,19 +392,11 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                 .setTokenId(TokenId.fromString(tokenId))
                 .execute(client);
         
-        final int additionalAmountToMintInt = calcTokenAmountBasedOnDecimals(additionalAmountToMint, tokenInfo.decimals);
+        final int additionalAmountToMintInt = TransactionUtil.calcActualTokenAmountBasedOnDecimals(additionalAmountToMint, tokenInfo.decimals);
         
         return new TokenMintTransaction()
                 .setTokenId(TokenId.fromString(tokenId))
                 .setAmount(additionalAmountToMintInt);
-    }
-    
-    private int calcTokenAmountBasedOnDecimals(String precalcAmount, int decimalPoints) {
-        BigDecimal unscaled = new BigDecimal(precalcAmount);
-        BigDecimal scaled = unscaled.scaleByPowerOfTen(decimalPoints);
-        
-        //If "token amount" exceeds the configured token decimals, the exceeded numbers are ignored.
-        return scaled.intValue();
     }
     
     private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {

@@ -1,11 +1,27 @@
 package org.joget.hedera.service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class TransactionUtil {
+    
+    public static int calcActualTokenAmountBasedOnDecimals(String precalcAmount, int decimalPoints) {
+        BigDecimal unscaled = new BigDecimal(precalcAmount);
+        BigDecimal scaled = unscaled.scaleByPowerOfTen(decimalPoints);
+        
+        //If "token amount" exceeds the configured token decimals, the exceeded numbers are ignored.
+        return scaled.intValue();
+    }
+    
+    public static BigDecimal deriveTokenAmountBasedOnDecimals(long actualAmount, int decimalPoints) {
+        BigDecimal unscaled = new BigDecimal(actualAmount);
+        BigDecimal scaled = unscaled.scaleByPowerOfTen(-decimalPoints);
+        
+        return scaled;
+    }
     
     public static String convertInstantToZonedDateTimeString(Instant timeStamp) {
         return convertInstantToZonedDateTimeString(timeStamp, null);

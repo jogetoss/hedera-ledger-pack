@@ -1,0 +1,89 @@
+[
+    {
+       "title":"@@process.hederaBurnTokenTool.header.config@@",
+       "properties":[
+            %s
+        ]
+    },
+    {
+        "title":"@@process.hederaBurnTokenTool.header.tokenBurningProperties@@",
+        "properties":[
+            {
+                "name":"formDefId",
+                "label":"@@process.hederaBurnTokenTool.formDefId@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+            },
+            {
+                "label" : "@@process.hederaBurnTokenTool.subheader.mintingAccount@@",
+                "type" : "header"
+            },
+            {
+                "name":"accountMnemonic",
+                "label":"@@process.hederaBurnTokenTool.accountMnemonic@@",
+                "description":"@@process.hederaBurnTokenTool.accountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "label" : "@@process.hederaBurnTokenTool.subheader.tokenBurningConfig@@",
+                "type" : "header"
+            },
+            {
+                "name":"burnType",
+                "label":"@@process.hederaBurnTokenTool.burnType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "nativeToken",
+                        "label" : "@@process.hederaBurnTokenTool.burnType.nativeToken@@"
+                    },
+                    {
+                        "value" : "nft",
+                        "label" : "@@process.hederaBurnTokenTool.burnType.nft@@"
+                    }
+                ],
+                "value":"nativeToken"
+            },
+            {
+                "name":"tokenId",
+                "label":"@@process.hederaBurnTokenTool.tokenId@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"amountToBurn",
+                "label":"@@process.hederaBurnTokenTool.amountToBurn@@",
+                "description":"@@process.hederaBurnTokenTool.amountToBurn.desc@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"burnType",
+                "control_value":"nativeToken",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"nftSerialNumber",
+                "label":"@@process.hederaBurnTokenTool.nftSerialNumber@@",
+                "description":"@@process.hederaBurnTokenTool.nftSerialNumber.desc@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"burnType",
+                "control_value":"nft",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
+        "properties" : [
+            %s
+        ]
+    }
+]
