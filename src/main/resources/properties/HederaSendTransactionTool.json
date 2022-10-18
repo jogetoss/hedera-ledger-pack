@@ -16,6 +16,53 @@
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
             },
             {
+                "label" : "@@process.hederaSendTransactionTool.subheader.assetConfig@@",
+                "type" : "header"
+            },
+            {
+                "name":"paymentUnit",
+                "label":"@@process.hederaSendTransactionTool.paymentUnit@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "hbar",
+                        "label" : "@@process.hederaSendTransactionTool.paymentUnit.hbar@@"
+                    },
+                    {
+                        "value" : "nativeTokens",
+                        "label" : "@@process.hederaSendTransactionTool.paymentUnit.nativeTokens@@"
+                    },
+                    {
+                        "value" : "nft",
+                        "label" : "@@process.hederaSendTransactionTool.paymentUnit.nft@@"
+                    }
+                ],
+                "value":"hbar"
+            },
+            {
+                "name":"tokenId",
+                "label":"@@process.hederaSendTransactionTool.tokenId@@",
+                "type":"textfield",
+                "required":"True",
+                "control_field":"paymentUnit",
+                "control_value":"nativeTokens|nft",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"nftSerialNumber",
+                "label":"@@process.hederaSendTransactionTool.nftSerialNumber@@",
+                "description":"@@process.hederaSendTransactionTool.nftSerialNumber.desc@@",
+                "type":"textfield",
+                "required":"True",
+                "control_field":"paymentUnit",
+                "control_value":"nft",
+                "control_use_regex":"false"
+            },
+            {
+                "label" : "@@process.hederaSendTransactionTool.subheader.paymentConfig@@",
+                "type" : "header"
+            },
+            {
                 "name":"senderAccountId",
                 "label":"@@process.hederaSendTransactionTool.senderAccountId@@",
                 "description":"@@process.hederaSendTransactionTool.senderAccountId.desc@@",
@@ -41,20 +88,50 @@
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
+                "name":"enableTokenAutoAssociateWithReceiver",
+                "label":"@@process.hederaSendTransactionTool.enableTokenAutoAssociateWithReceiver@@",
+                "type":"checkbox",
+                "options":[
+                    {
+                        "value":"true", 
+                        "label":""
+                    }
+                ],
+                "control_field":"paymentUnit",
+                "control_value":"nativeTokens|nft",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"receiverAccountMnemonic",
+                "label":"@@process.hederaSendTransactionTool.receiverAccountMnemonic@@",
+                "description":"@@process.hederaSendTransactionTool.receiverAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"True",
+                "control_field":"enableTokenAutoAssociateWithReceiver",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
                 "name":"amount",
                 "label":"@@process.hederaSendTransactionTool.amount@@",
                 "description":"@@process.hederaSendTransactionTool.amount.desc@@",
                 "type":"selectbox",
                 "required":"True",
                 "options_ajax_on_change":"formDefId",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"paymentUnit",
+                "control_value":"hbar|nativeTokens",
+                "control_use_regex":"true"
             },
             {
                 "name":"enableScheduledTransaction",
                 "label":"@@process.hederaSendTransactionTool.enableScheduledTransaction@@",
                 "type":"checkbox",
                 "options":[
-                    {"value":"true", "label":""}
+                    {
+                        "value":"true", 
+                        "label":""
+                    }
                 ]
             }
         ]
