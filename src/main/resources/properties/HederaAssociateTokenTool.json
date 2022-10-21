@@ -1,0 +1,66 @@
+[
+    {
+       "title":"@@process.hederaAssociateTokenTool.header.config@@",
+       "properties":[
+            %s
+        ]
+    },
+    {
+        "title":"@@process.hederaAssociateTokenTool.header.associationProperties@@",
+        "properties":[
+            {
+                "name":"formDefId",
+                "label":"@@process.hederaAssociateTokenTool.formDefId@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+            },
+            {
+                "name":"accountId",
+                "label":"@@process.hederaAssociateTokenTool.accountId@@",
+                "description":"@@process.hederaAssociateTokenTool.accountId.desc@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"accountMnemonic",
+                "label":"@@process.hederaAssociateTokenTool.accountMnemonic@@",
+                "description":"@@process.hederaAssociateTokenTool.accountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"True"
+            },
+            {
+                "name":"operationType",
+                "label":"@@process.hederaAssociateTokenTool.operationType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "associate",
+                        "label" : "@@process.hederaAssociateTokenTool.operationType.associate@@"
+                    },
+                    {
+                        "value" : "dissociate",
+                        "label" : "@@process.hederaAssociateTokenTool.operationType.dissociate@@"
+                    }
+                ],
+                "value":"associate"
+            },
+            {
+                "name":"tokenId",
+                "label":"@@process.hederaAssociateTokenTool.tokenId@@",
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            }
+        ]
+    },
+    {
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
+        "properties" : [
+            %s
+        ]
+    }
+]
