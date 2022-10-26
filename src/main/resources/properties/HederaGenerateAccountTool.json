@@ -84,6 +84,14 @@
                 "type":"header"
             },
             {
+                "name":"accountId",
+                "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountId@@",
+                "description":"@@process.hederaGenerateAccountTool.fieldMapping.accountId.desc@@",
+                "type":"readonly",
+                "value":"id",
+                "required":"True"
+            },
+            {
                 "name":"accountMnemonicField",
                 "label":"@@process.hederaGenerateAccountTool.fieldMapping.accountMnemonicField@@",
                 "description":"@@process.hederaGenerateAccountTool.fieldMapping.accountMnemonicField.desc@@",
