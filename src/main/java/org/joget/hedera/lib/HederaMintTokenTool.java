@@ -369,7 +369,12 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         
         // Typically looks like --> Qmcv6hwtmdVumrNeb42R1KmCEWdYWGcqNgs17Y3hj6CkP4
         // IPFS should contain the JSON that then contains the file CID
-        final String ipfsCid = row.getProperty(getPropertyString("ipfsCid"));
+        String ipfsCid = row.getProperty(getPropertyString("ipfsCid"));
+
+        //Workaround to not duplicate plugin property id
+        if (ipfsCid == null) {
+            ipfsCid = row.getProperty(getPropertyString("ipfsCidMintMore"));
+        }
         
 //        final String nftFileName = row.getProperty(getPropertyString("nftFileName"));
 //        final String nftFileType = getPropertyString("nftFileType"); // Check for other common supported mime types

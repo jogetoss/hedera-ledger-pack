@@ -195,7 +195,7 @@
                 "control_use_regex":"false"
             },
             {
-                "name":"ipfsCid",
+                "name":"ipfsCidMintMore",
                 "label":"@@process.hederaMintTokenTool.ipfsCid@@",
                 "description":"@@process.hederaMintTokenTool.ipfsCid.desc@@",
                 "type":"selectbox",
