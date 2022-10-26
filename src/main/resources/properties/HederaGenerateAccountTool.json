@@ -5,12 +5,21 @@
             %s
             ,
             {
+                "name":"accountMemo",
+                "label":"@@process.hederaGenerateAccountTool.accountMemo@@",
+                "description":"@@process.hederaGenerateAccountTool.accountMemo.desc@@",
+                "type":"textfield"
+            },
+            {
                 "name":"fundTestAccount",
                 "label":"@@process.hederaGenerateAccountTool.fundTestAccount@@",
                 "type":"checkbox",
                 "value":"true",
                 "options":[
-                    {"value":"true", "label":""}
+                    {
+                        "value" : "true", 
+                        "label" : ""
+                    }
                 ],
                 "control_field":"networkType",
                 "control_value":"previewnet|testnet",
@@ -21,7 +30,10 @@
                 "label":"@@process.hederaGenerateAccountTool.enableMultiSig@@",
                 "type":"checkbox",
                 "options":[
-                    {"value":"true", "label":""}
+                    {
+                        "value" : "true", 
+                        "label" : ""
+                    }
                 ]
             },
             {

@@ -48,6 +48,7 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
             throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
         
         final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
+        final String accountMemo = WorkflowUtil.processVariable(getPropertyString("accountMemo"), "", wfAssignment);
         final String formDefIdGetData = getPropertyString("formDefIdGetData");
         final String getMnemonicField = getPropertyString("getMnemonicField");
         final String accountIdsToSign = WorkflowUtil.processVariable(getPropertyString("accountIdsToSign"), "", wfAssignment);
@@ -90,13 +91,21 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
         if (isTest && fundTestAccount) {
             fundTestAccount(newAccountTransaction);
         }
+        
+        if (!accountMemo.isBlank()) {
+            newAccountTransaction.setAccountMemo(accountMemo);
+        }
 
         // This will wait for the tx to complete and get a "receipt" as response. Fyi there is also async methods available if needed.
-        TransactionReceipt receipt = newAccountTransaction.execute(client).getReceipt(client);
+        TransactionReceipt receipt = newAccountTransaction
+                .execute(client)
+                .getReceipt(client);
 
         AccountId newAccountId = receipt.accountId;
 
-        AccountInfo newAccountInfo = new AccountInfoQuery().setAccountId(newAccountId).execute(client);
+        AccountInfo newAccountInfo = new AccountInfoQuery()
+                .setAccountId(newAccountId)
+                .execute(client);
 
         storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
         storeAdditionalDataToWorkflowVariable(props, isTest, receipt);
