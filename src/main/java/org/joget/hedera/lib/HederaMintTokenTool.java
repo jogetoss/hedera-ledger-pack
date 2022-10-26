@@ -453,14 +453,14 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
         
         final boolean isTest = BackendUtil.isTestnet(properties);
         
+        String nftSerialNumberField = getPropertyString("nftSerialNumberField");
         String nftAssociatedTokenIdField = getPropertyString("nftAssociatedTokenIdField");
         String minterAccountField = getPropertyString("nftMinterAccountField");
         String isNftOnTestnetField = getPropertyString("isNftOnTestnetField");
 
         FormRow newRow = new FormRow();
 
-        //NFT Serial Number set as Record ID
-        newRow.setId(transactionRecord.receipt.serials.get(0).toString());
+        newRow = addRow(newRow, nftSerialNumberField, transactionRecord.receipt.serials.get(0).toString());
         newRow = addRow(newRow, nftAssociatedTokenIdField, tokenId);
         newRow = addRow(newRow, minterAccountField, minterAccountId);
         newRow = addRow(newRow, isNftOnTestnetField, String.valueOf(isTest));

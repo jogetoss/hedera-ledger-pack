@@ -474,10 +474,10 @@
             {
                 "name":"nftSerialNumberField",
                 "label":"@@process.hederaMintTokenTool.nftSerialNumberField@@",
-                "description":"@@process.hederaMintTokenTool.nftSerialNumberField.desc@@",
-                "type":"readonly",
-                "value":"id",
-                "required":"True"
+                "type":"selectbox",
+                "required":"True",
+                "options_ajax_on_change":"formDefId:formDefIdStoreNftData",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
                 "name":"nftAssociatedTokenIdField",
