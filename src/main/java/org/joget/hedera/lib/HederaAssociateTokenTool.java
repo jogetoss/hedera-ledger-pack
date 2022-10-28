@@ -61,91 +61,99 @@ public class HederaAssociateTokenTool extends HederaProcessToolAbstract {
     
     @Override
     public boolean isInputDataValidWithClient(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final String accountId = row.getProperty(getPropertyString("accountId"));
-        final AccountId account = AccountId.fromString(accountId);
-        
-        final String operationType = getPropertyString("operationType"); //"associate" or "dissociate"
-        final String tokenId = row.getProperty(getPropertyString("tokenId"));
-        
-        AccountBalance accountBalances = new AccountBalanceQuery()
-                .setAccountId(account)
-                .execute(client);
-        
-        Map<TokenId, Long> tokenMap = accountBalances.tokens;
-        Long tokenBalance = null;
-        
-        if (!tokenMap.isEmpty()) {
-            tokenBalance = tokenMap.get(TokenId.fromString(tokenId));
+        try {
+            String formDefId = getPropertyString("formDefId");
+
+            FormRowSet rowSet = getFormRecord(formDefId, null);
+
+            FormRow row = rowSet.get(0);
+
+            final String accountId = row.getProperty(getPropertyString("accountId"));
+            final AccountId account = AccountId.fromString(accountId);
+
+            final String operationType = getPropertyString("operationType"); //"associate" or "dissociate"
+            final String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+            AccountBalance accountBalances = new AccountBalanceQuery()
+                    .setAccountId(account)
+                    .execute(client);
+
+            Map<TokenId, Long> tokenMap = accountBalances.tokens;
+            Long tokenBalance = null;
+
+            if (!tokenMap.isEmpty()) {
+                tokenBalance = tokenMap.get(TokenId.fromString(tokenId));
+            }
+
+            if ("associate".equalsIgnoreCase(operationType)) {
+                if (tokenBalance != null) {
+                    LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account is already associated with token ID of " + tokenId);
+                    return false;
+                }
+            } else {
+                if (tokenBalance != null && !tokenBalance.equals(0L)) {
+                    LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account with token ID of " + tokenId + " does not have a zero balance!");
+                    return false;
+                }
+                if (tokenBalance == null) {
+                    LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account is already dissociated with token ID of " + tokenId);
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (PrecheckStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        if ("associate".equalsIgnoreCase(operationType)) {
-            if (tokenBalance != null) {
-                LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account is already associated with token ID of " + tokenId);
-                return false;
-            }
-        } else {
-            if (tokenBalance != null && !tokenBalance.equals(0L)) {
-                LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account with token ID of " + tokenId + " does not have a zero balance!");
-                return false;
-            }
-            if (tokenBalance == null) {
-                LogUtil.warn(getClassName(), "Token " + operationType + " aborted. Account is already dissociated with token ID of " + tokenId);
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final String accountId = row.getProperty(getPropertyString("accountId"));
-        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        
-        final AccountId account = AccountId.fromString(accountId);
-        final PrivateKey accountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-        
-        TransactionRecord transactionRecord;
-        
-        final String operationType = getPropertyString("operationType"); //"associate" or "dissociate"
-        final String tokenId = row.getProperty(getPropertyString("tokenId"));
-        
-        if ("associate".equalsIgnoreCase(operationType)) {
-            transactionRecord = new TokenAssociateTransaction()
-                    .setAccountId(account)
-                    .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
-                    .freezeWith(client)
-                    .sign(accountPrivateKey)
-                    .execute(client)
-                    .getRecord(client);
-        } else {
-            transactionRecord = new TokenDissociateTransaction()
-                    .setAccountId(account)
-                    .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
-                    .freezeWith(client)
-                    .sign(accountPrivateKey)
-                    .execute(client)
-                    .getRecord(client);
+        try {
+            String formDefId = getPropertyString("formDefId");
+
+            FormRowSet rowSet = getFormRecord(formDefId, null);
+
+            FormRow row = rowSet.get(0);
+
+            final String accountId = row.getProperty(getPropertyString("accountId"));
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+
+            final AccountId account = AccountId.fromString(accountId);
+            final PrivateKey accountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+            TransactionRecord transactionRecord;
+
+            final String operationType = getPropertyString("operationType"); //"associate" or "dissociate"
+            final String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+            if ("associate".equalsIgnoreCase(operationType)) {
+                transactionRecord = new TokenAssociateTransaction()
+                        .setAccountId(account)
+                        .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
+                        .freezeWith(client)
+                        .sign(accountPrivateKey)
+                        .execute(client)
+                        .getRecord(client);
+            } else {
+                transactionRecord = new TokenDissociateTransaction()
+                        .setAccountId(account)
+                        .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
+                        .freezeWith(client)
+                        .sign(accountPrivateKey)
+                        .execute(client)
+                        .getRecord(client);
+            }
+
+            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+
+            return transactionRecord;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        storeGenericTxDataToWorkflowVariable(props, transactionRecord);
-        
-        return transactionRecord;
     }
 }

@@ -41,34 +41,38 @@ public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstrac
     
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
-            
-//        final String signerAccountId = WorkflowUtil.processVariable(getPropertyString("signerAccountId"), "", wfAssignment);
-        final String signerMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("signerMnemonic"), "", wfAssignment));
-        final PrivateKey signerPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
-        final PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+            throws TimeoutException, RuntimeException {
+        
+        try {    
+    //        final String signerAccountId = WorkflowUtil.processVariable(getPropertyString("signerAccountId"), "", wfAssignment);
+            final String signerMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("signerMnemonic"), "", wfAssignment));
+            final PrivateKey signerPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
+            final PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(signerMnemonic));
 
-        final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
-        ScheduleId scheduleIdObj = ScheduleId.fromString(scheduleId);
+            final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
+            ScheduleId scheduleIdObj = ScheduleId.fromString(scheduleId);
 
-        ScheduleInfo info = new ScheduleInfoQuery()
-            .setScheduleId(scheduleIdObj)
-            .execute(client);
-        if (info.signatories.contains(signerPublicKey)) {
-            LogUtil.warn(getClassName(), "Signer has already signed this transaction! Skipping plugin execution...");
-            return null;
+            ScheduleInfo info = new ScheduleInfoQuery()
+                .setScheduleId(scheduleIdObj)
+                .execute(client);
+            if (info.signatories.contains(signerPublicKey)) {
+                LogUtil.warn(getClassName(), "Signer has already signed this transaction! Skipping plugin execution...");
+                return null;
+            }
+
+            TransactionRecord transactionRecord = new ScheduleSignTransaction()
+                .setScheduleId(scheduleIdObj)
+                .freezeWith(client)
+                .sign(signerPrivateKey)
+                .execute(client)
+                .getRecord(client);
+
+            storeAdditionalDataToWorkflowVariable(transactionRecord);
+
+            return transactionRecord;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-
-        TransactionRecord transactionRecord = new ScheduleSignTransaction()
-            .setScheduleId(scheduleIdObj)
-            .freezeWith(client)
-            .sign(signerPrivateKey)
-            .execute(client)
-            .getRecord(client);
-
-        storeAdditionalDataToWorkflowVariable(transactionRecord);
-
-        return transactionRecord;
     }
     
     protected void storeAdditionalDataToWorkflowVariable(TransactionRecord transactionRecord) {

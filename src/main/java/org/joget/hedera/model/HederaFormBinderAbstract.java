@@ -1,7 +1,6 @@
 package org.joget.hedera.model;
 
 import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormBinder;
@@ -31,7 +30,7 @@ public abstract class HederaFormBinderAbstract extends FormBinder implements For
      * @return A Collection of Map objects. Each Map object contains property=value pairs to represent a data row.
      */
     protected abstract FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData)
-            throws TimeoutException, PrecheckStatusException;
+            throws TimeoutException, RuntimeException;
     
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
@@ -53,8 +52,14 @@ public abstract class HederaFormBinderAbstract extends FormBinder implements For
             }
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing form binder plugin due to timeout.");
-        } catch (PrecheckStatusException ex) {
-            LogUtil.error(getClassName(), ex, "Error executing form binder plugin due to failed transaction prechecks.");
+        } catch (RuntimeException ex) { //Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
+            final String exceptionMessage = ex.getMessage();
+            
+            if (exceptionMessage.contains("PrecheckStatusException")) {
+                LogUtil.error(getClassName(), ex, "Error executing form binder plugin due to failed transaction prechecks.");
+            } else {
+                LogUtil.error(getClassName(), ex, "Unhandled RuntimeException occured...");
+            }
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error executing form binder plugin...");
         } finally {

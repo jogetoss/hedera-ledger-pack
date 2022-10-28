@@ -65,115 +65,123 @@ public class HederaBurnTokenTool extends HederaProcessToolAbstract {
     
     @Override
     public boolean isInputDataValidWithClient(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final boolean burnTypeNft = "nft".equalsIgnoreCase(getPropertyString("burnType"));
-        final String tokenId = row.getProperty(getPropertyString("tokenId"));
-            
-        TokenInfo tokenInfo = new TokenInfoQuery()
-                .setTokenId(TokenId.fromString(tokenId))
-                .execute(client);
+        try {
+            String formDefId = getPropertyString("formDefId");
 
-        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+            FormRowSet rowSet = getFormRecord(formDefId, null);
 
-        if (tokenInfo == null) {
-            LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " does not exist.");
-            return false;
-        }
-        
-        if (tokenInfo.supplyKey == null) {
-            LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " does not have a supply key set.");
-            return false;
-        }
-        
-        if (!(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
-            LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for account.");
-            return false;
-        }
-        
-        if (burnTypeNft) {
-            if (!(tokenInfo.tokenType).equals(TokenType.NON_FUNGIBLE_UNIQUE)) {
-                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not an NFT.");
-                return false;
-            }
-            
-            final String nftSerialNumber = row.getProperty(getPropertyString("nftSerialNumber"));
-            
-            List<TokenNftInfo> tokenNftInfo = new TokenNftInfoQuery()
-                    .setNftId(new NftId(TokenId.fromString(tokenId), Long.parseLong(nftSerialNumber)))
+            FormRow row = rowSet.get(0);
+
+            final boolean burnTypeNft = "nft".equalsIgnoreCase(getPropertyString("burnType"));
+            final String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+            TokenInfo tokenInfo = new TokenInfoQuery()
+                    .setTokenId(TokenId.fromString(tokenId))
                     .execute(client);
-            
-            if (tokenNftInfo == null || tokenNftInfo.isEmpty()) {
-                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - NFT serial number of " + nftSerialNumber + " does not exist.");
+
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+            if (tokenInfo == null) {
+                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " does not exist.");
                 return false;
             }
-        } else {
-            if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
-                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+
+            if (tokenInfo.supplyKey == null) {
+                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " does not have a supply key set.");
                 return false;
             }
-            
-            final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
-            
-            if (Long.compare(tokenInfo.totalSupply, Long.parseLong(amountToBurn)) < 0) {
-                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - specified burn amount exceeded token supply.");
+
+            if (!(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
+                LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for account.");
                 return false;
             }
+
+            if (burnTypeNft) {
+                if (!(tokenInfo.tokenType).equals(TokenType.NON_FUNGIBLE_UNIQUE)) {
+                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not an NFT.");
+                    return false;
+                }
+
+                final String nftSerialNumber = row.getProperty(getPropertyString("nftSerialNumber"));
+
+                List<TokenNftInfo> tokenNftInfo = new TokenNftInfoQuery()
+                        .setNftId(new NftId(TokenId.fromString(tokenId), Long.parseLong(nftSerialNumber)))
+                        .execute(client);
+
+                if (tokenNftInfo == null || tokenNftInfo.isEmpty()) {
+                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - NFT serial number of " + nftSerialNumber + " does not exist.");
+                    return false;
+                }
+            } else {
+                if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
+                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+                    return false;
+                }
+
+                final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
+
+                if (Long.compare(tokenInfo.totalSupply, Long.parseLong(amountToBurn)) < 0) {
+                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " - specified burn amount exceeded token supply.");
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (PrecheckStatusException | BadMnemonicException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        return true;
     }
     
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        final boolean burnTypeNft = "nft".equalsIgnoreCase(getPropertyString("burnType"));
-        final String tokenId = row.getProperty(getPropertyString("tokenId"));
-        
-        final PrivateKey accountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-        
-        TransactionRecord transactionRecord;
-        
-        TokenBurnTransaction tokenBurnTx = new TokenBurnTransaction()
-            .setTokenId(TokenId.fromString(tokenId));
-        
-        if (burnTypeNft) {
-            final String nftSerialNumber = row.getProperty(getPropertyString("nftSerialNumber"));
-            
-            tokenBurnTx.addSerial(Long.parseLong(nftSerialNumber));
-        } else {
-            final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
-            
-            TokenInfo tokenInfo = new TokenInfoQuery()
-                    .setTokenId(TokenId.fromString(tokenId))
-                    .execute(client);
-            
-            tokenBurnTx.setAmount(TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToBurn, tokenInfo.decimals));
+        try {
+            String formDefId = getPropertyString("formDefId");
+
+            FormRowSet rowSet = getFormRecord(formDefId, null);
+
+            FormRow row = rowSet.get(0);
+
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final boolean burnTypeNft = "nft".equalsIgnoreCase(getPropertyString("burnType"));
+            final String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+            final PrivateKey accountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+            TransactionRecord transactionRecord;
+
+            TokenBurnTransaction tokenBurnTx = new TokenBurnTransaction()
+                .setTokenId(TokenId.fromString(tokenId));
+
+            if (burnTypeNft) {
+                final String nftSerialNumber = row.getProperty(getPropertyString("nftSerialNumber"));
+
+                tokenBurnTx.addSerial(Long.parseLong(nftSerialNumber));
+            } else {
+                final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
+
+                TokenInfo tokenInfo = new TokenInfoQuery()
+                        .setTokenId(TokenId.fromString(tokenId))
+                        .execute(client);
+
+                tokenBurnTx.setAmount(TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToBurn, tokenInfo.decimals));
+            }
+
+            transactionRecord = tokenBurnTx
+                    .freezeWith(client)
+                    .sign(accountPrivateKey)
+                    .execute(client)
+                    .getRecord(client);
+
+            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+
+            return transactionRecord;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        transactionRecord = tokenBurnTx
-                .freezeWith(client)
-                .sign(accountPrivateKey)
-                .execute(client)
-                .getRecord(client);
-        
-        storeGenericTxDataToWorkflowVariable(props, transactionRecord);
-        
-        return transactionRecord;
     }
 }

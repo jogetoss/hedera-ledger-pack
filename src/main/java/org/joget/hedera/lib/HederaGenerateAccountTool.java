@@ -45,72 +45,76 @@ public class HederaGenerateAccountTool extends HederaProcessToolAbstract {
 
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         
-        final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
-        final String accountMemo = WorkflowUtil.processVariable(getPropertyString("accountMemo"), "", wfAssignment);
-        final String formDefIdGetData = getPropertyString("formDefIdGetData");
-        final String getMnemonicField = getPropertyString("getMnemonicField");
-        final String accountIdsToSign = WorkflowUtil.processVariable(getPropertyString("accountIdsToSign"), "", wfAssignment);
-        final boolean isTest = BackendUtil.isTestnet(props);
-        final boolean isMultiSig = "true".equals(getPropertyString("enableMultiSig"));
-            
-        String encryptedMnemonic = "";
-        String accountSigners = "";
-        AccountCreateTransaction newAccountTransaction = new AccountCreateTransaction();
+        try {
+            final boolean fundTestAccount = "true".equals(getPropertyString("fundTestAccount"));
+            final String accountMemo = WorkflowUtil.processVariable(getPropertyString("accountMemo"), "", wfAssignment);
+            final String formDefIdGetData = getPropertyString("formDefIdGetData");
+            final String getMnemonicField = getPropertyString("getMnemonicField");
+            final String accountIdsToSign = WorkflowUtil.processVariable(getPropertyString("accountIdsToSign"), "", wfAssignment);
+            final boolean isTest = BackendUtil.isTestnet(props);
+            final boolean isMultiSig = "true".equals(getPropertyString("enableMultiSig"));
 
-        if (isMultiSig) {
-            KeyList keyList = new KeyList();
+            String encryptedMnemonic = "";
+            String accountSigners = "";
+            AccountCreateTransaction newAccountTransaction = new AccountCreateTransaction();
 
-            for (String accountId : accountIdsToSign.split(PluginUtil.MULTI_VALUE_DELIMITER)) {
-                FormRowSet accountRowSet = getFormRecord(formDefIdGetData, accountId);
-                if (!accountRowSet.isEmpty()) {
-                    FormRow accountData = accountRowSet.get(0);
-                    Mnemonic signerMnemonic = Mnemonic.fromString(PluginUtil.decrypt(accountData.getProperty(getMnemonicField)));
-                    PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(signerMnemonic);
+            if (isMultiSig) {
+                KeyList keyList = new KeyList();
 
-                    keyList.add(signerPublicKey);
+                for (String accountId : accountIdsToSign.split(PluginUtil.MULTI_VALUE_DELIMITER)) {
+                    FormRowSet accountRowSet = getFormRecord(formDefIdGetData, accountId);
+                    if (!accountRowSet.isEmpty()) {
+                        FormRow accountData = accountRowSet.get(0);
+                        Mnemonic signerMnemonic = Mnemonic.fromString(PluginUtil.decrypt(accountData.getProperty(getMnemonicField)));
+                        PublicKey signerPublicKey = AccountUtil.derivePublicKeyFromMnemonic(signerMnemonic);
+
+                        keyList.add(signerPublicKey);
+                    }
                 }
+
+                accountSigners = accountIdsToSign;
+
+                newAccountTransaction.setKey(keyList);
+            } else {
+                final Mnemonic mnemonic = Mnemonic.generate24();
+                PublicKey publicKey = AccountUtil.derivePublicKeyFromMnemonic(mnemonic);
+                //Account Mnemonic MUST be secured at all times.
+                /* 
+                    See HederaUtil encrypt & decrypt method to implement your preferred algo if you wish to do so
+                */
+                encryptedMnemonic = PluginUtil.encrypt(mnemonic.toString());
+
+                newAccountTransaction.setKey(publicKey);
             }
 
-            accountSigners = accountIdsToSign;
+            if (isTest && fundTestAccount) {
+                fundTestAccount(newAccountTransaction);
+            }
 
-            newAccountTransaction.setKey(keyList);
-        } else {
-            final Mnemonic mnemonic = Mnemonic.generate24();
-            PublicKey publicKey = AccountUtil.derivePublicKeyFromMnemonic(mnemonic);
-            //Account Mnemonic MUST be secured at all times.
-            /* 
-                See HederaUtil encrypt & decrypt method to implement your preferred algo if you wish to do so
-            */
-            encryptedMnemonic = PluginUtil.encrypt(mnemonic.toString());
+            if (!accountMemo.isBlank()) {
+                newAccountTransaction.setAccountMemo(accountMemo);
+            }
 
-            newAccountTransaction.setKey(publicKey);
+            // This will wait for the tx to complete and get a "receipt" as response. Fyi there is also async methods available if needed.
+            TransactionReceipt receipt = newAccountTransaction
+                    .execute(client)
+                    .getReceipt(client);
+
+            AccountId newAccountId = receipt.accountId;
+
+            AccountInfo newAccountInfo = new AccountInfoQuery()
+                    .setAccountId(newAccountId)
+                    .execute(client);
+
+            storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
+            storeAdditionalDataToWorkflowVariable(props, isTest, receipt);
+
+            return newAccountId;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-
-        if (isTest && fundTestAccount) {
-            fundTestAccount(newAccountTransaction);
-        }
-        
-        if (!accountMemo.isBlank()) {
-            newAccountTransaction.setAccountMemo(accountMemo);
-        }
-
-        // This will wait for the tx to complete and get a "receipt" as response. Fyi there is also async methods available if needed.
-        TransactionReceipt receipt = newAccountTransaction
-                .execute(client)
-                .getReceipt(client);
-
-        AccountId newAccountId = receipt.accountId;
-
-        AccountInfo newAccountInfo = new AccountInfoQuery()
-                .setAccountId(newAccountId)
-                .execute(client);
-
-        storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
-        storeAdditionalDataToWorkflowVariable(props, isTest, receipt);
-            
-        return newAccountId;
     }
     
     private void fundTestAccount(AccountCreateTransaction newAccountTransaction) {

@@ -65,124 +65,132 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
     
     @Override
     public boolean isInputDataValidWithClient(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final boolean mintMore = "mintMore".equalsIgnoreCase(getPropertyString("tokenIdHandling"));
-        final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
-        
-        if (mintMore) {
-            final String tokenId = row.getProperty(getPropertyString("tokenId"));
-            
-            TokenInfo tokenInfo = new TokenInfoQuery()
-                .setTokenId(TokenId.fromString(tokenId))
-                .execute(client);
-            
-            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-            final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-            
-            if (tokenInfo.supplyKey != null && !(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
-                LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for minter account.");
-                return false;
-            }
-            
-            if (mintTypeNft) {
-                if (!(tokenInfo.tokenType).equals(TokenType.NON_FUNGIBLE_UNIQUE)) {
-                    LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not an NFT.");
+        try {
+            String formDefId = getPropertyString("formDefId");
+
+            FormRowSet rowSet = getFormRecord(formDefId, null);
+
+            FormRow row = rowSet.get(0);
+
+            final boolean mintMore = "mintMore".equalsIgnoreCase(getPropertyString("tokenIdHandling"));
+            final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
+
+            if (mintMore) {
+                final String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+                TokenInfo tokenInfo = new TokenInfoQuery()
+                    .setTokenId(TokenId.fromString(tokenId))
+                    .execute(client);
+
+                final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+                final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+                if (tokenInfo.supplyKey != null && !(tokenInfo.supplyKey.toString()).equals(minterPublicKey.toString())) {
+                    LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " - supply key not authorized for minter account.");
                     return false;
                 }
-            } else {
-                if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
-                    LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
-                    return false;
+
+                if (mintTypeNft) {
+                    if (!(tokenInfo.tokenType).equals(TokenType.NON_FUNGIBLE_UNIQUE)) {
+                        LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not an NFT.");
+                        return false;
+                    }
+                } else {
+                    if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
+                        LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+                        return false;
+                    }
                 }
             }
+        
+            return true;
+        } catch (PrecheckStatusException | BadMnemonicException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        return true;
     }
     
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final String minterAccountId = row.getProperty(getPropertyString("minterAccountId"));
-        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        final boolean mintMore = "mintMore".equalsIgnoreCase(getPropertyString("tokenIdHandling"));
-        final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
-        
-        final AccountId minterAccount = AccountId.fromString(minterAccountId);
-        final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-        final PrivateKey minterPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-        
-        TransactionRecord transactionRecord;
-        
-        if (mintMore) { // value is "mintMore"
-            if (mintTypeNft) { 
-                transactionRecord = mintMoreNft(row, null)
-                        .freezeWith(client)
-                        .sign(minterPrivateKey)
-                        .execute(client)
-                        .getRecord(client);
-                
-                String tokenId = row.getProperty(getPropertyString("tokenId"));
-                
-                storeNftDataToForm(props, row, tokenId, transactionRecord);
-            } else {
-                transactionRecord = mintMoreNativeToken(client, row, null)
-                        .freezeWith(client)
-                        .sign(minterPrivateKey)
-                        .execute(client)
-                        .getRecord(client);
-            }
-        } else { // value is "createNew"
-            TokenCreateTransaction genericTokenCreateTx = createGenericToken(row, minterAccount, minterPublicKey, client.getOperatorPublicKey());
+        try {
+            String formDefId = getPropertyString("formDefId");
 
-            genericTokenCreateTx = setTokenMaxSupply(row, genericTokenCreateTx);
-            
-            if (mintTypeNft) {
-                TransactionRecord createTokenTxRecord = createAsNft(row, genericTokenCreateTx)
-                        .freezeWith(client)
-                        .sign(minterPrivateKey)
-                        .execute(client)
-                        .getRecord(client);
-                
-                storeTokenDataToForm(props, row, createTokenTxRecord);
-                
-                String tokenId = createTokenTxRecord.receipt.tokenId.toString();
+            FormRowSet rowSet = getFormRecord(formDefId, null);
 
-                transactionRecord = mintMoreNft(row, tokenId)
-                        .freezeWith(client)
-                        .sign(minterPrivateKey)
-                        .execute(client)
-                        .getRecord(client);
-                
-                storeNftDataToForm(props, row, tokenId, transactionRecord);
-            } else {
-                transactionRecord = createAsNativeToken(row, genericTokenCreateTx)
-                        .freezeWith(client)
-                        .sign(minterPrivateKey)
-                        .execute(client)
-                        .getRecord(client);
-                
-                storeTokenDataToForm(props, row, transactionRecord);
+            FormRow row = rowSet.get(0);
+
+            final String minterAccountId = row.getProperty(getPropertyString("minterAccountId"));
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final boolean mintMore = "mintMore".equalsIgnoreCase(getPropertyString("tokenIdHandling"));
+            final boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
+
+            final AccountId minterAccount = AccountId.fromString(minterAccountId);
+            final PublicKey minterPublicKey = AccountUtil.derivePublicKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+            final PrivateKey minterPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+            TransactionRecord transactionRecord;
+
+            if (mintMore) { // value is "mintMore"
+                if (mintTypeNft) { 
+                    transactionRecord = mintMoreNft(row, null)
+                            .freezeWith(client)
+                            .sign(minterPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+
+                    String tokenId = row.getProperty(getPropertyString("tokenId"));
+
+                    storeNftDataToForm(props, row, tokenId, transactionRecord);
+                } else {
+                    transactionRecord = mintMoreNativeToken(client, row, null)
+                            .freezeWith(client)
+                            .sign(minterPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                }
+            } else { // value is "createNew"
+                TokenCreateTransaction genericTokenCreateTx = createGenericToken(row, minterAccount, minterPublicKey, client.getOperatorPublicKey());
+
+                genericTokenCreateTx = setTokenMaxSupply(row, genericTokenCreateTx);
+
+                if (mintTypeNft) {
+                    TransactionRecord createTokenTxRecord = createAsNft(row, genericTokenCreateTx)
+                            .freezeWith(client)
+                            .sign(minterPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+
+                    storeTokenDataToForm(props, row, createTokenTxRecord);
+
+                    String tokenId = createTokenTxRecord.receipt.tokenId.toString();
+
+                    transactionRecord = mintMoreNft(row, tokenId)
+                            .freezeWith(client)
+                            .sign(minterPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+
+                    storeNftDataToForm(props, row, tokenId, transactionRecord);
+                } else {
+                    transactionRecord = createAsNativeToken(row, genericTokenCreateTx)
+                            .freezeWith(client)
+                            .sign(minterPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+
+                    storeTokenDataToForm(props, row, transactionRecord);
+                }
             }
+
+            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+
+            return transactionRecord;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-        
-        storeGenericTxDataToWorkflowVariable(props, transactionRecord);
-
-        return transactionRecord;
     }
     
     private TokenCreateTransaction createGenericToken(FormRow row, AccountId minterAccount, PublicKey minterPubKey, PublicKey operatorPubKey) {
@@ -385,23 +393,27 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
     }
     
     private TokenMintTransaction mintMoreNativeToken(Client client, FormRow row, String tokenId) 
-            throws TimeoutException, PrecheckStatusException {
+            throws TimeoutException, RuntimeException {
         
-        if (tokenId == null || tokenId.isBlank()) {
-            tokenId = row.getProperty(getPropertyString("tokenId"));
-        }
-        
-        final String additionalAmountToMint = row.getProperty(getPropertyString("additionalAmountToMint"));
-        
-        TokenInfo tokenInfo = new TokenInfoQuery()
-                .setTokenId(TokenId.fromString(tokenId))
-                .execute(client);
-        
-        final int additionalAmountToMintInt = TransactionUtil.calcActualTokenAmountBasedOnDecimals(additionalAmountToMint, tokenInfo.decimals);
-        
-        return new TokenMintTransaction()
-                .setTokenId(TokenId.fromString(tokenId))
-                .setAmount(additionalAmountToMintInt);
+        try {
+            if (tokenId == null || tokenId.isBlank()) {
+                tokenId = row.getProperty(getPropertyString("tokenId"));
+            }
+
+            final String additionalAmountToMint = row.getProperty(getPropertyString("additionalAmountToMint"));
+
+            TokenInfo tokenInfo = new TokenInfoQuery()
+                    .setTokenId(TokenId.fromString(tokenId))
+                    .execute(client);
+
+            final int additionalAmountToMintInt = TransactionUtil.calcActualTokenAmountBasedOnDecimals(additionalAmountToMint, tokenInfo.decimals);
+
+            return new TokenMintTransaction()
+                    .setTokenId(TokenId.fromString(tokenId))
+                    .setAmount(additionalAmountToMintInt);
+        } catch (PrecheckStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
+        } 
     }
     
     private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {

@@ -51,62 +51,66 @@ public class HederaAccountLoadBinder extends HederaFormBinderAbstract implements
     
     @Override
     protected FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
-            throws TimeoutException, PrecheckStatusException {
+            throws TimeoutException, RuntimeException {
         
         final String accountId = WorkflowUtil.processVariable(getPropertyString("accountId"), "", null);
 
-        AccountInfo accountInfo = new AccountInfoQuery()
-            .setAccountId(AccountId.fromString(accountId))
-            .execute(client);
-        
-        AccountBalance accountBalances = new AccountBalanceQuery()
-            .setAccountId(AccountId.fromString(accountId))
-            .execute(client);
-        
-        String hbarBalanceField = getPropertyString("hbarBalanceField");
-        Object[] tokenBalances = (Object[]) getProperty("tokenBalances");
-        String accountMemoField = getPropertyString("accountMemoField");
-        String accountIsDeletedField = getPropertyString("accountIsDeletedField");
-        String receiverSignatureRequiredField = getPropertyString("receiverSignatureRequiredField");
-        String ownedNftsField = getPropertyString("ownedNftsField");
-        String sendRecordThresholdField = getPropertyString("sendRecordThresholdField");
-        String receiveRecordThresholdField = getPropertyString("receiveRecordThresholdField");
-        
-        FormRow row = new FormRow();
-        row = addRow(row, hbarBalanceField, accountInfo.balance.toString(HbarUnit.HBAR));
-        for (Object o : tokenBalances) {
-            Map mapping = (HashMap) o;
-            String tokenId = mapping.get("tokenId").toString();
-            String formFieldId = mapping.get("formFieldId").toString();
-            
-            Map tokenMap = accountBalances.tokens;
-            
-            if (tokenMap.isEmpty()) {
-                row = addRow(row, formFieldId, "No balance found");
-                continue;
-            }
-            
-            Long tokenBalance = accountBalances.tokens.get(TokenId.fromString(tokenId));
-            
-            if (tokenBalance == null) {
-                row = addRow(row, formFieldId, "No balance found");
-                continue;
-            }
-            
-            int tokenDecimal = accountBalances.tokenDecimals.get(TokenId.fromString(tokenId));
-            row = addRow(row, formFieldId, String.valueOf(TransactionUtil.deriveTokenAmountBasedOnDecimals(tokenBalance, tokenDecimal)));
-        }
-        row = addRow(row, accountMemoField, accountInfo.accountMemo);
-        row = addRow(row, accountIsDeletedField, String.valueOf(accountInfo.isDeleted));
-        row = addRow(row, receiverSignatureRequiredField, String.valueOf(accountInfo.isReceiverSignatureRequired));
-        row = addRow(row, ownedNftsField, String.valueOf(accountInfo.ownedNfts));
-        row = addRow(row, sendRecordThresholdField, accountInfo.sendRecordThreshold.toString(HbarUnit.HBAR));
-        row = addRow(row, receiveRecordThresholdField, accountInfo.receiveRecordThreshold.toString(HbarUnit.HBAR));
+        try {
+            AccountInfo accountInfo = new AccountInfoQuery()
+                .setAccountId(AccountId.fromString(accountId))
+                .execute(client);
 
-        FormRowSet rows = new FormRowSet();
-        rows.add(row);
-        
-        return rows;
+            AccountBalance accountBalances = new AccountBalanceQuery()
+                .setAccountId(AccountId.fromString(accountId))
+                .execute(client);
+
+            String hbarBalanceField = getPropertyString("hbarBalanceField");
+            Object[] tokenBalances = (Object[]) getProperty("tokenBalances");
+            String accountMemoField = getPropertyString("accountMemoField");
+            String accountIsDeletedField = getPropertyString("accountIsDeletedField");
+            String receiverSignatureRequiredField = getPropertyString("receiverSignatureRequiredField");
+            String ownedNftsField = getPropertyString("ownedNftsField");
+            String sendRecordThresholdField = getPropertyString("sendRecordThresholdField");
+            String receiveRecordThresholdField = getPropertyString("receiveRecordThresholdField");
+
+            FormRow row = new FormRow();
+            row = addRow(row, hbarBalanceField, accountInfo.balance.toString(HbarUnit.HBAR));
+            for (Object o : tokenBalances) {
+                Map mapping = (HashMap) o;
+                String tokenId = mapping.get("tokenId").toString();
+                String formFieldId = mapping.get("formFieldId").toString();
+
+                Map tokenMap = accountBalances.tokens;
+
+                if (tokenMap.isEmpty()) {
+                    row = addRow(row, formFieldId, "No balance found");
+                    continue;
+                }
+
+                Long tokenBalance = accountBalances.tokens.get(TokenId.fromString(tokenId));
+
+                if (tokenBalance == null) {
+                    row = addRow(row, formFieldId, "No balance found");
+                    continue;
+                }
+
+                int tokenDecimal = accountBalances.tokenDecimals.get(TokenId.fromString(tokenId));
+                row = addRow(row, formFieldId, String.valueOf(TransactionUtil.deriveTokenAmountBasedOnDecimals(tokenBalance, tokenDecimal)));
+            }
+            row = addRow(row, accountMemoField, accountInfo.accountMemo);
+            row = addRow(row, accountIsDeletedField, String.valueOf(accountInfo.isDeleted));
+            row = addRow(row, receiverSignatureRequiredField, String.valueOf(accountInfo.isReceiverSignatureRequired));
+            row = addRow(row, ownedNftsField, String.valueOf(accountInfo.ownedNfts));
+            row = addRow(row, sendRecordThresholdField, accountInfo.sendRecordThreshold.toString(HbarUnit.HBAR));
+            row = addRow(row, receiveRecordThresholdField, accountInfo.receiveRecordThreshold.toString(HbarUnit.HBAR));
+
+            FormRowSet rows = new FormRowSet();
+            rows.add(row);
+            
+            return rows;
+        } catch (PrecheckStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
+        }
     }
     
     private FormRow addRow(FormRow row, String field, String value) {

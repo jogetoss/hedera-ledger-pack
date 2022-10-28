@@ -79,113 +79,117 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
     
     @Override
     protected Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         
-        String formDefId = getPropertyString("formDefId");
-        
-        FormRowSet rowSet = getFormRecord(formDefId, null);
-        
-        FormRow row = rowSet.get(0);
-        
-        final String paymentUnit = getPropertyString("paymentUnit");
-        final String senderAccountId = row.getProperty(getPropertyString("senderAccountId"));
-        final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
-        final String receiverAccountId = row.getProperty(getPropertyString("receiverAccountId"));
-        final String amount = row.getProperty(getPropertyString("amount"));
-        final boolean enableScheduledTx = "true".equals(getPropertyString("enableScheduledTransaction"));
+        try {
+            String formDefId = getPropertyString("formDefId");
 
-        final AccountId senderAccount = AccountId.fromString(senderAccountId);
-        final PrivateKey senderPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
-        
-        final AccountId receiverAccount = AccountId.fromString(receiverAccountId);
-        
-        TransferTransaction transferTransaction = new TransferTransaction();
-        
-        if ("nft".equals(paymentUnit) || "nativeTokens".equals(paymentUnit)) {
-            final String tokenId = WorkflowUtil.processVariable(getPropertyString("tokenId"), "", wfAssignment);
-            
-            //Auto-associate tokens with receiver here
-            final boolean enableTokenAutoAssociateWithReceiver = "true".equals(getPropertyString("enableTokenAutoAssociateWithReceiver"));
-            if (enableTokenAutoAssociateWithReceiver) {
-                //IDEA: If don't want to require mnemonic, perhaps check for receiver's automatic token associations + number of tokens already existed
-                final String receiverAccountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("receiverAccountMnemonic"), "", wfAssignment));
-                final PrivateKey receiverPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(receiverAccountMnemonic));
+            FormRowSet rowSet = getFormRecord(formDefId, null);
 
-                //Check if token already associated before doing so
-                AccountBalance accountBalances = new AccountBalanceQuery()
-                        .setAccountId(receiverAccount)
-                        .execute(client);
-                
-                if (accountBalances.tokens.get(TokenId.fromString(tokenId)) == null) {
-                    new TokenAssociateTransaction()
-                        .setAccountId(receiverAccount)
-                        .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
-                        .freezeWith(client)
-                        .sign(receiverPrivateKey)
-                        .execute(client)
-                        .getReceipt(client);
+            FormRow row = rowSet.get(0);
+
+            final String paymentUnit = getPropertyString("paymentUnit");
+            final String senderAccountId = row.getProperty(getPropertyString("senderAccountId"));
+            final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
+            final String receiverAccountId = row.getProperty(getPropertyString("receiverAccountId"));
+            final String amount = row.getProperty(getPropertyString("amount"));
+            final boolean enableScheduledTx = "true".equals(getPropertyString("enableScheduledTransaction"));
+
+            final AccountId senderAccount = AccountId.fromString(senderAccountId);
+            final PrivateKey senderPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(accountMnemonic));
+
+            final AccountId receiverAccount = AccountId.fromString(receiverAccountId);
+
+            TransferTransaction transferTransaction = new TransferTransaction();
+
+            if ("nft".equals(paymentUnit) || "nativeTokens".equals(paymentUnit)) {
+                final String tokenId = WorkflowUtil.processVariable(getPropertyString("tokenId"), "", wfAssignment);
+
+                //Auto-associate tokens with receiver here
+                final boolean enableTokenAutoAssociateWithReceiver = "true".equals(getPropertyString("enableTokenAutoAssociateWithReceiver"));
+                if (enableTokenAutoAssociateWithReceiver) {
+                    //IDEA: If don't want to require mnemonic, perhaps check for receiver's automatic token associations + number of tokens already existed
+                    final String receiverAccountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("receiverAccountMnemonic"), "", wfAssignment));
+                    final PrivateKey receiverPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(receiverAccountMnemonic));
+
+                    //Check if token already associated before doing so
+                    AccountBalance accountBalances = new AccountBalanceQuery()
+                            .setAccountId(receiverAccount)
+                            .execute(client);
+
+                    if (accountBalances.tokens.get(TokenId.fromString(tokenId)) == null) {
+                        new TokenAssociateTransaction()
+                            .setAccountId(receiverAccount)
+                            .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
+                            .freezeWith(client)
+                            .sign(receiverPrivateKey)
+                            .execute(client)
+                            .getReceipt(client);
+                    }
                 }
+
+                switch (paymentUnit) {
+                    case "nft": {
+                        final String nftSerialNumber = WorkflowUtil.processVariable(getPropertyString("nftSerialNumber"), "", wfAssignment);
+
+                        NftId nftId = new NftId(TokenId.fromString(tokenId), Long.parseLong(nftSerialNumber));
+
+                        transferTransaction
+                                .addNftTransfer(nftId, senderAccount, receiverAccount);
+                        break;
+                    }
+                    case "nativeTokens": {
+                        //Auto-calc token decimals for transfer amount
+                        TokenInfo tokenInfo = new TokenInfoQuery()
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .execute(client);
+
+                        int actualAmount = TransactionUtil.calcActualTokenAmountBasedOnDecimals(amount, tokenInfo.decimals);
+
+                        transferTransaction
+                                .addTokenTransfer(TokenId.fromString(tokenId), senderAccount, Math.negateExact(actualAmount))
+                                .addTokenTransfer(TokenId.fromString(tokenId), receiverAccount, actualAmount);
+                        break;
+                    }
+                }
+            } else {
+                //1 hbar = 100,000,000 tinybars
+                Hbar amountHbar = Hbar.fromString(amount);
+
+                transferTransaction
+                        .addHbarTransfer(senderAccount, amountHbar.negated())
+                        .addHbarTransfer(receiverAccount, amountHbar);
             }
-            
-            switch (paymentUnit) {
-                case "nft": {
-                    final String nftSerialNumber = WorkflowUtil.processVariable(getPropertyString("nftSerialNumber"), "", wfAssignment);
 
-                    NftId nftId = new NftId(TokenId.fromString(tokenId), Long.parseLong(nftSerialNumber));
-                    
-                    transferTransaction
-                            .addNftTransfer(nftId, senderAccount, receiverAccount);
-                    break;
-                }
-                case "nativeTokens": {
-                    //Auto-calc token decimals for transfer amount
-                    TokenInfo tokenInfo = new TokenInfoQuery()
-                        .setTokenId(TokenId.fromString(tokenId))
-                        .execute(client);
-                    
-                    int actualAmount = TransactionUtil.calcActualTokenAmountBasedOnDecimals(amount, tokenInfo.decimals);
+            //Can set a transaction memo of string up to max length of 100
+    //        transferTransaction.setTransactionMemo("joget transfer test");
 
-                    transferTransaction
-                            .addTokenTransfer(TokenId.fromString(tokenId), senderAccount, Math.negateExact(actualAmount))
-                            .addTokenTransfer(TokenId.fromString(tokenId), receiverAccount, actualAmount);
-                    break;
-                }
+            TransactionRecord transactionRecord;
+
+            if (enableScheduledTx) {
+                transactionRecord = new ScheduleCreateTransaction()
+                    .setScheduledTransaction(transferTransaction)
+                    .setAdminKey(client.getOperatorPublicKey())
+                    .setPayerAccountId(senderAccount)
+                    .freezeWith(client)
+                    .sign(senderPrivateKey)
+                    .execute(client)
+                    .getRecord(client);
+            } else {
+                transactionRecord = transferTransaction
+                    .freezeWith(client)
+                    .sign(senderPrivateKey)
+                    .execute(client)
+                    .getRecord(client);
             }
-        } else {
-            //1 hbar = 100,000,000 tinybars
-            Hbar amountHbar = Hbar.fromString(amount);
 
-            transferTransaction
-                    .addHbarTransfer(senderAccount, amountHbar.negated())
-                    .addHbarTransfer(receiverAccount, amountHbar);
+            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+            storeAdditionalDataToWorkflowVariable(props, transactionRecord);
+
+            return transactionRecord;
+        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
-                
-        //Can set a transaction memo of string up to max length of 100
-//        transferTransaction.setTransactionMemo("joget transfer test");
-
-        TransactionRecord transactionRecord;
-
-        if (enableScheduledTx) {
-            transactionRecord = new ScheduleCreateTransaction()
-                .setScheduledTransaction(transferTransaction)
-                .setAdminKey(client.getOperatorPublicKey())
-                .setPayerAccountId(senderAccount)
-                .freezeWith(client)
-                .sign(senderPrivateKey)
-                .execute(client)
-                .getRecord(client);
-        } else {
-            transactionRecord = transferTransaction
-                .freezeWith(client)
-                .sign(senderPrivateKey)
-                .execute(client)
-                .getRecord(client);
-        }
-
-        storeGenericTxDataToWorkflowVariable(props, transactionRecord);
-        storeAdditionalDataToWorkflowVariable(props, transactionRecord);
-
-        return transactionRecord;
     }
     
     protected void storeAdditionalDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {

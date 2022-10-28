@@ -45,47 +45,51 @@ public class HederaScheduledTransactionLoadBinder extends HederaFormBinderAbstra
     
     @Override
     protected FormRowSet loadData(Client client, Element element, String primaryKey, FormData formData) 
-            throws TimeoutException, PrecheckStatusException {
+            throws TimeoutException, RuntimeException {
         
-        final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
+        try {
+            final String scheduleId = WorkflowUtil.processVariable(getPropertyString("scheduleId"), "", null);
 
-        ScheduleInfo scheduleInfo = new ScheduleInfoQuery()
-            .setScheduleId(ScheduleId.fromString(scheduleId))
-            .execute(client);
+            ScheduleInfo scheduleInfo = new ScheduleInfoQuery()
+                .setScheduleId(ScheduleId.fromString(scheduleId))
+                .execute(client);
 
-        /* Get form fields from plugin properties */
-        String scheduledTransactionIdField = getPropertyString("scheduledTransactionIdField");
-        String transactionSignatoriesField = getPropertyString("transactionSignatoriesField");
-        String transactionMemoField = getPropertyString("transactionMemoField");
-        String creatorAccountIdField = getPropertyString("creatorAccountIdField");
-        String payerAccountIdField = getPropertyString("payerAccountIdField");
-        String expirationTimeField = getPropertyString("expirationTimeField");
-        String executedAtField = getPropertyString("executedAtField");
-        String deletedAtField = getPropertyString("deletedAtField");
+            /* Get form fields from plugin properties */
+            String scheduledTransactionIdField = getPropertyString("scheduledTransactionIdField");
+            String transactionSignatoriesField = getPropertyString("transactionSignatoriesField");
+            String transactionMemoField = getPropertyString("transactionMemoField");
+            String creatorAccountIdField = getPropertyString("creatorAccountIdField");
+            String payerAccountIdField = getPropertyString("payerAccountIdField");
+            String expirationTimeField = getPropertyString("expirationTimeField");
+            String executedAtField = getPropertyString("executedAtField");
+            String deletedAtField = getPropertyString("deletedAtField");
 
-        FormRow row = new FormRow();
+            FormRow row = new FormRow();
 
-        //The transaction ID of this scheduled transaction
-        row = addRow(row, scheduledTransactionIdField, scheduleInfo.scheduledTransactionId.toString());
-        //Who has signed this transaction so far
-        row = addRow(row, transactionSignatoriesField, scheduleInfo.signatories.toString());
-        //The transaction memo
-        row = addRow(row, transactionMemoField, scheduleInfo.memo);
-        //The Hedera account that created this scheduled transaction
-        row = addRow(row, creatorAccountIdField, scheduleInfo.creatorAccountId.toString());
-        //The Hedera account paying for the execution of this scheduled transaction
-        row = addRow(row, payerAccountIdField, scheduleInfo.payerAccountId.toString());
-        //The date and time when this scheduled transaction will expire
-        row = addRow(row, expirationTimeField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.expirationTime));
-        //The time the schedule transaction was executed. If the schedule transaction has not executed this field will be left null.
-        row = addRow(row, executedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.executedAt));
-        //The consensus time the schedule transaction was deleted. If the schedule transaction was not deleted, this field will be left null.
-        row = addRow(row, deletedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.deletedAt));
+            //The transaction ID of this scheduled transaction
+            row = addRow(row, scheduledTransactionIdField, scheduleInfo.scheduledTransactionId.toString());
+            //Who has signed this transaction so far
+            row = addRow(row, transactionSignatoriesField, scheduleInfo.signatories.toString());
+            //The transaction memo
+            row = addRow(row, transactionMemoField, scheduleInfo.memo);
+            //The Hedera account that created this scheduled transaction
+            row = addRow(row, creatorAccountIdField, scheduleInfo.creatorAccountId.toString());
+            //The Hedera account paying for the execution of this scheduled transaction
+            row = addRow(row, payerAccountIdField, scheduleInfo.payerAccountId.toString());
+            //The date and time when this scheduled transaction will expire
+            row = addRow(row, expirationTimeField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.expirationTime));
+            //The time the schedule transaction was executed. If the schedule transaction has not executed this field will be left null.
+            row = addRow(row, executedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.executedAt));
+            //The consensus time the schedule transaction was deleted. If the schedule transaction was not deleted, this field will be left null.
+            row = addRow(row, deletedAtField, TransactionUtil.convertInstantToZonedDateTimeString(scheduleInfo.deletedAt));
 
-        FormRowSet rows = new FormRowSet();
-        rows.add(row);
-        
-        return rows;
+            FormRowSet rows = new FormRowSet();
+            rows.add(row);
+
+            return rows;
+        } catch (PrecheckStatusException e) {
+            throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
+        }
     }
     
     private FormRow addRow(FormRow row, String field, String value) {

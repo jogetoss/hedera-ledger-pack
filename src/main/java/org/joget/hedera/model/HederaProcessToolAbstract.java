@@ -1,9 +1,6 @@
 package org.joget.hedera.model;
 
-import com.hedera.hashgraph.sdk.BadMnemonicException;
 import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.PrecheckStatusException;
-import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -51,7 +48,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
      * @return A boolean value to continue or abort plugin execution. Default value is true.
      */
     public boolean isInputDataValidWithClient(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException {
+            throws TimeoutException, RuntimeException {
         return true;
     }
     
@@ -66,7 +63,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
      * @return is not used for now
      */
     protected abstract Object runTool(Map props, Client client) 
-            throws TimeoutException, PrecheckStatusException, BadMnemonicException, ReceiptStatusException;
+            throws TimeoutException, RuntimeException;
     
     @Override
     public Object execute(Map props) {
@@ -96,15 +93,20 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
             }
 
             result = runTool(props, client);
-            
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to timeout.");
-        } catch (PrecheckStatusException ex) {
-            LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to failed transaction prechecks.");
-        } catch (BadMnemonicException ex) {
-            LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to bad mnemonic inputted.");
-        } catch (ReceiptStatusException ex) {
-            LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to unable to retrieve transaction receipt.");
+        } catch (RuntimeException ex) { //Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
+            final String exceptionMessage = ex.getMessage();
+            
+            if (exceptionMessage.contains("PrecheckStatusException")) {
+                LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to failed transaction prechecks.");
+            } else if (exceptionMessage.contains("BadMnemonicException")) {
+                LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to bad mnemonic inputted.");
+            } else if (exceptionMessage.contains("ReceiptStatusException")) {
+                LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to unable to retrieve transaction receipt.");
+            } else {
+                LogUtil.error(getClassName(), ex, "Unhandled RuntimeException occured...");
+            }
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error executing process tool plugin...");
         } finally {
