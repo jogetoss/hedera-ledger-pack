@@ -93,6 +93,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
             final String accountMnemonic = PluginUtil.decrypt(WorkflowUtil.processVariable(getPropertyString("accountMnemonic"), "", wfAssignment));
             final String receiverAccountId = row.getProperty(getPropertyString("receiverAccountId"));
             final String amount = row.getProperty(getPropertyString("amount"));
+            final String transactionMemo = WorkflowUtil.processVariable(getPropertyString("transactionMemo"), "", wfAssignment);
             final boolean enableScheduledTx = "true".equals(getPropertyString("enableScheduledTransaction"));
 
             final AccountId senderAccount = AccountId.fromString(senderAccountId);
@@ -162,7 +163,9 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
             }
 
             //Can set a transaction memo of string up to max length of 100
-    //        transferTransaction.setTransactionMemo("joget transfer test");
+            if (!transactionMemo.isBlank()) {
+                transferTransaction.setTransactionMemo(transactionMemo);
+            }
 
             TransactionRecord transactionRecord;
 

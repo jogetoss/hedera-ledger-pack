@@ -124,6 +124,12 @@
                 "control_use_regex":"true"
             },
             {
+                "name":"transactionMemo",
+                "label":"@@process.hederaSendTransactionTool.transactionMemo@@",
+                "description":"@@process.hederaSendTransactionTool.transactionMemo.desc@@",
+                "type":"textfield"
+            },
+            {
                 "name":"enableScheduledTransaction",
                 "label":"@@process.hederaSendTransactionTool.enableScheduledTransaction@@",
                 "type":"checkbox",
