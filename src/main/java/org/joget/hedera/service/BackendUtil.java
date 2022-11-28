@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import java.util.Map;
 import org.joget.commons.util.LogUtil;
+import org.joget.workflow.util.WorkflowUtil;
 
 public class BackendUtil {
     
@@ -14,8 +15,8 @@ public class BackendUtil {
     
     public static Client getHederaClient(Map properties) {
         
-        final String operatorId = (String) properties.get("operatorId");
-        final String operatorKey = (String) properties.get("operatorKey");
+        final String operatorId = WorkflowUtil.processVariable((String) properties.get("operatorId"), "", null);
+        final String operatorKey = WorkflowUtil.processVariable((String) properties.get("operatorKey"), "", null);
         final String networkType = getNetworkType(properties);
         
         final AccountId operatorAccountId = AccountId.fromString(operatorId);
