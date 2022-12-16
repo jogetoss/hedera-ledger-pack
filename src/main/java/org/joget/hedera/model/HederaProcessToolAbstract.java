@@ -103,7 +103,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
             } else if (exceptionMessage.contains("BadMnemonicException")) {
                 LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to bad mnemonic inputted.");
             } else if (exceptionMessage.contains("ReceiptStatusException")) {
-                LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to unable to retrieve transaction receipt.");
+                LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to failed transaction.");
             } else {
                 LogUtil.error(getClassName(), ex, "Unhandled RuntimeException occured...");
             }
