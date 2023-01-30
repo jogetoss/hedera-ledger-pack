@@ -38,7 +38,7 @@ public class HederaBurnTokenTool extends HederaProcessToolAbstract {
 
     @Override
     public String getDescription() {
-        return "Burn native tokens and NFTs that was previously minted on the Hedera DLT.";
+        return "Burn fungible and non-fungible tokens that was previously minted on the Hedera DLT.";
     }
 
     @Override
@@ -117,7 +117,7 @@ public class HederaBurnTokenTool extends HederaProcessToolAbstract {
                 }
             } else {
                 if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
-                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+                    LogUtil.warn(getClassName(), "Burn transaction aborted. Specified token ID of " + tokenId + " is not a fungible token.");
                     return false;
                 }
 

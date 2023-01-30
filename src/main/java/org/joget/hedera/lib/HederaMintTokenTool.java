@@ -38,7 +38,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
 
     @Override
     public String getDescription() {
-        return "Mint native tokens and NFTs on the Hedera DLT.";
+        return "Mint fungible and non-fungible tokens on the Hedera DLT.";
     }
 
     @Override
@@ -99,7 +99,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
                     }
                 } else {
                     if (!(tokenInfo.tokenType).equals(TokenType.FUNGIBLE_COMMON)) {
-                        LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not a native token.");
+                        LogUtil.warn(getClassName(), "Mint transaction aborted. Specified token ID of " + tokenId + " is not a fungible token.");
                         return false;
                     }
                 }
@@ -441,7 +441,7 @@ public class HederaMintTokenTool extends HederaProcessToolAbstract {
 
         //Token ID set as Record ID
         newRow.setId(transactionRecord.receipt.tokenId.toString());
-        newRow = addRow(newRow, tokenTypeField, mintTypeNft ? "NFT" : "Native Token");
+        newRow = addRow(newRow, tokenTypeField, mintTypeNft ? "Non-fungible Token" : "Fungible Token");
         newRow = addRow(newRow, tokenNameField, tokenName);
         newRow = addRow(newRow, tokenSymbolField, tokenSymbol);
         newRow = addRow(newRow, minterAccountField, minterAccountId);

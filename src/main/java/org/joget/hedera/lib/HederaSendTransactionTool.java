@@ -40,7 +40,7 @@ public class HederaSendTransactionTool extends HederaProcessToolAbstract {
 
     @Override
     public String getDescription() {
-        return "Send assets from one account to another on the Hedera DLT, with option to perform scheduled transactions.";
+        return "Send tokens from one account to another on the Hedera DLT, with option to schedule transactions.";
     }
 
     @Override

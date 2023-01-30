@@ -8,7 +8,9 @@ import java.time.format.DateTimeFormatter;
 
 public class TransactionUtil {
     
-    //Convert human-readable amount to actual number (e.g.: 2 decimal points, 500.00 --> 50000)
+    /**
+     * Convert human-readable amount to actual number (e.g.: 2 decimal points, 500.00 --> 50000)
+     */
     public static int calcActualTokenAmountBasedOnDecimals(String precalcAmount, int decimalPoints) {
         BigDecimal unscaled = new BigDecimal(precalcAmount);
         BigDecimal scaled = unscaled.scaleByPowerOfTen(decimalPoints);
@@ -17,7 +19,9 @@ public class TransactionUtil {
         return scaled.intValue();
     }
     
-    //Convert actual amount to human-readable format (e.g.: 2 decimal points, 10000 --> 100.00)
+    /**
+     * Convert actual amount to human-readable format (e.g.: 2 decimal points, 10000 --> 100.00)
+     */ 
     public static BigDecimal deriveTokenAmountBasedOnDecimals(long actualAmount, int decimalPoints) {
         BigDecimal unscaled = new BigDecimal(actualAmount);
         BigDecimal scaled = unscaled.scaleByPowerOfTen(-decimalPoints);
