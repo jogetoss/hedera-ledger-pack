@@ -157,7 +157,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
                 transactionRecord.transactionId.toString()
         );
         
-        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord.transactionId.toString());
+        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord);
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 
