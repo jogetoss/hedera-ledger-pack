@@ -1,0 +1,184 @@
+[
+    {
+        "title":"@@form.hederaExplorerLinkFormElement.header.config@@",
+        "properties":[
+            {
+                "name":"id",
+                "label":"ID",
+                "type":"autocomplete",
+                "required":"True",
+                "regex_validation":"^[a-zA-Z0-9_]+$",
+                "validation_message":"@@form.textfield.invalidId@@",
+                "options_callback":"FormBuilder.getAllFieldOptions"
+            },
+            %s
+            ,
+            {
+                "label":"@@form.hederaExplorerLinkFormElement.subheader.valueRetrieval@@",
+                "type":"header",
+                "description":"@@form.hederaExplorerLinkFormElement.subheader.valueRetrieval.caution@@"
+            },
+            {
+                "name":"explorerType",
+                "label":"@@form.hederaExplorerLinkFormElement.explorerType@@",
+                "type":"selectbox",
+                "options":[
+                    {
+                        "value":"hashscan",
+                        "label":"@@form.hederaExplorerLinkFormElement.explorerType.hashscan@@"
+                    },
+                    {
+                        "value":"dragonglass",
+                        "label":"@@form.hederaExplorerLinkFormElement.explorerType.dragonglass@@"
+                    }
+                ],
+                "value":"hashscan"
+            },
+            {
+                "name":"valueType",
+                "label":"@@form.hederaExplorerLinkFormElement.valueType@@",
+                "type":"selectbox",
+                "options":[
+                    {
+                        "value":"transactionId",
+                        "label":"@@form.hederaExplorerLinkFormElement.valueType.transactionId@@"
+                    },
+                    {
+                        "value":"accountAddress",
+                        "label":"@@form.hederaExplorerLinkFormElement.valueType.accountAddress@@"
+                    },
+                    {
+                        "value":"tokenId",
+                        "label":"@@form.hederaExplorerLinkFormElement.valueType.tokenId@@"
+                    }
+                ],
+                "value":"transactionId"
+            },
+            {
+                "name":"getValueMode",
+                "label":"@@form.hederaExplorerLinkFormElement.getValueMode@@",
+                "type":"selectbox",
+                "options":[
+                    {
+                        "value":"fieldId",
+                        "label":"@@form.hederaExplorerLinkFormElement.getValueMode.fieldId@@"
+                    },
+                    {
+                        "value":"hashVariable",
+                        "label":"@@form.hederaExplorerLinkFormElement.getValueMode.hashVariable@@"
+                    },
+                    {
+                        "value":"workflowVariable",
+                        "label":"@@form.hederaExplorerLinkFormElement.getValueMode.workflowVariable@@"
+                    }
+                ],
+                "value":"fieldId"
+            },
+            {
+                "name" : "getFieldId",
+                "label" : "@@form.hederaExplorerLinkFormElement.getFieldId@@",
+                "type" : "selectbox",
+                "options_callback" : "FormBuilder.getFieldOptions",
+                "required" : "True",
+                "control_field" : "getValueMode",
+                "control_value" : "fieldId",
+                "control_use_regex" : "false"
+            },
+            {
+                "name" : "textHashVariable",
+                "label" : "@@form.hederaExplorerLinkFormElement.textHashVariable@@",
+                "type":"textfield",
+                "required" : "True",
+                "control_field" : "getValueMode",
+                "control_value" : "hashVariable",
+                "control_use_regex" : "false"
+            },
+            {
+                "name" : "workflowVariable",
+                "label" : "@@form.textfield.workflowVariable@@",
+                "type" : "autocomplete",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "required" : "True",
+                "control_field" : "getValueMode",
+                "control_value" : "workflowVariable",
+                "control_use_regex" : "false"
+            },
+            {
+                "label":"@@form.hederaExplorerLinkFormElement.subheader.customizeLinkUi@@",
+                "type":"header"
+            },
+            {
+                "name":"displayAs",
+                "label":"@@form.hederaExplorerLinkFormElement.displayAs@@",
+                "type":"selectbox",
+                "options":[
+                    {
+                        "value":"button",
+                        "label":"@@form.hederaExplorerLinkFormElement.displayAs.button@@"
+                    },
+                    {
+                        "value":"hyperlink",
+                        "label":"@@form.hederaExplorerLinkFormElement.displayAs.hyperlink@@"
+                    }
+                ],
+                "value":"button"
+            },
+            {
+                "name" : "buttonLabel",
+                "label" : "@@form.hederaExplorerLinkFormElement.buttonLabel@@",
+                "type" : "textfield",
+                "required" : "True",
+                "value" : "Verify on Explorer",
+                "control_field" : "displayAs",
+                "control_value" : "button",
+                "control_use_regex" : "false"
+            },
+            {
+                "name" : "hyperlinkLabel",
+                "label" : "@@form.hederaExplorerLinkFormElement.hyperlinkLabel@@",
+                "description" : "@@form.hederaExplorerLinkFormElement.hyperlinkLabel.desc@@",
+                "type" : "textfield",
+                "value" : "Verify on Explorer",
+                "control_field" : "displayAs",
+                "control_value" : "hyperlink",
+                "control_use_regex" : "false"
+            },
+            {
+                "name" : "linkTarget",
+                "label" : "@@form.hederaExplorerLinkFormElement.linkTarget@@",
+                "type" : "selectbox",
+                "options":[
+                    {
+                       "value":"currentWindow",
+                       "label":"@@form.hederaExplorerLinkFormElement.linkTarget.currentWindow@@"
+                    },
+                    {
+                       "value":"newTab",
+                       "label":"@@form.hederaExplorerLinkFormElement.linkTarget.newTab@@"
+                    }
+                ],
+                "value":"newTab"
+            },
+            {
+                "name" : "invalidValueBehavior",
+                "label" : "@@form.hederaExplorerLinkFormElement.invalidValueBehavior@@",
+                "type" : "selectbox",
+                "options":[
+                    {
+                       "value":"showAsIs",
+                       "label":"@@form.hederaExplorerLinkFormElement.invalidValueBehavior.showAsIs@@"
+                    },
+                    {
+                       "value":"disableLink",
+                       "label":"@@form.hederaExplorerLinkFormElement.invalidValueBehavior.disableLink@@"
+                    },
+                    {
+                       "value":"hideLink",
+                       "label":"@@form.hederaExplorerLinkFormElement.invalidValueBehavior.hideLink@@"
+                    }
+                ],
+                "value":"hideLink"
+            }
+        ]
+    }
+]

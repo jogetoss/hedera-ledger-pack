@@ -24,6 +24,9 @@ public class Activator implements BundleActivator {
         //Form Binder plugins
         registrationList.add(context.registerService(HederaAccountLoadBinder.class.getName(), new HederaAccountLoadBinder(), null));
         registrationList.add(context.registerService(HederaScheduledTransactionLoadBinder.class.getName(), new HederaScheduledTransactionLoadBinder(), null));
+        
+        //Form Element plugins
+        registrationList.add(context.registerService(HederaExplorerLinkFormElement.class.getName(), new HederaExplorerLinkFormElement(), null));
     }
 
     public void stop(BundleContext context) {

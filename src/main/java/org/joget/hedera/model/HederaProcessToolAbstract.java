@@ -83,7 +83,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
             final Client client = BackendUtil.getHederaClient(props);
             
             if (client == null) {
-                LogUtil.warn(getClassName(), "Something went wrong upon initializing hedera client. Aborting plugin execution.");
+                LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
                 return null;
             }
             
@@ -157,7 +157,7 @@ public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin
                 transactionRecord.transactionId.toString()
         );
         
-        String transactionExplorerUrl = ExplorerUtil.getTransactionExplorerUrl(properties, transactionRecord);
+        String transactionExplorerUrl = ExplorerUtil.getTransactionUrl(properties, transactionRecord);
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 

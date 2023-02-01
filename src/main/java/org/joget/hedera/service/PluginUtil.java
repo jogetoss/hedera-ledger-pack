@@ -8,6 +8,8 @@ import org.joget.commons.util.SecurityUtil;
 
 public class PluginUtil {
     
+    private PluginUtil() {}
+    
     public static final String MULTI_VALUE_DELIMITER = ";";
     
     public static final String MESSAGE_PATH = "messages/HederaMessages";

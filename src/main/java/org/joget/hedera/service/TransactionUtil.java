@@ -1,12 +1,38 @@
 package org.joget.hedera.service;
 
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.TransactionId;
+import com.hedera.hashgraph.sdk.TransactionRecord;
+import com.hedera.hashgraph.sdk.TransactionRecordQuery;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import org.joget.apps.form.service.FormUtil;
 
 public class TransactionUtil {
+    
+    private TransactionUtil() {}
+    
+    public static boolean isTransactionExist(Client client, String transactionId) {
+        //If within a Form Builder, don't make useless API calls
+        if (transactionId == null || transactionId.isBlank() || FormUtil.isFormBuilderActive()) {
+            return false;
+        }
+        
+        try {
+            TransactionRecord txRecord = new TransactionRecordQuery()
+                    .setTransactionId(TransactionId.fromString(transactionId))
+                    .execute(client);
+            
+            return (txRecord != null);
+        } catch (Exception ex) {
+            //Ignore if not successful.
+        }
+        
+        return false;
+    }
     
     /**
      * Convert human-readable amount to actual number (e.g.: 2 decimal points, 500.00 --> 50000)

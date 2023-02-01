@@ -1,6 +1,9 @@
 package org.joget.hedera.service;
 
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.TransactionRecord;
+import com.hedera.hashgraph.sdk.TransactionRecordQuery;
 import java.time.Instant;
 import java.util.Map;
 import org.joget.commons.util.LogUtil;
@@ -9,6 +12,8 @@ import static org.joget.hedera.service.BackendUtil.PREVIEWNET_NAME;
 import static org.joget.hedera.service.BackendUtil.TESTNET_NAME;
 
 public class ExplorerUtil {
+    
+    private ExplorerUtil() {}
     
     private static final String HASHSCAN_TYPE = "hashscan";
     private static final String DRAGONGLASS_TYPE = "dragonglass";
@@ -50,12 +55,27 @@ public class ExplorerUtil {
         }
     }
     
-    //Default is Hashscan for all transaction URLs
-    public static String getTransactionExplorerUrl(Map properties, TransactionRecord txRecord) {
-        return getTransactionExplorerUrl(properties, txRecord, HASHSCAN_TYPE);
+    public static String getTransactionUrl(Client client, Map properties, String txId, String explorerType) {
+        TransactionRecord txRecord;
+        
+        try {
+            txRecord = new TransactionRecordQuery()
+                    .setTransactionId(TransactionId.fromString(txId))
+                    .execute(client);
+        } catch (Exception ex) {
+            LogUtil.warn(ExplorerUtil.class.getName(), "Unable to retrieve transaction record...");
+            return null;
+        }
+        
+        return getTransactionUrl(properties, txRecord, explorerType);
     }
     
-    public static String getTransactionExplorerUrl(Map properties, TransactionRecord txRecord, String explorerType) {
+    //Default is Hashscan for all transaction URLs
+    public static String getTransactionUrl(Map properties, TransactionRecord txRecord) {
+        return getTransactionUrl(properties, txRecord, HASHSCAN_TYPE);
+    }
+    
+    public static String getTransactionUrl(Map properties, TransactionRecord txRecord, String explorerType) {
         String transactionId = txRecord.transactionId.toString();
         
         //No need to return immediately, in case user wants to show link as is
@@ -77,6 +97,40 @@ public class ExplorerUtil {
                 String formattedTxId = transactionId.replaceAll("@", "-");
                 formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
                 return getHashscanUrl(networkType) + "transaction/" + formattedTimestamp + "?tid=" + formattedTxId;
+        }
+    }
+    
+    public static String getAddressUrl(Map properties, String accountAddress, String explorerType) {
+        //No need to return immediately, in case user wants to show link as is
+        if (accountAddress == null || accountAddress.isBlank()) {
+            accountAddress = "";
+        }
+        
+        String networkType = BackendUtil.getNetworkType(properties);
+        
+        switch (explorerType) {
+            case DRAGONGLASS_TYPE:
+                return getDragonglassUrl(networkType) + "accounts/" + accountAddress;
+            case HASHSCAN_TYPE:
+            default:
+                return getHashscanUrl(networkType) + "account/" + accountAddress;
+        }
+    }
+    
+    public static String getTokenUrl(Map properties, String tokenId, String explorerType) {
+        //No need to return immediately, in case user wants to show link as is
+        if (tokenId == null || tokenId.isBlank()) {
+            tokenId = "";
+        }
+        
+        String networkType = BackendUtil.getNetworkType(properties);
+        
+        switch (explorerType) {
+            case DRAGONGLASS_TYPE:
+                return getDragonglassUrl(networkType) + "tokens/" + tokenId;
+            case HASHSCAN_TYPE:
+            default:
+                return getHashscanUrl(networkType) + "token/" + tokenId;
         }
     }
 }

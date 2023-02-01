@@ -9,6 +9,8 @@ import org.joget.workflow.util.WorkflowUtil;
 
 public class BackendUtil {
     
+    private BackendUtil() {}
+    
     public static final String MAINNET_NAME = "mainnet";
     public static final String PREVIEWNET_NAME = "previewnet";
     public static final String TESTNET_NAME = "testnet";
