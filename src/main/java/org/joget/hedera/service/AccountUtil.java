@@ -38,12 +38,16 @@ public class AccountUtil {
         try {
             return mnemonic.toPrivateKey();
         } catch (BadMnemonicException ex) {
-            LogUtil.error(PluginUtil.class.getName(), ex, "Unable to derive key from mnemonic phrase. Reason: " + ex.reason.toString());
+            LogUtil.error(getClassName(), ex, "Unable to derive key from mnemonic phrase. Reason: " + ex.reason.toString());
             return null;
         }
     }
     
     public static PublicKey derivePublicKeyFromMnemonic(Mnemonic mnemonic) {
         return derivePrivateKeyFromMnemonic(mnemonic).getPublicKey();
+    }
+    
+    private static String getClassName() {
+        return AccountUtil.class.getName();
     }
 }

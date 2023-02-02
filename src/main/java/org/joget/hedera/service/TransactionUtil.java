@@ -1,34 +1,38 @@
 package org.joget.hedera.service;
 
-import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.TransactionId;
-import com.hedera.hashgraph.sdk.TransactionRecord;
-import com.hedera.hashgraph.sdk.TransactionRecordQuery;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
+import org.json.JSONObject;
 
 public class TransactionUtil {
     
     private TransactionUtil() {}
     
-    public static boolean isTransactionExist(Client client, String transactionId) {
+    public static boolean isTransactionExist(Map properties, String transactionId) {
         //If within a Form Builder, don't make useless API calls
         if (transactionId == null || transactionId.isBlank() || FormUtil.isFormBuilderActive()) {
             return false;
         }
         
+        String formattedTxId = transactionId.replaceAll("@", "-");
+        formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
+        
+        String getUrl = BackendUtil.getMirrorNodeUrl(BackendUtil.getNetworkType(properties)) 
+                + "transactions/" 
+                + formattedTxId;
+        
+        JSONObject jsonResponse = BackendUtil.httpGet(getUrl);
+        
         try {
-            TransactionRecord txRecord = new TransactionRecordQuery()
-                    .setTransactionId(TransactionId.fromString(transactionId))
-                    .execute(client);
-            
-            return (txRecord != null);
+            return (jsonResponse.getJSONArray("transactions").getJSONObject(0) != null);
         } catch (Exception ex) {
-            //Ignore if not successful.
+            LogUtil.error(getClassName(), ex, "Abnormal API response detected...");
         }
         
         return false;
@@ -77,5 +81,9 @@ public class TransactionUtil {
         ZonedDateTime dateTime = ZonedDateTime.ofInstant(timeStamp, zone);
         
         return DateTimeFormatter.ofPattern(dateTimeFormat).format(dateTime);
+    }
+    
+    private static String getClassName() {
+        return TransactionUtil.class.getName();
     }
 }

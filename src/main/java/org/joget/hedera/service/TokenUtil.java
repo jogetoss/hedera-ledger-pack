@@ -28,4 +28,8 @@ public class TokenUtil {
         
         return false;
     }
+    
+    private static String getClassName() {
+        return TokenUtil.class.getName();
+    }
 }

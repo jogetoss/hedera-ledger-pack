@@ -100,7 +100,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
                     return TokenUtil.isTokenExist(client, retrievedValue);
                 case TX_ID_TYPE:
                 default:
-                    return TransactionUtil.isTransactionExist(client, retrievedValue);
+                    return TransactionUtil.isTransactionExist(getProperties(), retrievedValue);
             }
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error retrieving on-chain data.");
@@ -121,7 +121,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
                 return ExplorerUtil.getTokenUrl(getProperties(), retrievedValue, explorerType);
             case TX_ID_TYPE:
             default:
-                return ExplorerUtil.getTransactionUrl(client, getProperties(), retrievedValue, explorerType);
+                return ExplorerUtil.getTransactionUrl(getProperties(), retrievedValue, explorerType);
         }
     }
     

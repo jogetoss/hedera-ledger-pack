@@ -1,15 +1,13 @@
 package org.joget.hedera.service;
 
-import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.TransactionRecord;
-import com.hedera.hashgraph.sdk.TransactionRecordQuery;
 import java.time.Instant;
 import java.util.Map;
 import org.joget.commons.util.LogUtil;
 import static org.joget.hedera.service.BackendUtil.MAINNET_NAME;
 import static org.joget.hedera.service.BackendUtil.PREVIEWNET_NAME;
 import static org.joget.hedera.service.BackendUtil.TESTNET_NAME;
+import org.json.JSONObject;
 
 public class ExplorerUtil {
     
@@ -36,7 +34,7 @@ public class ExplorerUtil {
             case PREVIEWNET_NAME:
                 return HASHSCAN_PREVIEWNET;
             default:
-                LogUtil.warn(ExplorerUtil.class.getName(), "Unknown network selection found!");
+                LogUtil.warn(getClassName(), "Unknown network selection found!");
                 return null;
         }
     }
@@ -50,24 +48,39 @@ public class ExplorerUtil {
             case PREVIEWNET_NAME:
                 return DRAGONGLASS_PREVIEWNET;
             default:
-                LogUtil.warn(ExplorerUtil.class.getName(), "Unknown network selection found!");
+                LogUtil.warn(getClassName(), "Unknown network selection found!");
                 return null;
         }
     }
     
-    public static String getTransactionUrl(Client client, Map properties, String txId, String explorerType) {
-        TransactionRecord txRecord;
-        
-        try {
-            txRecord = new TransactionRecordQuery()
-                    .setTransactionId(TransactionId.fromString(txId))
-                    .execute(client);
-        } catch (Exception ex) {
-            LogUtil.warn(ExplorerUtil.class.getName(), "Unable to retrieve transaction record...");
-            return null;
+    public static String getTransactionUrl(Map properties, String transactionId, String explorerType) {
+        String networkType = BackendUtil.getNetworkType(properties);
+
+        switch (explorerType) {
+            case DRAGONGLASS_TYPE: {
+                String formattedTxId = transactionId.replaceAll("[^0-9]","");
+                return getDragonglassUrl(networkType) + "transactions/" + formattedTxId;
+            }
+            case HASHSCAN_TYPE:
+            default:
+                String formattedTxId = transactionId.replaceAll("@", "-");
+                formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) 
+                        + "-" 
+                        + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
+
+                try {
+                    String getUrl = BackendUtil.getMirrorNodeUrl(networkType) + "transactions/" + formattedTxId;
+                    JSONObject jsonResponse = BackendUtil.httpGet(getUrl);
+
+                    String consensusTimestamp = jsonResponse.getJSONArray("transactions").getJSONObject(0).getString("consensus_timestamp");
+
+                    return getHashscanUrl(networkType) + "transaction/" + consensusTimestamp + "?tid=" + formattedTxId;
+                } catch (Exception ex) {
+                    LogUtil.error(getClassName(), ex, "Abnormal API response detected...");
+                }
         }
         
-        return getTransactionUrl(properties, txRecord, explorerType);
+        return null;
     }
     
     //Default is Hashscan for all transaction URLs
@@ -132,5 +145,9 @@ public class ExplorerUtil {
             default:
                 return getHashscanUrl(networkType) + "token/" + tokenId;
         }
+    }
+    
+    private static String getClassName() {
+        return ExplorerUtil.class.getName();
     }
 }
