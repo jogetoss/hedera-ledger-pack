@@ -4,11 +4,35 @@ import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfo;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
+import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
+import org.json.JSONObject;
 
 public class TokenUtil {
     
     private TokenUtil() {}
+    
+    public static boolean isTokenExist(Map properties, String tokenId) {
+        //If within a Form Builder, don't make useless API calls
+        if (tokenId == null || tokenId.isBlank() || FormUtil.isFormBuilderActive()) {
+            return false;
+        }
+        
+        String getUrl = BackendUtil.getMirrorNodeUrl(BackendUtil.getNetworkType(properties)) 
+                + "tokens/" 
+                + tokenId;
+        
+        JSONObject jsonResponse = BackendUtil.httpGet(getUrl);
+        
+        try {
+            return (jsonResponse != null && (jsonResponse.getString("token_id")).equals(tokenId));
+        } catch (Exception ex) {
+            LogUtil.error(getClassName(), ex, "Abnormal API response detected...");
+        }
+        
+        return false;
+    }
     
     public static boolean isTokenExist(Client client, String tokenId) {
         //If within a Form Builder, don't make useless API calls

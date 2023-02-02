@@ -23,8 +23,6 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
     private static final String ADDRESS_TYPE = "accountAddress";
     private static final String TOKEN_TYPE = "tokenId";
     
-    private Client client;
-    
     @Override
     public String getName() {
         return "Hedera Explorer Link";
@@ -48,9 +46,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
     }
 
     @Override
-    public String renderElement(FormData formData, Map dataModel, Client client) {
-        this.client = client;
-        
+    public String renderElement(FormData formData, Map dataModel, Client client) {    
         String explorerType = getPropertyString("explorerType");
         String valueType = getPropertyString("valueType");
         String getValueMode = getPropertyString("getValueMode");
@@ -95,9 +91,9 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
         try {
             switch (valueType) {
                 case ADDRESS_TYPE :
-                    return AccountUtil.isAccountExist(client, retrievedValue);
+                    return AccountUtil.isAccountExist(getProperties(), retrievedValue);
                 case TOKEN_TYPE :
-                    return TokenUtil.isTokenExist(client, retrievedValue);
+                    return TokenUtil.isTokenExist(getProperties(), retrievedValue);
                 case TX_ID_TYPE:
                 default:
                     return TransactionUtil.isTransactionExist(getProperties(), retrievedValue);
