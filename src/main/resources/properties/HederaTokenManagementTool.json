@@ -1,0 +1,87 @@
+[
+    {
+       "title":"@@process.hederaTokenManagementTool.header.config@@",
+       "properties":[
+            %s
+        ]
+    },
+    {
+        "title":"@@process.hederaTokenManagementTool.header.tokenManagement@@",
+        "properties":[
+            {
+                "name":"operationType",
+                "label":"@@process.hederaTokenManagementTool.operationType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "associate",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.associate@@"
+                    },
+                    {
+                        "value" : "dissociate",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.dissociate@@"
+                    },
+                    {
+                        "value" : "grantKyc",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.grantKyc@@"
+                    },
+                    {
+                        "value" : "revokeKyc",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.revokeKyc@@"
+                    }
+                ],
+                "value":"associate"
+            },
+            {
+                "name":"formDefId",
+                "label":"@@process.hederaTokenManagementTool.formDefId@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+            },
+            {
+                "name":"tokenId",
+                "label":"@@process.hederaTokenManagementTool.tokenId@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"targetAccount",
+                "label":"@@process.hederaTokenManagementTool.targetAccount@@",
+                "description":"@@process.hederaTokenManagementTool.targetAccount.desc@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"targetAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.targetAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.targetAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"associate|dissociate",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"kycAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.kycAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.kycAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"grantKyc|revokeKyc",
+                "control_use_regex":"true"
+            }
+        ]
+    },
+    {
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
+        "properties" : [
+            %s
+        ]
+    }
+]
