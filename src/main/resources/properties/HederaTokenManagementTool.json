@@ -78,7 +78,10 @@
                 "type":"selectbox",
                 "required":"true",
                 "options_ajax_on_change":"formDefId",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"operationType",
+                "control_value":"associate|dissociate|grantKyc|revokeKyc|freeze|unfreeze|wipe",
+                "control_use_regex":"true"
             },
             {
                 "name":"targetAccountMnemonic",
