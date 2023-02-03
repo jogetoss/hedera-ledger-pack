@@ -1,7 +1,6 @@
 package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.BadMnemonicException;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Mnemonic;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
@@ -9,9 +8,11 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
 import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
+import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
 import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenRevokeKycTransaction;
+import com.hedera.hashgraph.sdk.TokenUnfreezeTransaction;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Collections;
 import java.util.Map;
@@ -65,28 +66,17 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
         
         try {
             String formDefId = getPropertyString("formDefId");
-
-            FormRowSet rowSet = getFormRecord(formDefId, null);
-
-            FormRow row = rowSet.get(0);
+            FormRow row = getFormRecord(formDefId, null).get(0);
             
             final String tokenId = row.getProperty(getPropertyString("tokenId"));
-
             final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
             
             TransactionRecord transactionRecord;
-
             final OperationType operationType = OperationType.fromString(getPropertyString("operationType"));
 
             switch (operationType) {
                 case ASSOCIATE: {
-                    final PrivateKey targetAccountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(
-                            Mnemonic.fromString(
-                                    PluginUtil.decrypt(
-                                            WorkflowUtil.processVariable(getPropertyString("targetAccountMnemonic"), "", wfAssignment)
-                                    )
-                            )
-                    );
+                    final PrivateKey targetAccountPrivateKey = getPrivateKey(getPropertyString("targetAccountMnemonic"));
                     
                     transactionRecord = new TokenAssociateTransaction()
                         .setAccountId(targetAccount)
@@ -98,13 +88,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case DISSOCIATE: {
-                    final PrivateKey targetAccountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(
-                            Mnemonic.fromString(
-                                    PluginUtil.decrypt(
-                                            WorkflowUtil.processVariable(getPropertyString("targetAccountMnemonic"), "", wfAssignment)
-                                    )
-                            )
-                    );
+                    final PrivateKey targetAccountPrivateKey = getPrivateKey(getPropertyString("targetAccountMnemonic"));
                     
                     transactionRecord = new TokenDissociateTransaction()
                         .setAccountId(targetAccount)
@@ -116,13 +100,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case GRANT_KYC: {
-                    final PrivateKey kycAccountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(
-                            Mnemonic.fromString(
-                                    PluginUtil.decrypt(
-                                            WorkflowUtil.processVariable(getPropertyString("kycAccountMnemonic"), "", wfAssignment)
-                                    )
-                            )
-                    );
+                    final PrivateKey kycAccountPrivateKey = getPrivateKey(getPropertyString("kycAccountMnemonic"));
                     
                     transactionRecord = new TokenGrantKycTransaction()
                             .setAccountId(targetAccount)
@@ -134,19 +112,37 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case REVOKE_KYC: {
-                    final PrivateKey kycAccountPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(
-                            Mnemonic.fromString(
-                                    PluginUtil.decrypt(
-                                            WorkflowUtil.processVariable(getPropertyString("kycAccountMnemonic"), "", wfAssignment)
-                                    )
-                            )
-                    );
+                    final PrivateKey kycAccountPrivateKey = getPrivateKey(getPropertyString("kycAccountMnemonic"));
                     
                     transactionRecord = new TokenRevokeKycTransaction()
                             .setAccountId(targetAccount)
                             .setTokenId(TokenId.fromString(tokenId))
                             .freezeWith(client)
                             .sign(kycAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
+                case FREEZE: {
+                    final PrivateKey freezeAccountPrivateKey = getPrivateKey(getPropertyString("freezeAccountMnemonic"));
+                    
+                    transactionRecord = new TokenFreezeTransaction()
+                            .setAccountId(targetAccount)
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .freezeWith(client)
+                            .sign(freezeAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
+                case UNFREEZE: {
+                    final PrivateKey freezeAccountPrivateKey = getPrivateKey(getPropertyString("freezeAccountMnemonic"));
+                    
+                    transactionRecord = new TokenUnfreezeTransaction()
+                            .setAccountId(targetAccount)
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .freezeWith(client)
+                            .sign(freezeAccountPrivateKey)
                             .execute(client)
                             .getRecord(client);
                     break;
@@ -159,8 +155,23 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
             storeGenericTxDataToWorkflowVariable(props, transactionRecord);
 
             return transactionRecord;
-        } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
+        } catch (PrecheckStatusException | ReceiptStatusException e) {
             throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
+        }
+    }
+    
+    private PrivateKey getPrivateKey(String mnemonicString) {
+        try {
+            return AccountUtil.derivePrivateKeyFromMnemonic(
+                    Mnemonic.fromString(
+                            PluginUtil.decrypt(
+                                    WorkflowUtil.processVariable(mnemonicString, "", wfAssignment)
+                            )
+                    )
+            );
+        } catch (Exception ex) {
+            LogUtil.warn(getClassName(), "Unable to derive private key from mnemonic...");
+            return null;
         }
     }
     
@@ -168,7 +179,9 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
         ASSOCIATE("associate"),
         DISSOCIATE("dissociate"),
         GRANT_KYC("grantKyc"),
-        REVOKE_KYC("revokeKyc");
+        REVOKE_KYC("revokeKyc"),
+        FREEZE("freeze"),
+        UNFREEZE("unfreeze");
         
         private final String value;
         

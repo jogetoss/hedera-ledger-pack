@@ -28,6 +28,14 @@
                     {
                         "value" : "revokeKyc",
                         "label" : "@@process.hederaTokenManagementTool.operationType.revokeKyc@@"
+                    },
+                    {
+                        "value" : "freeze",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.freeze@@"
+                    },
+                    {
+                        "value" : "unfreeze",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.unfreeze@@"
                     }
                 ],
                 "value":"associate"
@@ -74,6 +82,16 @@
                 "required":"true",
                 "control_field":"operationType",
                 "control_value":"grantKyc|revokeKyc",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"freezeAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.freezeAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.freezeAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"freeze|unfreeze",
                 "control_use_regex":"true"
             }
         ]
