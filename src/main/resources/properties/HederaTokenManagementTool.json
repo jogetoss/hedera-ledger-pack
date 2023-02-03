@@ -72,6 +72,12 @@
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
+                "name":"transactionMemo",
+                "label":"@@process.hederaTokenManagementTool.transactionMemo@@",
+                "description":"@@process.hederaTokenManagementTool.transactionMemo.desc@@",
+                "type":"textfield"
+            },
+            {
                 "name":"targetAccount",
                 "label":"@@process.hederaTokenManagementTool.targetAccount@@",
                 "description":"@@process.hederaTokenManagementTool.targetAccount.desc@@",
