@@ -52,6 +52,10 @@
                     {
                         "value" : "delete",
                         "label" : "@@process.hederaTokenManagementTool.operationType.delete@@"
+                    },
+                    {
+                        "value" : "burn",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.burn@@"
                     }
                 ],
                 "value":"associate"
@@ -152,8 +156,10 @@
                 "name":"amountToWipe",
                 "label":"@@process.hederaTokenManagementTool.amountToWipe@@",
                 "description":"@@process.hederaTokenManagementTool.amountToWipe.desc@@",
-                "type":"textfield",
+                "type":"selectbox",
                 "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
                 "control_field":"wipeTokenType",
                 "control_value":"fungibleToken",
                 "control_use_regex":"false"
@@ -161,8 +167,11 @@
             {
                 "name":"nftSerialNumberToWipe",
                 "label":"@@process.hederaTokenManagementTool.nftSerialNumberToWipe@@",
-                "type":"textfield",
+                "description":"@@process.hederaTokenManagementTool.nftSerialNumberToWipe.desc@@",
+                "type":"selectbox",
                 "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
                 "control_field":"wipeTokenType",
                 "control_value":"nft",
                 "control_use_regex":"false"
@@ -185,6 +194,59 @@
                 "required":"true",
                 "control_field":"operationType",
                 "control_value":"delete",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"supplyAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.supplyAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.supplyAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"burn",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"burnTokenType",
+                "label":"@@process.hederaTokenManagementTool.burnTokenType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "fungibleToken",
+                        "label" : "@@process.hederaTokenManagementTool.burnTokenType.fungibleToken@@"
+                    },
+                    {
+                        "value" : "nft",
+                        "label" : "@@process.hederaTokenManagementTool.burnTokenType.nft@@"
+                    }
+                ],
+                "value":"fungibleToken",
+                "control_field":"operationType",
+                "control_value":"burn",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"amountToBurn",
+                "label":"@@process.hederaTokenManagementTool.amountToBurn@@",
+                "description":"@@process.hederaTokenManagementTool.amountToBurn.desc@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"burnTokenType",
+                "control_value":"fungibleToken",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"nftSerialNumberToBurn",
+                "label":"@@process.hederaTokenManagementTool.nftSerialNumberToBurn@@",
+                "description":"@@process.hederaTokenManagementTool.nftSerialNumberToBurn.desc@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"burnTokenType",
+                "control_value":"nft",
                 "control_use_regex":"false"
             }
         ]

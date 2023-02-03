@@ -7,11 +7,14 @@ import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
+import com.hedera.hashgraph.sdk.TokenBurnTransaction;
 import com.hedera.hashgraph.sdk.TokenDeleteTransaction;
 import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
 import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenInfo;
+import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenPauseTransaction;
 import com.hedera.hashgraph.sdk.TokenRevokeKycTransaction;
 import com.hedera.hashgraph.sdk.TokenUnfreezeTransaction;
@@ -28,6 +31,7 @@ import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessToolAbstract;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
+import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
 public class HederaTokenManagementTool extends HederaProcessToolAbstract {
@@ -69,11 +73,9 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
             throws TimeoutException, RuntimeException {
         
         try {
-            String formDefId = getPropertyString("formDefId");
-            FormRow row = getFormRecord(formDefId, null).get(0);
+            FormRow row = getFormRecord(getPropertyString("formDefId"), null).get(0);
             
             final String tokenId = row.getProperty(getPropertyString("tokenId"));
-            final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
             
             final String transactionMemo = WorkflowUtil.processVariable(getPropertyString("transactionMemo"), "", wfAssignment).trim();
             
@@ -82,6 +84,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
 
             switch (operationType) {
                 case ASSOCIATE: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey targetAccountPrivateKey = getPrivateKey(getPropertyString("targetAccountMnemonic"));
                     
                     transactionRecord = new TokenAssociateTransaction()
@@ -95,6 +98,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case DISSOCIATE: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey targetAccountPrivateKey = getPrivateKey(getPropertyString("targetAccountMnemonic"));
                     
                     transactionRecord = new TokenDissociateTransaction()
@@ -108,6 +112,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case GRANT_KYC: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey kycAccountPrivateKey = getPrivateKey(getPropertyString("kycAccountMnemonic"));
                     
                     transactionRecord = new TokenGrantKycTransaction()
@@ -121,6 +126,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case REVOKE_KYC: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey kycAccountPrivateKey = getPrivateKey(getPropertyString("kycAccountMnemonic"));
                     
                     transactionRecord = new TokenRevokeKycTransaction()
@@ -134,6 +140,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case FREEZE: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey freezeAccountPrivateKey = getPrivateKey(getPropertyString("freezeAccountMnemonic"));
                     
                     transactionRecord = new TokenFreezeTransaction()
@@ -147,6 +154,7 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case UNFREEZE: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey freezeAccountPrivateKey = getPrivateKey(getPropertyString("freezeAccountMnemonic"));
                     
                     transactionRecord = new TokenUnfreezeTransaction()
@@ -160,34 +168,30 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                     break;
                 }
                 case WIPE: {
+                    final AccountId targetAccount = AccountId.fromString(row.getProperty(getPropertyString("targetAccount")));
                     final PrivateKey wipeAccountPrivateKey = getPrivateKey(getPropertyString("wipeAccountMnemonic"));
                     final String wipeTokenType = getPropertyString("wipeTokenType"); //"fungibleToken" or "nft"
                     
+                    TokenWipeTransaction tokenWipeTx = new TokenWipeTransaction()
+                            .setAccountId(targetAccount)
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .setTransactionMemo(transactionMemo);
+                    
                     if (wipeTokenType.equals("fungibleToken")) {
-                        final String amountToWipe = getPropertyString("amountToWipe");
+                        final String amountToWipe = row.getProperty(getPropertyString("amountToWipe"));
                         
-                        transactionRecord = new TokenWipeTransaction()
-                                .setAccountId(targetAccount)
-                                .setTokenId(TokenId.fromString(tokenId))
-                                .setAmount(Long.parseLong(amountToWipe))
-                                .setTransactionMemo(transactionMemo)
-                                .freezeWith(client)
-                                .sign(wipeAccountPrivateKey)
-                                .execute(client)
-                                .getRecord(client);
+                        tokenWipeTx.setAmount(Long.parseLong(amountToWipe));
                     } else {
-                        final String nftSerialNumberToWipe = getPropertyString("nftSerialNumberToWipe");
+                        final String nftSerialNumberToWipe = row.getProperty(getPropertyString("nftSerialNumberToWipe"));
                         
-                        transactionRecord = new TokenWipeTransaction()
-                                .setAccountId(targetAccount)
-                                .setTokenId(TokenId.fromString(tokenId))
-                                .addSerial(Long.parseLong(nftSerialNumberToWipe))
-                                .setTransactionMemo(transactionMemo)
-                                .freezeWith(client)
-                                .sign(wipeAccountPrivateKey)
-                                .execute(client)
-                                .getRecord(client);
+                        tokenWipeTx.addSerial(Long.parseLong(nftSerialNumberToWipe));
                     }
+                    
+                    transactionRecord = tokenWipeTx
+                            .freezeWith(client)
+                            .sign(wipeAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
                     break;
                 }
                 case PAUSE: {
@@ -222,6 +226,35 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                             .setTransactionMemo(transactionMemo)
                             .freezeWith(client)
                             .sign(adminAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
+                case BURN: {
+                    final PrivateKey supplyAccountPrivateKey = getPrivateKey(getPropertyString("supplyAccountMnemonic"));
+                    final String burnTokenType = getPropertyString("burnTokenType"); //"fungibleToken" or "nft"
+                    
+                    TokenBurnTransaction tokenBurnTx = new TokenBurnTransaction()
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .setTransactionMemo(transactionMemo);
+                    
+                    if (burnTokenType.equals("fungibleToken")) {
+                        final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
+                        
+                        TokenInfo tokenInfo = new TokenInfoQuery()
+                                .setTokenId(TokenId.fromString(tokenId))
+                                .execute(client);
+                        
+                        tokenBurnTx.setAmount(TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToBurn, tokenInfo.decimals));
+                    } else {
+                        final String nftSerialNumberToBurn = row.getProperty(getPropertyString("nftSerialNumberToBurn"));
+                        
+                        tokenBurnTx.addSerial(Long.parseLong(nftSerialNumberToBurn));
+                    }
+                    
+                    transactionRecord = tokenBurnTx
+                            .freezeWith(client)
+                            .sign(supplyAccountPrivateKey)
                             .execute(client)
                             .getRecord(client);
                     break;
@@ -264,7 +297,8 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
         WIPE("wipe"),
         PAUSE("pause"),
         UNPAUSE("unpause"),
-        DELETE("delete");
+        DELETE("delete"),
+        BURN("burn");
         
         private final String value;
         
