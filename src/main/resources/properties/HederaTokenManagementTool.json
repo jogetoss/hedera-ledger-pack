@@ -36,6 +36,18 @@
                     {
                         "value" : "unfreeze",
                         "label" : "@@process.hederaTokenManagementTool.operationType.unfreeze@@"
+                    },
+                    {
+                        "value" : "wipe",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.wipe@@"
+                    },
+                    {
+                        "value" : "pause",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.pause@@"
+                    },
+                    {
+                        "value" : "unpause",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.unpause@@"
                     }
                 ],
                 "value":"associate"
@@ -92,6 +104,64 @@
                 "required":"true",
                 "control_field":"operationType",
                 "control_value":"freeze|unfreeze",
+                "control_use_regex":"true"
+            },
+            {
+                "name":"wipeAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.wipeAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.wipeAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"wipe",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wipeTokenType",
+                "label":"@@process.hederaTokenManagementTool.wipeTokenType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "fungibleToken",
+                        "label" : "@@process.hederaTokenManagementTool.wipeTokenType.fungibleToken@@"
+                    },
+                    {
+                        "value" : "nft",
+                        "label" : "@@process.hederaTokenManagementTool.wipeTokenType.nft@@"
+                    }
+                ],
+                "value":"fungibleToken",
+                "control_field":"operationType",
+                "control_value":"wipe",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"amountToWipe",
+                "label":"@@process.hederaTokenManagementTool.amountToWipe@@",
+                "description":"@@process.hederaTokenManagementTool.amountToWipe.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"wipeTokenType",
+                "control_value":"fungibleToken",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"nftSerialNumberToWipe",
+                "label":"@@process.hederaTokenManagementTool.nftSerialNumberToWipe@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"wipeTokenType",
+                "control_value":"nft",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"pauseAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.pauseAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.pauseAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"pause|unpause",
                 "control_use_regex":"true"
             }
         ]

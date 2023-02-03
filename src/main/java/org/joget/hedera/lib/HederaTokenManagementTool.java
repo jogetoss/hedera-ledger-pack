@@ -11,8 +11,11 @@ import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
 import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenPauseTransaction;
 import com.hedera.hashgraph.sdk.TokenRevokeKycTransaction;
 import com.hedera.hashgraph.sdk.TokenUnfreezeTransaction;
+import com.hedera.hashgraph.sdk.TokenUnpauseTransaction;
+import com.hedera.hashgraph.sdk.TokenWipeTransaction;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Collections;
 import java.util.Map;
@@ -147,6 +150,57 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                             .getRecord(client);
                     break;
                 }
+                case WIPE: {
+                    final PrivateKey wipeAccountPrivateKey = getPrivateKey(getPropertyString("wipeAccountMnemonic"));
+                    final String wipeTokenType = getPropertyString("wipeTokenType"); //"fungibleToken" or "nft"
+                    
+                    if (wipeTokenType.equals("fungibleToken")) {
+                        final String amountToWipe = getPropertyString("amountToWipe");
+                        
+                        transactionRecord = new TokenWipeTransaction()
+                            .setAccountId(targetAccount)
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .setAmount(Long.parseLong(amountToWipe))
+                            .freezeWith(client)
+                            .sign(wipeAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    } else {
+                        final String nftSerialNumberToWipe = getPropertyString("nftSerialNumberToWipe");
+                        
+                        transactionRecord = new TokenWipeTransaction()
+                            .setAccountId(targetAccount)
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .addSerial(Long.parseLong(nftSerialNumberToWipe))
+                            .freezeWith(client)
+                            .sign(wipeAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    }
+                    break;
+                }
+                case PAUSE: {
+                    final PrivateKey pauseAccountPrivateKey = getPrivateKey(getPropertyString("pauseAccountMnemonic"));
+                    
+                    transactionRecord = new TokenPauseTransaction()
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .freezeWith(client)
+                            .sign(pauseAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
+                case UNPAUSE: {
+                    final PrivateKey pauseAccountPrivateKey = getPrivateKey(getPropertyString("pauseAccountMnemonic"));
+                    
+                    transactionRecord = new TokenUnpauseTransaction()
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .freezeWith(client)
+                            .sign(pauseAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
                 default:
                     LogUtil.warn(getClassName(), "Unknown token management operation type!");
                     return null;
@@ -181,7 +235,10 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
         GRANT_KYC("grantKyc"),
         REVOKE_KYC("revokeKyc"),
         FREEZE("freeze"),
-        UNFREEZE("unfreeze");
+        UNFREEZE("unfreeze"),
+        WIPE("wipe"),
+        PAUSE("pause"),
+        UNPAUSE("unpause");
         
         private final String value;
         
