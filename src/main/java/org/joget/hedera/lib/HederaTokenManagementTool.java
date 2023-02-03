@@ -7,6 +7,7 @@ import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
+import com.hedera.hashgraph.sdk.TokenDeleteTransaction;
 import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
 import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
@@ -201,6 +202,17 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
                             .getRecord(client);
                     break;
                 }
+                case DELETE: {
+                    final PrivateKey adminAccountPrivateKey = getPrivateKey(getPropertyString("adminAccountMnemonic"));
+                    
+                    transactionRecord = new TokenDeleteTransaction()
+                            .setTokenId(TokenId.fromString(tokenId))
+                            .freezeWith(client)
+                            .sign(adminAccountPrivateKey)
+                            .execute(client)
+                            .getRecord(client);
+                    break;
+                }
                 default:
                     LogUtil.warn(getClassName(), "Unknown token management operation type!");
                     return null;
@@ -238,7 +250,8 @@ public class HederaTokenManagementTool extends HederaProcessToolAbstract {
         UNFREEZE("unfreeze"),
         WIPE("wipe"),
         PAUSE("pause"),
-        UNPAUSE("unpause");
+        UNPAUSE("unpause"),
+        DELETE("delete");
         
         private final String value;
         

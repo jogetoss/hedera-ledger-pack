@@ -48,6 +48,10 @@
                     {
                         "value" : "unpause",
                         "label" : "@@process.hederaTokenManagementTool.operationType.unpause@@"
+                    },
+                    {
+                        "value" : "delete",
+                        "label" : "@@process.hederaTokenManagementTool.operationType.delete@@"
                     }
                 ],
                 "value":"associate"
@@ -163,6 +167,16 @@
                 "control_field":"operationType",
                 "control_value":"pause|unpause",
                 "control_use_regex":"true"
+            },
+            {
+                "name":"adminAccountMnemonic",
+                "label":"@@process.hederaTokenManagementTool.adminAccountMnemonic@@",
+                "description":"@@process.hederaTokenManagementTool.adminAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"delete",
+                "control_use_regex":"false"
             }
         ]
     },
