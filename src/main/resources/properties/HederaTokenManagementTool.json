@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@process.hederaTokenManagementTool.header.config@@",
-       "properties":[
+        "title":"@@process.hederaTokenManagementTool.header.config@@",
+        "helplink": "@@process.hederaTokenManagementTool.helplink@@",
+        "properties":[
             %s
         ]
     },

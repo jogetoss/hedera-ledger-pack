@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@process.hederaSendTransactionTool.header.config@@",
-       "properties":[
+        "title":"@@process.hederaSendTransactionTool.header.config@@",
+        "helplink": "@@process.hederaSendTransactionTool.helplink@@",
+        "properties":[
             %s
         ]
     },

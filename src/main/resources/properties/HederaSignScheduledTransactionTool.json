@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@process.hederaSignScheduledTransactionTool.header.config@@",
-       "properties":[
+        "title":"@@process.hederaSignScheduledTransactionTool.header.config@@",
+        "helplink": "@@process.hederaSignScheduledTransactionTool.helplink@@",
+        "properties":[
             %s
             ,
             {

@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@process.hederaMintTokenTool.header.config@@",
-       "properties":[
+        "title":"@@process.hederaMintTokenTool.header.config@@",
+        "helplink": "@@process.hederaMintTokenTool.helplink@@",
+        "properties":[
             %s
         ]
     },

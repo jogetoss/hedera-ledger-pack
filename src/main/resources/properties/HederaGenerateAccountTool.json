@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@process.hederaGenerateAccountTool.header.config@@",
-       "properties":[
+        "title":"@@process.hederaGenerateAccountTool.header.config@@",
+        "helplink": "@@process.hederaGenerateAccountTool.helplink@@",
+        "properties":[
             %s
             ,
             {

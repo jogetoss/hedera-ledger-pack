@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@form.hederaAccountLoadBinder.header.config@@",
-       "properties":[
+        "title":"@@form.hederaAccountLoadBinder.header.config@@",
+        "helplink": "@@form.hederaAccountLoadBinder.helplink@@",
+        "properties":[
             %s
             ,
             {

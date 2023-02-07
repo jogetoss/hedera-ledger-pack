@@ -1,6 +1,7 @@
 [
     {
         "title":"@@form.hederaExplorerLinkFormElement.header.config@@",
+        "helplink": "@@form.hederaExplorerLinkFormElement.helplink@@",
         "properties":[
             {
                 "name":"id",

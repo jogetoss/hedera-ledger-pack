@@ -1,7 +1,8 @@
 [
     {
-       "title":"@@form.hederaScheduledTransactionLoadBinder.header.config@@",
-       "properties":[
+        "title":"@@form.hederaScheduledTransactionLoadBinder.header.config@@",
+        "helplink": "@@form.hederaScheduledTransactionLoadBinder.helplink@@",
+        "properties":[
             %s
             ,
             {
