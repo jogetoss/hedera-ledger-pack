@@ -1,6 +1,28 @@
 # Changelog
 
-## Q4 2022 (In Progress)
+## Q1 2023 (In Progress)
+#### Added
+- Modified: Changed default explorer to hashscan
+- Modified: Used consistent naming for fungible and non-fungible tokens
+- Added: Hedera Explorer Link Form Element
+- Modified: Hedera Explorer Link - Improved value validation response time
+- Added: Hedera Token Management Tool
+- Modified: Hedera Token Management Tool - Support freeze/unfreeze transactions
+- Modified: Hedera Token Management Tool - Support wipe & pause/unpause token transactions
+- Modified: Hedera Token Management Tool - Support delete token transaction
+- Modified: Hedera Token Management Tool - Support insert transaction memo
+- Modified: Hedera Token Management Tool - Migrated burn token logic to this plugin
+- Modified: Added helplinks for all plugins
+
+#### Fixes
+- Fixed: Hedera Explorer Link - Unable to find transaction despite valid tx ID
+- Fixed: Hedera Token Management Tool - unnecessary target account property for pause & delete transactions
+
+#### Deletions
+- Removed: Hedera Associate Token Tool
+- Removed: Hedera Burn Token Tool
+
+## Q4 2022
 #### Added
 - Factorize calc token amount based on token decimals
 - Factorize get and store form data
@@ -19,6 +41,8 @@
 - Hedera Mint Token Tool - Fixed mint more NFT cannot select IPFS CID property option
 - Hedera Mint Token Tool - Fixed storing NFT data not unique record ID
 - Fixed method throws incompatibility with Joget multi-tenant
+- Fixed - DX8 - BackendUtil sometimes unable to parse hash variable for operator credentials
+- Fixed: Misleading error log msg for ReceiptStatusException
 
 ## Q3 2022
 #### Added
