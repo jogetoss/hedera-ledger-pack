@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.model.NetworkType;
 import org.json.JSONObject;
 
 public class TransactionUtil {
@@ -23,7 +24,9 @@ public class TransactionUtil {
         String formattedTxId = transactionId.replaceAll("@", "-");
         formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
         
-        String getUrl = BackendUtil.getMirrorNodeUrl(BackendUtil.getNetworkType(properties)) 
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        
+        String getUrl = networkType.getMirrorNodeUrl()
                 + "transactions/" 
                 + formattedTxId;
         

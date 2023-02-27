@@ -7,6 +7,7 @@ import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.model.NetworkType;
 import org.json.JSONObject;
 
 public class TokenUtil {
@@ -19,7 +20,9 @@ public class TokenUtil {
             return false;
         }
         
-        String getUrl = BackendUtil.getMirrorNodeUrl(BackendUtil.getNetworkType(properties)) 
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        
+        String getUrl = networkType.getMirrorNodeUrl()
                 + "tokens/" 
                 + tokenId;
         

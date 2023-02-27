@@ -4,9 +4,7 @@ import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.time.Instant;
 import java.util.Map;
 import org.joget.commons.util.LogUtil;
-import static org.joget.hedera.service.BackendUtil.MAINNET_NAME;
-import static org.joget.hedera.service.BackendUtil.PREVIEWNET_NAME;
-import static org.joget.hedera.service.BackendUtil.TESTNET_NAME;
+import org.joget.hedera.model.NetworkType;
 import org.json.JSONObject;
 
 public class ExplorerUtil {
@@ -25,13 +23,13 @@ public class ExplorerUtil {
     private static final String DRAGONGLASS_TESTNET = "https://testnet.dragonglass.me/";
     private static final String DRAGONGLASS_PREVIEWNET = ""; //Not available
 
-    private static String getHashscanUrl(String networkType) {
+    private static String getHashscanUrl(NetworkType networkType) {
         switch (networkType) {
-            case MAINNET_NAME:
+            case MAINNET:
                 return HASHSCAN_MAINNET;
-            case TESTNET_NAME:
+            case TESTNET:
                 return HASHSCAN_TESTNET;
-            case PREVIEWNET_NAME:
+            case PREVIEWNET:
                 return HASHSCAN_PREVIEWNET;
             default:
                 LogUtil.warn(getClassName(), "Unknown network selection found!");
@@ -39,13 +37,13 @@ public class ExplorerUtil {
         }
     }
     
-    private static String getDragonglassUrl(String networkType) {
+    private static String getDragonglassUrl(NetworkType networkType) {
         switch (networkType) {
-            case MAINNET_NAME:
+            case MAINNET:
                 return DRAGONGLASS_MAINNET;
-            case TESTNET_NAME:
+            case TESTNET:
                 return DRAGONGLASS_TESTNET;
-            case PREVIEWNET_NAME:
+            case PREVIEWNET:
                 return DRAGONGLASS_PREVIEWNET;
             default:
                 LogUtil.warn(getClassName(), "Unknown network selection found!");
@@ -54,12 +52,14 @@ public class ExplorerUtil {
     }
     
     public static String getTransactionUrl(Map properties, String transactionId, String explorerType) {
-        String networkType = BackendUtil.getNetworkType(properties);
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
 
         switch (explorerType) {
             case DRAGONGLASS_TYPE: {
                 String formattedTxId = transactionId.replaceAll("[^0-9]","");
-                return getDragonglassUrl(networkType) + "transactions/" + formattedTxId;
+                return getDragonglassUrl(networkType)
+                        + "transactions/"
+                        + formattedTxId;
             }
             case HASHSCAN_TYPE:
             default:
@@ -69,12 +69,18 @@ public class ExplorerUtil {
                         + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
 
                 try {
-                    String getUrl = BackendUtil.getMirrorNodeUrl(networkType) + "transactions/" + formattedTxId;
+                    String getUrl = networkType.getMirrorNodeUrl()
+                            + "transactions/"
+                            + formattedTxId;
                     JSONObject jsonResponse = BackendUtil.httpGet(getUrl);
 
                     String consensusTimestamp = jsonResponse.getJSONArray("transactions").getJSONObject(0).getString("consensus_timestamp");
 
-                    return getHashscanUrl(networkType) + "transaction/" + consensusTimestamp + "?tid=" + formattedTxId;
+                    return getHashscanUrl(networkType)
+                            + "transaction/"
+                            + consensusTimestamp
+                            + "?tid="
+                            + formattedTxId;
                 } catch (Exception ex) {
                     LogUtil.error(getClassName(), ex, "Abnormal API response detected...");
                 }
@@ -96,12 +102,14 @@ public class ExplorerUtil {
             transactionId = "";
         }
 
-        String networkType = BackendUtil.getNetworkType(properties);
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         
         switch (explorerType) {
             case DRAGONGLASS_TYPE: {
                 String formattedTxId = transactionId.replaceAll("[^0-9]","");
-                return getDragonglassUrl(networkType) + "transactions/" + formattedTxId;
+                return getDragonglassUrl(networkType)
+                        + "transactions/"
+                        + formattedTxId;
             }
             case HASHSCAN_TYPE:
             default:
@@ -109,7 +117,11 @@ public class ExplorerUtil {
                 String formattedTimestamp = String.valueOf(consensusTimestamp.getEpochSecond()) + "." + String.valueOf(consensusTimestamp.getNano());
                 String formattedTxId = transactionId.replaceAll("@", "-");
                 formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
-                return getHashscanUrl(networkType) + "transaction/" + formattedTimestamp + "?tid=" + formattedTxId;
+                return getHashscanUrl(networkType)
+                        + "transaction/"
+                        + formattedTimestamp
+                        + "?tid="
+                        + formattedTxId;
         }
     }
     
@@ -119,14 +131,18 @@ public class ExplorerUtil {
             accountAddress = "";
         }
         
-        String networkType = BackendUtil.getNetworkType(properties);
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         
         switch (explorerType) {
             case DRAGONGLASS_TYPE:
-                return getDragonglassUrl(networkType) + "accounts/" + accountAddress;
+                return getDragonglassUrl(networkType)
+                        + "accounts/"
+                        + accountAddress;
             case HASHSCAN_TYPE:
             default:
-                return getHashscanUrl(networkType) + "account/" + accountAddress;
+                return getHashscanUrl(networkType)
+                        + "account/"
+                        + accountAddress;
         }
     }
     
@@ -136,14 +152,18 @@ public class ExplorerUtil {
             tokenId = "";
         }
         
-        String networkType = BackendUtil.getNetworkType(properties);
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         
         switch (explorerType) {
             case DRAGONGLASS_TYPE:
-                return getDragonglassUrl(networkType) + "tokens/" + tokenId;
+                return getDragonglassUrl(networkType)
+                        + "tokens/"
+                        + tokenId;
             case HASHSCAN_TYPE:
             default:
-                return getHashscanUrl(networkType) + "token/" + tokenId;
+                return getHashscanUrl(networkType)
+                        + "token/"
+                        + tokenId;
         }
     }
     

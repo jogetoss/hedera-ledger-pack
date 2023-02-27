@@ -10,6 +10,7 @@ import com.hedera.hashgraph.sdk.PublicKey;
 import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.model.NetworkType;
 import org.json.JSONObject;
 
 public class AccountUtil {
@@ -22,7 +23,9 @@ public class AccountUtil {
             return false;
         }
         
-        String getUrl = BackendUtil.getMirrorNodeUrl(BackendUtil.getNetworkType(properties)) 
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        
+        String getUrl = networkType.getMirrorNodeUrl()
                 + "accounts/" 
                 + accountId;
         
