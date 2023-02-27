@@ -106,7 +106,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
     }
     
     public String getExplorerUrl(String valueType, String retrievedValue, String explorerType) {
-        if (FormUtil.isFormBuilderActive()) {
+        if (FormUtil.isFormBuilderActive() || retrievedValue.isBlank()) {
             return "";
         }
         
