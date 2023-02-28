@@ -11,57 +11,20 @@ public class ExplorerUtil {
     
     private ExplorerUtil() {}
     
-    private static final String HASHSCAN_TYPE = "hashscan";
-    private static final String DRAGONGLASS_TYPE = "dragonglass";
-    
-    //Hedera explorer links
-    private static final String HASHSCAN_MAINNET = "https://hashscan.io/mainnet/";
-    private static final String HASHSCAN_TESTNET = "https://hashscan.io/testnet/";
-    private static final String HASHSCAN_PREVIEWNET = "https://hashscan.io/previewnet/";
-    
-    private static final String DRAGONGLASS_MAINNET = "https://app.dragonglass.me/";
-    private static final String DRAGONGLASS_TESTNET = "https://testnet.dragonglass.me/";
-    private static final String DRAGONGLASS_PREVIEWNET = ""; //Not available
-
-    private static String getHashscanUrl(NetworkType networkType) {
-        switch (networkType) {
-            case MAINNET:
-                return HASHSCAN_MAINNET;
-            case TESTNET:
-                return HASHSCAN_TESTNET;
-            case PREVIEWNET:
-                return HASHSCAN_PREVIEWNET;
-            default:
-                LogUtil.warn(getClassName(), "Unknown network selection found!");
-                return null;
-        }
-    }
-    
-    private static String getDragonglassUrl(NetworkType networkType) {
-        switch (networkType) {
-            case MAINNET:
-                return DRAGONGLASS_MAINNET;
-            case TESTNET:
-                return DRAGONGLASS_TESTNET;
-            case PREVIEWNET:
-                return DRAGONGLASS_PREVIEWNET;
-            default:
-                LogUtil.warn(getClassName(), "Unknown network selection found!");
-                return null;
-        }
-    }
-    
     public static String getTransactionUrl(Map properties, String transactionId, String explorerType) {
         final NetworkType networkType = BackendUtil.getNetworkType(properties);
-
-        switch (explorerType) {
-            case DRAGONGLASS_TYPE: {
+        final ExplorerType explorer = ExplorerType.fromString(explorerType);
+        
+        final String url = ExplorerEndpoint.getUrl(explorer, networkType);
+        
+        switch (explorer) {
+            case DRAGONGLASS: {
                 String formattedTxId = transactionId.replaceAll("[^0-9]","");
-                return getDragonglassUrl(networkType)
-                        + "transactions/"
+                return url 
+                        + "transactions/" 
                         + formattedTxId;
             }
-            case HASHSCAN_TYPE:
+            case HASHSCAN:
             default:
                 String formattedTxId = transactionId.replaceAll("@", "-");
                 formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) 
@@ -76,7 +39,7 @@ public class ExplorerUtil {
 
                     String consensusTimestamp = jsonResponse.getJSONArray("transactions").getJSONObject(0).getString("consensus_timestamp");
 
-                    return getHashscanUrl(networkType)
+                    return url
                             + "transaction/"
                             + consensusTimestamp
                             + "?tid="
@@ -91,7 +54,7 @@ public class ExplorerUtil {
     
     //Default is Hashscan for all transaction URLs
     public static String getTransactionUrl(Map properties, TransactionRecord txRecord) {
-        return getTransactionUrl(properties, txRecord, HASHSCAN_TYPE);
+        return getTransactionUrl(properties, txRecord, ExplorerType.HASHSCAN.value);
     }
     
     public static String getTransactionUrl(Map properties, TransactionRecord txRecord, String explorerType) {
@@ -103,21 +66,24 @@ public class ExplorerUtil {
         }
 
         final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
-        switch (explorerType) {
-            case DRAGONGLASS_TYPE: {
+        final String url = ExplorerEndpoint.getUrl(explorer, networkType);
+        
+        switch (explorer) {
+            case DRAGONGLASS: {
                 String formattedTxId = transactionId.replaceAll("[^0-9]","");
-                return getDragonglassUrl(networkType)
+                return url
                         + "transactions/"
                         + formattedTxId;
             }
-            case HASHSCAN_TYPE:
+            case HASHSCAN:
             default:
                 Instant consensusTimestamp = txRecord.consensusTimestamp;
                 String formattedTimestamp = String.valueOf(consensusTimestamp.getEpochSecond()) + "." + String.valueOf(consensusTimestamp.getNano());
                 String formattedTxId = transactionId.replaceAll("@", "-");
                 formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
-                return getHashscanUrl(networkType)
+                return url
                         + "transaction/"
                         + formattedTimestamp
                         + "?tid="
@@ -132,15 +98,18 @@ public class ExplorerUtil {
         }
         
         final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
-        switch (explorerType) {
-            case DRAGONGLASS_TYPE:
-                return getDragonglassUrl(networkType)
+        final String url = ExplorerEndpoint.getUrl(explorer, networkType);
+        
+        switch (explorer) {
+            case DRAGONGLASS:
+                return url
                         + "accounts/"
                         + accountAddress;
-            case HASHSCAN_TYPE:
+            case HASHSCAN:
             default:
-                return getHashscanUrl(networkType)
+                return url
                         + "account/"
                         + accountAddress;
         }
@@ -153,15 +122,18 @@ public class ExplorerUtil {
         }
         
         final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
-        switch (explorerType) {
-            case DRAGONGLASS_TYPE:
-                return getDragonglassUrl(networkType)
+        final String url = ExplorerEndpoint.getUrl(explorer, networkType);
+        
+        switch (explorer) {
+            case DRAGONGLASS:
+                return url
                         + "tokens/"
                         + tokenId;
-            case HASHSCAN_TYPE:
+            case HASHSCAN:
             default:
-                return getHashscanUrl(networkType)
+                return url
                         + "token/"
                         + tokenId;
         }
@@ -169,5 +141,70 @@ public class ExplorerUtil {
     
     private static String getClassName() {
         return ExplorerUtil.class.getName();
+    }
+    
+    private enum ExplorerEndpoint {
+        
+        DRAGONGLASS_MAINNET(ExplorerType.DRAGONGLASS, NetworkType.MAINNET, "https://app.dragonglass.me/"),
+        DRAGONGLASS_PREVIEWNET(ExplorerType.DRAGONGLASS, NetworkType.PREVIEWNET, ""), //Not available
+        DRAGONGLASS_TESTNET(ExplorerType.DRAGONGLASS, NetworkType.TESTNET, "https://testnet.dragonglass.me/"),
+        
+        HASHSCAN_MAINNET(ExplorerType.HASHSCAN, NetworkType.MAINNET, "https://hashscan.io/mainnet/"),
+        HASHSCAN_PREVIEWNET(ExplorerType.HASHSCAN, NetworkType.PREVIEWNET, "https://hashscan.io/previewnet/"),
+        HASHSCAN_TESTNET(ExplorerType.HASHSCAN, NetworkType.TESTNET, "https://hashscan.io/testnet/");
+        
+        private final ExplorerType explorerType;
+        private final NetworkType networkType;
+        private final String endpointUrl;
+        
+        ExplorerEndpoint(ExplorerType explorerType, NetworkType networkType, String endpointUrl) {
+            this.explorerType = explorerType;
+            this.networkType = networkType;
+            this.endpointUrl = endpointUrl;
+        }
+        
+        @Override
+        public String toString() {
+            return endpointUrl;
+        }
+        
+        public static String getUrl(ExplorerType explorerType, NetworkType networkType) {
+            for (ExplorerEndpoint endpoint : ExplorerEndpoint.values()) {
+                if ((endpoint.explorerType).equals(explorerType) && (endpoint.networkType).equals(networkType)) {
+                    return endpoint.endpointUrl;
+                }
+            }
+
+            LogUtil.warn(getClassName(), "Unknown endpoint selection found!");
+            return null;
+        }
+    }
+    
+    private enum ExplorerType {
+            
+        DRAGONGLASS("dragonglass"),
+        HASHSCAN("hashscan");
+
+        private final String value;
+
+        ExplorerType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public static ExplorerType fromString(String value) {
+            for (ExplorerType type : ExplorerType.values()) {
+                if ((type.value).equalsIgnoreCase(value)) {
+                    return type;
+                }
+            }
+
+            LogUtil.warn(getClassName(), "Unknown explorer type found!");
+            return null;
+        }
     }
 }

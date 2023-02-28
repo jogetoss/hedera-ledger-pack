@@ -3,6 +3,9 @@ package org.joget.hedera.model;
 import com.hedera.hashgraph.sdk.Client;
 import org.joget.commons.util.LogUtil;
 
+/**
+ * Carries info about Hedera network, such as string values used in plugin, client types, and mirror node API endpoints
+ */
 public enum NetworkType {
     
     MAINNET("mainnet", Client.forMainnet(), "https://mainnet-public.mirrornode.hedera.com/"),
