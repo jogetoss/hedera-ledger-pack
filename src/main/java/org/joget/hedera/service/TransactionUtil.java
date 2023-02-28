@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.NetworkType;
@@ -15,7 +14,7 @@ public class TransactionUtil {
     
     private TransactionUtil() {}
     
-    public static boolean isTransactionExist(Map properties, String transactionId) {
+    public static boolean isTransactionExist(NetworkType networkType, String transactionId) {
         //If within a Form Builder, don't make useless API calls
         if (transactionId == null || transactionId.isBlank() || FormUtil.isFormBuilderActive()) {
             return false;
@@ -23,8 +22,6 @@ public class TransactionUtil {
         
         String formattedTxId = transactionId.replaceAll("@", "-");
         formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
-        
-        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         
         String getUrl = networkType.getMirrorNodeUrl()
                 + "transactions/" 

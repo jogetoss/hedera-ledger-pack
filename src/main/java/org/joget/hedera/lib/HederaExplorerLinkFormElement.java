@@ -10,7 +10,9 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaFormElementAbstract;
+import org.joget.hedera.model.NetworkType;
 import org.joget.hedera.service.AccountUtil;
+import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TokenUtil;
@@ -46,7 +48,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
     }
 
     @Override
-    public String renderElement(FormData formData, Map dataModel, Client client) {    
+    public String renderElement(FormData formData, Map dataModel, Client client) {  
         String explorerType = getPropertyString("explorerType");
         String valueType = getPropertyString("valueType");
         String getValueMode = getPropertyString("getValueMode");
@@ -88,15 +90,19 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
             return false;
         }
         
+        final NetworkType networkType = BackendUtil.getNetworkType(getProperties());
+        
         try {
             switch (valueType) {
                 case ADDRESS_TYPE :
-                    return AccountUtil.isAccountExist(getProperties(), retrievedValue);
+                    return AccountUtil.isAccountExist(networkType, retrievedValue);
                 case TOKEN_TYPE :
-                    return TokenUtil.isTokenExist(getProperties(), retrievedValue);
+                    return TokenUtil.isTokenExist(networkType, retrievedValue);
                 case TX_ID_TYPE:
+                    return TransactionUtil.isTransactionExist(networkType, retrievedValue);
                 default:
-                    return TransactionUtil.isTransactionExist(getProperties(), retrievedValue);
+                    LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
+                    return false;
             }
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error retrieving on-chain data.");
@@ -116,8 +122,10 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
             case TOKEN_TYPE :
                 return ExplorerUtil.getTokenUrl(getProperties(), retrievedValue, explorerType);
             case TX_ID_TYPE:
-            default:
                 return ExplorerUtil.getTransactionUrl(getProperties(), retrievedValue, explorerType);
+            default:
+                LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
+                return null;
         }
     }
     
