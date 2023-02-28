@@ -11,8 +11,7 @@ public class ExplorerUtil {
     
     private ExplorerUtil() {}
     
-    public static String getTransactionUrl(Map properties, String transactionId, String explorerType) {
-        final NetworkType networkType = BackendUtil.getNetworkType(properties);
+    public static String getTransactionUrl(NetworkType networkType, String transactionId, String explorerType) {
         final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
         final String url = ExplorerEndpoint.getUrl(explorer, networkType);
@@ -91,13 +90,12 @@ public class ExplorerUtil {
         }
     }
     
-    public static String getAddressUrl(Map properties, String accountAddress, String explorerType) {
+    public static String getAddressUrl(NetworkType networkType, String accountAddress, String explorerType) {
         //No need to return immediately, in case user wants to show link as is
         if (accountAddress == null || accountAddress.isBlank()) {
             accountAddress = "";
         }
         
-        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
         final String url = ExplorerEndpoint.getUrl(explorer, networkType);
@@ -115,13 +113,12 @@ public class ExplorerUtil {
         }
     }
     
-    public static String getTokenUrl(Map properties, String tokenId, String explorerType) {
+    public static String getTokenUrl(NetworkType networkType, String tokenId, String explorerType) {
         //No need to return immediately, in case user wants to show link as is
         if (tokenId == null || tokenId.isBlank()) {
             tokenId = "";
         }
         
-        final NetworkType networkType = BackendUtil.getNetworkType(properties);
         final ExplorerType explorer = ExplorerType.fromString(explorerType);
         
         final String url = ExplorerEndpoint.getUrl(explorer, networkType);

@@ -116,13 +116,15 @@ public class HederaExplorerLinkFormElement extends HederaFormElementAbstract imp
             return "";
         }
         
+        final NetworkType networkType = BackendUtil.getNetworkType(getProperties());
+        
         switch (valueType) {
             case ADDRESS_TYPE :
-                return ExplorerUtil.getAddressUrl(getProperties(), retrievedValue, explorerType);
+                return ExplorerUtil.getAddressUrl(networkType, retrievedValue, explorerType);
             case TOKEN_TYPE :
-                return ExplorerUtil.getTokenUrl(getProperties(), retrievedValue, explorerType);
+                return ExplorerUtil.getTokenUrl(networkType, retrievedValue, explorerType);
             case TX_ID_TYPE:
-                return ExplorerUtil.getTransactionUrl(getProperties(), retrievedValue, explorerType);
+                return ExplorerUtil.getTransactionUrl(networkType, retrievedValue, explorerType);
             default:
                 LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
                 return null;
