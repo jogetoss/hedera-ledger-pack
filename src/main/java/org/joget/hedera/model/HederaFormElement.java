@@ -13,7 +13,7 @@ import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
 import org.springframework.context.ApplicationContext;
 
-public abstract class HederaFormElementAbstract extends Element implements FormBuilderPaletteElement {
+public abstract class HederaFormElement extends Element implements FormBuilderPaletteElement {
     
     protected WorkflowAssignment wfAssignment;
     protected WorkflowManager workflowManager;

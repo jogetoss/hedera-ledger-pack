@@ -26,12 +26,12 @@ import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
-import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 
-public class HederaSendTransactionTool extends HederaProcessToolAbstract {
+public class HederaSendTransactionTool extends HederaProcessTool {
     
     @Override
     public String getName() {

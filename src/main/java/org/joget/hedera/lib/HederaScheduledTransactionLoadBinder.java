@@ -12,12 +12,12 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormLoadElementBinder;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
-import org.joget.hedera.model.HederaFormBinderAbstract;
+import org.joget.hedera.model.HederaFormBinder;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
-public class HederaScheduledTransactionLoadBinder extends HederaFormBinderAbstract implements FormLoadElementBinder {
+public class HederaScheduledTransactionLoadBinder extends HederaFormBinder implements FormLoadElementBinder {
 
     @Override
     public String getName() {

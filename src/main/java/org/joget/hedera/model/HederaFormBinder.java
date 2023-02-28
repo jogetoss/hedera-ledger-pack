@@ -11,7 +11,7 @@ import org.joget.commons.util.LogUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
 
-public abstract class HederaFormBinderAbstract extends FormBinder implements FormLoadBinder {
+public abstract class HederaFormBinder extends FormBinder implements FormLoadBinder {
     
     /**
      * Used to validate necessary input values prior to executing API calls. This method is wrapped by load().

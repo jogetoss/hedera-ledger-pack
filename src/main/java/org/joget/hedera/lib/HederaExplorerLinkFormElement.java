@@ -9,7 +9,7 @@ import org.joget.apps.form.model.FormContainer;
 import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.HederaFormElementAbstract;
+import org.joget.hedera.model.HederaFormElement;
 import org.joget.hedera.model.NetworkType;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.BackendUtil;
@@ -19,7 +19,7 @@ import org.joget.hedera.service.TokenUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
-public class HederaExplorerLinkFormElement extends HederaFormElementAbstract implements FormContainer {
+public class HederaExplorerLinkFormElement extends HederaFormElement implements FormContainer {
 
     private static final String TX_ID_TYPE = "transactionId";
     private static final String ADDRESS_TYPE = "accountAddress";

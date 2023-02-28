@@ -19,7 +19,7 @@ import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
 import org.springframework.context.ApplicationContext;
 
-public abstract class HederaProcessToolAbstract extends DefaultApplicationPlugin {
+public abstract class HederaProcessTool extends DefaultApplicationPlugin {
     
     protected AppService appService;
     protected AppDefinition appDef;

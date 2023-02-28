@@ -28,13 +28,13 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
-public class HederaTokenManagementTool extends HederaProcessToolAbstract {
+public class HederaTokenManagementTool extends HederaProcessTool {
     
     @Override
     public String getName() {

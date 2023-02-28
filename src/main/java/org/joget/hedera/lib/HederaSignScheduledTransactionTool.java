@@ -16,12 +16,12 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.HederaProcessToolAbstract;
+import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
-public class HederaSignScheduledTransactionTool extends HederaProcessToolAbstract {
+public class HederaSignScheduledTransactionTool extends HederaProcessTool {
 
     @Override
     public String getName() {
