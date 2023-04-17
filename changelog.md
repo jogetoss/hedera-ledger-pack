@@ -1,6 +1,10 @@
 # Changelog
 
-## Q1 2023 (In Progress)
+## Q2 2023 (In Progress)
+#### Fixes
+- Bump json from 20220924 to 20230227 (Ref: https://github.com/advisories/GHSA-3vqj-43w4-2q58 & https://github.com/stleary/JSON-java/pull/723)
+
+## Q1 2023
 #### Added
 - Modified: Changed default explorer to hashscan
 - Modified: Used consistent naming for fungible and non-fungible tokens
@@ -13,10 +17,14 @@
 - Modified: Hedera Token Management Tool - Support insert transaction memo
 - Modified: Hedera Token Management Tool - Migrated burn token logic to this plugin
 - Modified: Added helplinks for all plugins
+- Modified: Use mirror node API query instead of client API calls
 
 #### Fixes
 - Fixed: Hedera Explorer Link - Unable to find transaction despite valid tx ID
 - Fixed: Hedera Token Management Tool - unnecessary target account property for pause & delete transactions
+- Fixed: Explorer Link Element - Missing padding present in some UI themes
+- Fixed: Explorer Link Element - Error thrown if retrieved value is blank
+- Fixed: AccountUtil - Private key derived does not follow BIP44
 
 #### Deletions
 - Removed: Hedera Associate Token Tool
