@@ -6,6 +6,7 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormBuilderPaletteElement;
 import org.joget.apps.form.model.FormData;
+import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
@@ -42,7 +43,7 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
     public abstract String renderElement(FormData formData, Map dataModel, Client client);
     
     @Override
-    public String renderTemplate(FormData formData, Map dataModel) {
+    public String renderTemplate(FormData formData, Map dataModel) {        
         initUtils(getProperties());
         
         if (!isInputDataValid()) {
@@ -54,8 +55,12 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
         try {
-            final Client client = BackendUtil.getHederaClient(getProperties());
+            if (FormUtil.isFormBuilderActive()) {
+                return renderElement(formData, dataModel, null);
+            }
             
+            final Client client = BackendUtil.getHederaClient(getProperties());
+
             if (client == null) {
                 LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
                 return "";

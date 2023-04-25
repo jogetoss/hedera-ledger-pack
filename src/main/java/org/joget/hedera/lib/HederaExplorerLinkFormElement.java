@@ -143,6 +143,6 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
 
     @Override
     public String getFormBuilderTemplate() {
-        return "<span class='form-floating-label'>Hedera Explorer Link</span>";
+        return "<div class=\"form-cell\"><span class='form-floating-label'>Hedera Explorer Link</span></div>";
     }
 }
