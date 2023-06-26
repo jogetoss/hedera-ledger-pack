@@ -125,10 +125,36 @@
                 "control_use_regex":"true"
             },
             {
+                "name":"hashFilesInMemo",
+                "label":"@@process.hederaSendTransactionTool.hashFilesInMemo@@",
+                "description":"@@process.hederaSendTransactionTool.hashFilesInMemo.desc@@",
+                "type":"checkbox",
+                "options":[
+                    {
+                        "value":"true", 
+                        "label":""
+                    }
+                ]
+            },
+            {
+                "name":"filesToHash",
+                "label":"@@process.hederaSendTransactionTool.filesToHash@@",
+                "type":"selectbox",
+                "required":"true",
+                "options_ajax_on_change":"formDefId",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options",
+                "control_field":"hashFilesInMemo",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
                 "name":"transactionMemo",
                 "label":"@@process.hederaSendTransactionTool.transactionMemo@@",
                 "description":"@@process.hederaSendTransactionTool.transactionMemo.desc@@",
-                "type":"textfield"
+                "type":"textfield",
+                "control_field":"hashFilesInMemo",
+                "control_value":"",
+                "control_use_regex":"false"
             },
             {
                 "name":"enableScheduledTransaction",

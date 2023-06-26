@@ -1,7 +1,11 @@
 package org.joget.hedera.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.commons.util.SecurityUtil;
@@ -42,5 +46,13 @@ public class PluginUtil {
     //Feel free to implement more secure encryption algo, and decrypt accordingly
     public static String decrypt(String content) {
         return SecurityUtil.decrypt(content);
+    }
+    
+    public static String getFileHashSha256(File file) throws FileNotFoundException, IOException {        
+        return DigestUtils.sha256Hex(new FileInputStream(file));
+    }
+    
+    public static String getTextHashSha256(String text) throws FileNotFoundException, IOException {        
+        return DigestUtils.sha256Hex(text);
     }
 }

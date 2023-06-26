@@ -22,10 +22,17 @@ import com.hedera.hashgraph.sdk.TokenInfo;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import com.hedera.hashgraph.sdk.TransferTransaction;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+import org.joget.apps.form.model.Form;
+import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
+import org.joget.apps.form.service.FileUtil;
 import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
@@ -163,8 +170,35 @@ public class HederaSendTransactionTool extends HederaProcessTool {
             }
 
             //Can set a transaction memo of string up to max length of 100
-            if (!transactionMemo.isBlank()) {
-                transferTransaction.setTransactionMemo(transactionMemo);
+            final boolean hashFilesInMemo = "true".equals(getPropertyString("hashFilesInMemo"));
+            if (hashFilesInMemo) {
+                String primaryKey = appService.getOriginProcessId(wfAssignment.getProcessId());
+                FormData formData = new FormData();
+                formData.setPrimaryKeyValue(primaryKey);
+                Form form = appService.viewDataForm(appDef.getId(), appDef.getVersion().toString(), formDefId, null, null, null, formData, null, null);
+                
+                final String filesToHash = row.getProperty(getPropertyString("filesToHash"));
+                List<String> fileNames = Arrays.asList(filesToHash.split(";"));
+                if (fileNames.size() > 1) {
+                    Collections.sort(fileNames); //Ensure hashing consistency
+                    try {
+                        List<String> filesHash = new ArrayList<>();
+                        for (String fileName : fileNames) {
+                            File file = FileUtil.getFile(fileName, form, primaryKey);
+                            filesHash.add(PluginUtil.getFileHashSha256(file));
+                        }
+                        transferTransaction.setTransactionMemo("files: " + PluginUtil.getTextHashSha256(String.join("", filesHash)));
+                    } catch (Exception ex) {}
+                } else if (fileNames.size() == 1) {
+                    try {
+                        File file = FileUtil.getFile(fileNames.get(0), form, primaryKey);
+                        transferTransaction.setTransactionMemo("file: " + PluginUtil.getFileHashSha256(file));
+                    } catch (Exception ex) {}
+                }
+            } else {
+                if (!transactionMemo.trim().isBlank()) {
+                    transferTransaction.setTransactionMemo(transactionMemo);
+                }
             }
 
             TransactionRecord transactionRecord;
