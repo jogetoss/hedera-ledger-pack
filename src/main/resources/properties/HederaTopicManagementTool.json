@@ -1,0 +1,362 @@
+[
+    {
+        "title":"@@process.hederaTopicManagementTool.header.config@@",
+        "properties":[
+            %s,
+            {
+                "name":"operationType",
+                "label":"@@process.hederaTopicManagementTool.operationType@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "submitMessage",
+                        "label" : "@@process.hederaTopicManagementTool.operationType.submitMessage@@"
+                    },
+                    {
+                        "value" : "createTopic",
+                        "label" : "@@process.hederaTopicManagementTool.operationType.createTopic@@"
+                    },
+                    {
+                        "value" : "updateTopic",
+                        "label" : "@@process.hederaTopicManagementTool.operationType.updateTopic@@"
+                    },
+                    {
+                        "value" : "deleteTopic",
+                        "label" : "@@process.hederaTopicManagementTool.operationType.deleteTopic@@"
+                    }
+                ],
+                "value":"submitMessage"
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaTopicManagementTool.header.submitMessage@@",
+        "control_field":"operationType",
+        "control_value":"submitMessage",
+        "control_use_regex":"false",
+        "properties" : [
+            {
+                "name":"topicId",
+                "label":"@@process.hederaTopicManagementTool.topicId@@",
+                "type":"textfield",
+                "required":"true"
+            },
+            {
+                "name":"message",
+                "label":"@@process.hederaTopicManagementTool.message@@",
+                "type":"textarea",
+                "required":"true"
+            },
+            {
+                "name":"requireSubmitKey",
+                "label":"@@process.hederaTopicManagementTool.requireSubmitKey@@",
+                "type":"checkbox",
+                "options":[
+                    {
+                        "value":"true", 
+                        "label":""
+                    }
+                ]
+            },
+            {
+                "name":"submitKey",
+                "label":"@@process.hederaTopicManagementTool.submitKey@@",
+                "description":"@@process.hederaTopicManagementTool.submitKey.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"requireSubmitKey",
+                "control_value":"true",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaTopicManagementTool.header.createTopic@@",
+        "control_field":"operationType",
+        "control_value":"createTopic",
+        "control_use_regex":"false",
+        "properties" : [
+            {
+                "name":"createTopicAdminKey",
+                "label":"@@process.hederaTopicManagementTool.adminKey@@",
+                "description":"@@process.hederaTopicManagementTool.adminKey.desc@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "disabled",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.disabled@@"
+                    },
+                    {
+                        "value" : "operator",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.operator@@"
+                    },
+                    {
+                        "value" : "custom",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.custom@@"
+                    }
+                ],
+                "value":"operator"
+            },
+            {
+                "name":"adminKeyDisabledCaution",
+                "type":"label",
+                "value":"@@process.hederaTopicManagementTool.adminKeyDisabledCaution@@",
+                "control_field":"createTopicAdminKey",
+                "control_value":"disabled",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"adminAccountMnemonic",
+                "label":"@@process.hederaTopicManagementTool.adminAccountMnemonic@@",
+                "description":"@@process.hederaTopicManagementTool.adminAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"createTopicAdminKey",
+                "control_value":"custom",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"setAsPrivateTopic",
+                "label":"@@process.hederaTopicManagementTool.setAsPrivateTopic@@",
+                "type":"checkbox",
+                "options":[
+                    {
+                        "value":"true", 
+                        "label":""
+                    }
+                ]
+            },
+            {
+                "name":"submitKeyEnabledCaution",
+                "type":"label",
+                "value":"@@process.hederaTopicManagementTool.submitKeyEnabledCaution@@",
+                "control_field":"setAsPrivateTopic",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"topicMemo",
+                "label":"@@process.hederaTopicManagementTool.topicMemo@@",
+                "type":"textfield"
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaTopicManagementTool.header.updateTopic@@",
+        "control_field":"operationType",
+        "control_value":"updateTopic",
+        "control_use_regex":"false",
+        "properties" : [
+            {
+                "name":"topicId",
+                "label":"@@process.hederaTopicManagementTool.topicId@@",
+                "type":"textfield",
+                "required":"true"
+            },
+            {
+                "name":"updateTopicAdminKey",
+                "label":"@@process.hederaTopicManagementTool.adminKey@@",
+                "description":"@@process.hederaTopicManagementTool.adminKey.desc@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "operator",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.operator@@"
+                    },
+                    {
+                        "value" : "custom",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.custom@@"
+                    }
+                ],
+                "value":"operator"
+            },
+            {
+                "name":"adminAccountMnemonic",
+                "label":"@@process.hederaTopicManagementTool.adminAccountMnemonic@@",
+                "description":"@@process.hederaTopicManagementTool.adminAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"updateTopicAdminKey",
+                "control_value":"custom",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"modifyAdminKey",
+                "label":"@@process.hederaTopicManagementTool.modifyAdminKey@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "noChange",
+                        "label" : "@@process.hederaTopicManagementTool.noChange@@"
+                    },
+                    {
+                        "value" : "remove",
+                        "label" : "@@process.hederaTopicManagementTool.remove@@"
+                    },
+                    {
+                        "value" : "replaceToOperator",
+                        "label" : "@@process.hederaTopicManagementTool.replaceToOperator@@"
+                    },
+                    {
+                        "value" : "replaceToCustom",
+                        "label" : "@@process.hederaTopicManagementTool.replaceToCustom@@"
+                    }
+                ],
+                "value":"noChange"
+            },
+            {
+                "name":"newAdminAccountMnemonic",
+                "label":"@@process.hederaTopicManagementTool.newAdminAccountMnemonic@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"modifyAdminKey",
+                "control_value":"replaceToCustom",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"modifySubmitKey",
+                "label":"@@process.hederaTopicManagementTool.modifySubmitKey@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "noChange",
+                        "label" : "@@process.hederaTopicManagementTool.noChange@@"
+                    },
+                    {
+                        "value" : "remove",
+                        "label" : "@@process.hederaTopicManagementTool.remove@@"
+                    },
+                    {
+                        "value" : "replace",
+                        "label" : "@@process.hederaTopicManagementTool.replace@@"
+                    }
+                ],
+                "value":"noChange"
+            },
+            {
+                "name":"modifyTopicMemo",
+                "label":"@@process.hederaTopicManagementTool.modifyTopicMemo@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "noChange",
+                        "label" : "@@process.hederaTopicManagementTool.noChange@@"
+                    },
+                    {
+                        "value" : "remove",
+                        "label" : "@@process.hederaTopicManagementTool.remove@@"
+                    },
+                    {
+                        "value" : "replace",
+                        "label" : "@@process.hederaTopicManagementTool.replace@@"
+                    }
+                ],
+                "value":"noChange"
+            },
+            {
+                "name":"newTopicMemo",
+                "label":"@@process.hederaTopicManagementTool.newTopicMemo@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"modifyTopicMemo",
+                "control_value":"replace",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title" : "@@process.hederaTopicManagementTool.header.deleteTopic@@",
+        "control_field":"operationType",
+        "control_value":"deleteTopic",
+        "control_use_regex":"false",
+        "properties" : [
+            {
+                "name":"topicId",
+                "label":"@@process.hederaTopicManagementTool.topicId@@",
+                "type":"textfield",
+                "required":"true"
+            },
+            {
+                "name":"deleteTopicAdminKey",
+                "label":"@@process.hederaTopicManagementTool.adminKey@@",
+                "description":"@@process.hederaTopicManagementTool.adminKey.desc@@",
+                "type":"selectbox",
+                "options" : [
+                    {
+                        "value" : "operator",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.operator@@"
+                    },
+                    {
+                        "value" : "custom",
+                        "label" : "@@process.hederaTopicManagementTool.adminKey.custom@@"
+                    }
+                ],
+                "value":"operator"
+            },
+            {
+                "name":"adminAccountMnemonic",
+                "label":"@@process.hederaTopicManagementTool.adminAccountMnemonic@@",
+                "description":"@@process.hederaTopicManagementTool.adminAccountMnemonic.desc@@",
+                "type":"textfield",
+                "required":"true",
+                "control_field":"deleteTopicAdminKey",
+                "control_value":"custom",
+                "control_use_regex":"false"
+            }
+        ]
+    },
+    {
+        "title" : "@@hedera.prop.header.storeToWorkflowVariable@@",
+        "properties" : [
+            {
+                "name":"wfTopicCurrentSequence",
+                "label":"@@process.hederaTopicManagementTool.wfTopicCurrentSequence@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "control_field":"operationType",
+                "control_value":"submitMessage",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wfTopicCurrentHash",
+                "label":"@@process.hederaTopicManagementTool.wfTopicCurrentHash@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "control_field":"operationType",
+                "control_value":"submitMessage",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wfTopicId",
+                "label":"@@process.hederaTopicManagementTool.topicId@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "required":"true",
+                "control_field":"operationType",
+                "control_value":"createTopic",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wfSubmitKey",
+                "label":"@@process.hederaTopicManagementTool.submitKey@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "required":"true",
+                "control_field":"setAsPrivateTopic",
+                "control_value":"true",
+                "control_use_regex":"false"
+            },
+            {
+                "name":"wfReplacedSubmitKey",
+                "label":"@@process.hederaTopicManagementTool.submitKey@@",
+                "type":"selectbox",
+                "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/workflowVariable/options",
+                "required":"true",
+                "control_field":"modifySubmitKey",
+                "control_value":"remove|replace",
+                "control_use_regex":"true"
+            },
+            %s
+        ]
+    }
+]
