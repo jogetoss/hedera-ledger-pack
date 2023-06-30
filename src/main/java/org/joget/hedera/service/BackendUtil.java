@@ -12,7 +12,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.NetworkType;
-import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
 
 public class BackendUtil {
@@ -20,13 +19,10 @@ public class BackendUtil {
     private BackendUtil() {}
     
     public static Client getHederaClient(Map properties) {
-        
-        final String operatorId = WorkflowUtil.processVariable((String) properties.get("operatorId"), "", null);
-        final String operatorKey = WorkflowUtil.processVariable((String) properties.get("operatorKey"), "", null);
         final NetworkType networkType = getNetworkType(properties);
         
-        final AccountId operatorAccountId = AccountId.fromString(operatorId);
-        final PrivateKey operatorPrivateKey = PrivateKey.fromString(operatorKey);
+        final AccountId operatorAccountId = AccountId.fromString((String) properties.get("operatorId"));
+        final PrivateKey operatorPrivateKey = PrivateKey.fromString((String) properties.get("operatorKey"));
         
         return networkType.getClient().setOperator(operatorAccountId, operatorPrivateKey);
     }
