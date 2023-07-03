@@ -2,6 +2,7 @@ package org.joget.hedera.lib;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.joget.hedera.lib.plugindefaultproperties.HederaDefaultBackendConfigurator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -13,6 +14,9 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) {
         registrationList = new ArrayList<ServiceRegistration>();
 
+        //Default Properties plugins
+        registrationList.add(context.registerService(HederaDefaultBackendConfigurator.class.getName(), new HederaDefaultBackendConfigurator(), null));
+        
         //Process Tool plugins
         registrationList.add(context.registerService(HederaGenerateAccountTool.class.getName(), new HederaGenerateAccountTool(), null));
         registrationList.add(context.registerService(HederaSendTransactionTool.class.getName(), new HederaSendTransactionTool(), null));

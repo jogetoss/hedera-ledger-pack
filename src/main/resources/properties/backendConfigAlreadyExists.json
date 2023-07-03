@@ -1,0 +1,5 @@
+{
+    "label":"@@hedera.prop.subheader.backendConfig@@",
+    "type":"header",
+    "description":"@@hedera.prop.subheader.backendConfig.message@@"
+}

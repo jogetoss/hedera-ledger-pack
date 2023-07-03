@@ -31,6 +31,12 @@ public class PluginUtil {
     }
     
     public static String readGenericBackendConfigs(String className) {
+        return BackendUtil.getBackendDefaultConfig() != null 
+                ? AppUtil.readPluginResource(className, "/properties/backendConfigAlreadyExists.json") 
+                : forceReadGenericBackendConfigs(className);
+    }
+    
+    public static String forceReadGenericBackendConfigs(String className) {
         return AppUtil.readPluginResource(className, "/properties/genericBackendConfigs.json");
     }
     

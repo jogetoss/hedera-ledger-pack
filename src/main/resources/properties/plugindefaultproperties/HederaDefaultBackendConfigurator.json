@@ -1,0 +1,8 @@
+[
+    {
+        "title":"@@defaults.hederaDefaultBackendConfigurator.header.config@@",
+        "properties":[
+            %s
+        ]
+    }
+]
