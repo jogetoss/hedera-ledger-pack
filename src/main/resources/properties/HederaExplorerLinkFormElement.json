@@ -51,6 +51,10 @@
                     {
                         "value":"tokenId",
                         "label":"@@form.hederaExplorerLinkFormElement.valueType.tokenId@@"
+                    },
+                    {
+                        "value":"topicId",
+                        "label":"@@form.hederaExplorerLinkFormElement.valueType.topicId@@"
                     }
                 ],
                 "value":"transactionId"

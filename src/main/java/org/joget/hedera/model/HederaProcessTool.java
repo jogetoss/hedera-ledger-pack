@@ -10,8 +10,10 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
+import org.joget.hedera.model.explorer.Explorer;
+import org.joget.hedera.model.explorer.ExplorerFactory;
+import static org.joget.hedera.model.explorer.ExplorerFactory.DEFAULT_EXPLORER;
 import org.joget.hedera.service.BackendUtil;
-import org.joget.hedera.service.ExplorerUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.plugin.base.DefaultApplicationPlugin;
@@ -157,11 +159,12 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
                 transactionRecord.transactionId.toString()
         );
         
-        String transactionExplorerUrl = ExplorerUtil.getTransactionUrl(properties, transactionRecord);
+        final NetworkType networkType = BackendUtil.getNetworkType(properties);
+        Explorer explorer = new ExplorerFactory(networkType).createExplorer(DEFAULT_EXPLORER);
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 
-                transactionExplorerUrl != null ? transactionExplorerUrl : "Not available"
+                transactionRecord.transactionId.toString() != null ? explorer.getTransactionUrl(transactionRecord.transactionId.toString()) : "Not available"
         );
     }
     

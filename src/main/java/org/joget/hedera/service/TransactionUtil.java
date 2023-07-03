@@ -5,38 +5,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import org.joget.apps.form.service.FormUtil;
-import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.NetworkType;
-import org.json.JSONObject;
 
 public class TransactionUtil {
     
     private TransactionUtil() {}
-    
-    public static boolean isTransactionExist(NetworkType networkType, String transactionId) {
-        //If within a Form Builder, don't make useless API calls
-        if (transactionId == null || transactionId.isBlank() || FormUtil.isFormBuilderActive()) {
-            return false;
-        }
-        
-        String formattedTxId = transactionId.replaceAll("@", "-");
-        formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
-        
-        String getUrl = networkType.getMirrorNodeUrl()
-                + "transactions/" 
-                + formattedTxId;
-        
-        JSONObject jsonResponse = BackendUtil.httpGet(getUrl);
-        
-        try {
-            return (jsonResponse.getJSONArray("transactions").getJSONObject(0) != null);
-        } catch (Exception ex) {
-            LogUtil.error(getClassName(), ex, "Abnormal API response detected...");
-        }
-        
-        return false;
-    }
     
     /**
      * Convert human-readable amount to actual number (e.g.: 2 decimal points, 500.00 --> 50000)
