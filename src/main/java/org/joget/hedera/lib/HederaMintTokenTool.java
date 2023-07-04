@@ -24,7 +24,6 @@ import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
-import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
@@ -112,7 +111,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
     }
     
     @Override
-    protected Object runTool(Map props, Client client) 
+    protected Object runTool(Map props) 
             throws TimeoutException, RuntimeException {
         
         try {
@@ -143,7 +142,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
 
                     String tokenId = row.getProperty(getPropertyString("tokenId"));
 
-                    storeNftDataToForm(props, row, tokenId, transactionRecord);
+                    storeNftDataToForm(row, tokenId, transactionRecord);
                 } else {
                     transactionRecord = mintMoreNativeToken(client, row, null)
                             .freezeWith(client)
@@ -163,7 +162,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
                             .execute(client)
                             .getRecord(client);
 
-                    storeTokenDataToForm(props, row, createTokenTxRecord);
+                    storeTokenDataToForm(row, createTokenTxRecord);
 
                     String tokenId = createTokenTxRecord.receipt.tokenId.toString();
 
@@ -173,7 +172,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
                             .execute(client)
                             .getRecord(client);
 
-                    storeNftDataToForm(props, row, tokenId, transactionRecord);
+                    storeNftDataToForm(row, tokenId, transactionRecord);
                 } else {
                     transactionRecord = createAsNativeToken(row, genericTokenCreateTx)
                             .freezeWith(client)
@@ -181,11 +180,11 @@ public class HederaMintTokenTool extends HederaProcessTool {
                             .execute(client)
                             .getRecord(client);
 
-                    storeTokenDataToForm(props, row, transactionRecord);
+                    storeTokenDataToForm(row, transactionRecord);
                 }
             }
 
-            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+            storeGenericTxDataToWorkflowVariable(transactionRecord);
 
             return transactionRecord;
         } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
@@ -416,7 +415,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
         } 
     }
     
-    private void storeTokenDataToForm(Map properties, FormRow row, TransactionRecord transactionRecord) {
+    private void storeTokenDataToForm(FormRow row, TransactionRecord transactionRecord) {
         String formDefId = getPropertyString("formDefIdStoreTokenData");
         
         if (formDefId == null || formDefId.isEmpty()) {
@@ -429,7 +428,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
         String minterAccountId = row.getProperty(getPropertyString("minterAccountId"));
         boolean mintTypeNft = "nft".equalsIgnoreCase(getPropertyString("mintType"));
         
-        final boolean isTest = BackendUtil.isTestnet(properties);
+        final boolean isTest = client.getLedgerId().isTestnet() || client.getLedgerId().isPreviewnet();
         
         String tokenTypeField = getPropertyString("tokenTypeField");
         String tokenNameField = getPropertyString("tokenNameField");
@@ -453,7 +452,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
         }
     }
     
-    private void storeNftDataToForm(Map properties, FormRow row, String tokenId, TransactionRecord transactionRecord) {
+    private void storeNftDataToForm(FormRow row, String tokenId, TransactionRecord transactionRecord) {
         String formDefId = getPropertyString("formDefIdStoreNftData");
         
         if (formDefId == null || formDefId.isEmpty()) {
@@ -463,7 +462,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
         
         String minterAccountId = row.getProperty(getPropertyString("minterAccountId"));
         
-        final boolean isTest = BackendUtil.isTestnet(properties);
+        final boolean isTest = client.getLedgerId().isTestnet() || client.getLedgerId().isPreviewnet();
         
         String nftSerialNumberField = getPropertyString("nftSerialNumberField");
         String nftAssociatedTokenIdField = getPropertyString("nftAssociatedTokenIdField");

@@ -1,7 +1,7 @@
 package org.joget.hedera.model.explorer;
 
 import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.NetworkType;
+import com.hedera.hashgraph.sdk.LedgerId;
 
 public class HashScan implements Explorer {
 
@@ -11,20 +11,16 @@ public class HashScan implements Explorer {
     
     private final String endpointUrl;
     
-    public HashScan(NetworkType networkType) {        
-        switch (networkType) {
-            case MAINNET:
-                this.endpointUrl = ENDPOINT_MAINNET;
-                break;
-            case PREVIEWNET:
-                this.endpointUrl = ENDPOINT_PREVIEWNET;
-                break;
-            case TESTNET:
-                this.endpointUrl = ENDPOINT_TESTNET;
-                break;
-            default:
-                LogUtil.warn(getClassName(), "Unknown network type found!");
-                this.endpointUrl = "";
+    public HashScan(final LedgerId ledgerId) {
+        if (ledgerId.isMainnet()) {
+            this.endpointUrl = ENDPOINT_MAINNET;
+        } else if (ledgerId.isPreviewnet()) {
+            this.endpointUrl = ENDPOINT_PREVIEWNET;
+        } else if (ledgerId.isTestnet()) {
+            this.endpointUrl = ENDPOINT_TESTNET;
+        } else {
+            LogUtil.warn(getClassName(), "Unknown client network found!");
+            this.endpointUrl = "";
         }
     }
     

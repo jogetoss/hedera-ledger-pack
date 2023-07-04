@@ -1,24 +1,24 @@
 package org.joget.hedera.model.explorer;
 
 import org.joget.commons.util.LogUtil;
-import org.joget.hedera.model.NetworkType;
+import com.hedera.hashgraph.sdk.LedgerId;
 
 public class ExplorerFactory {
     
     public static final String DEFAULT_EXPLORER = "hashscan";
     
-    private final NetworkType networkType;
+    private final LedgerId ledgerId;
 
-    public ExplorerFactory(NetworkType networkType) {
-        this.networkType = networkType;
+    public ExplorerFactory(LedgerId ledgerId) {
+        this.ledgerId = ledgerId;
     }
     
     public Explorer createExplorer(String explorerType) {
         switch (explorerType) {
             case DEFAULT_EXPLORER:
-                return new HashScan(networkType);
+                return new HashScan(ledgerId);
             case "dragonglass" :
-                return new DragonGlass(networkType);
+                return new DragonGlass(ledgerId);
             default:
                 LogUtil.warn(getClassName(), "Unknown explorer type found!");
                 return null;

@@ -17,6 +17,11 @@ import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
+/**
+* @deprecated
+* Pending rework in tandem with hashconnect.
+*/
+@Deprecated
 public class HederaScheduledTransactionLoadBinder extends HederaFormBinder implements FormLoadElementBinder {
 
     @Override

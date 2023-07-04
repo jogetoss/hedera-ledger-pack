@@ -1,7 +1,6 @@
 package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.BadMnemonicException;
-import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Mnemonic;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
@@ -21,6 +20,11 @@ import org.joget.hedera.service.AccountUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
+/**
+* @deprecated
+* Pending rework in tandem with hashconnect.
+*/
+@Deprecated
 public class HederaSignScheduledTransactionTool extends HederaProcessTool {
 
     @Override
@@ -40,7 +44,7 @@ public class HederaSignScheduledTransactionTool extends HederaProcessTool {
     }
     
     @Override
-    protected Object runTool(Map props, Client client) 
+    protected Object runTool(Map props) 
             throws TimeoutException, RuntimeException {
         
         try {    

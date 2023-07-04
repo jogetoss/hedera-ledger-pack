@@ -28,6 +28,8 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
     protected WorkflowAssignment wfAssignment;
     protected WorkflowManager workflowManager;
     
+    protected Client client;
+    
     private void initUtils(Map props) {
         ApplicationContext ac = AppUtil.getApplicationContext();
         
@@ -60,11 +62,9 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
      * A org.joget.workflow.model.WorkflowAssignment object is passed as "workflowAssignment" property when it is available.
      * 
      * @param props
-     * @param client The Hedera client to execute queries and actions
-     * @param wfAssignment
      * @return is not used for now
      */
-    protected abstract Object runTool(Map props, Client client) 
+    protected abstract Object runTool(Map props) 
             throws TimeoutException, RuntimeException;
     
     @Override
@@ -76,13 +76,11 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
             return null;
         }
         
-        Object result = null;
-        
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
         try {
-            final Client client = BackendUtil.getHederaClient(props);
+            this.client = BackendUtil.getHederaClient(props);
             
             if (client == null) {
                 LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
@@ -94,7 +92,7 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
                 return null;
             }
 
-            result = runTool(props, client);
+            return runTool(props);
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing process tool plugin due to timeout.");
         } catch (RuntimeException ex) { //Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
@@ -115,7 +113,7 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
         
-        return result;
+        return null;
     }
     
     protected FormRowSet getFormRecord(String formDefId, String primaryKey) {        
@@ -134,7 +132,7 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
         return appService.storeFormData(appDef.getId(), appDef.getVersion().toString(), formDefId, rowSet, null);
     }
     
-    protected void storeGenericTxDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
+    protected void storeGenericTxDataToWorkflowVariable(TransactionRecord transactionRecord) {
         
         String wfTransactionValidated = getPropertyString("wfTransactionValidated");
         String wfConsensusTimestamp = getPropertyString("wfConsensusTimestamp");
@@ -159,8 +157,7 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
                 transactionRecord.transactionId.toString()
         );
         
-        final NetworkType networkType = BackendUtil.getNetworkType(properties);
-        Explorer explorer = new ExplorerFactory(networkType).createExplorer(DEFAULT_EXPLORER);
+        Explorer explorer = new ExplorerFactory(client.getLedgerId()).createExplorer(DEFAULT_EXPLORER);
         storeValuetoActivityVar(
                 wfAssignment.getActivityId(), 
                 wfTransactionExplorerUrl, 

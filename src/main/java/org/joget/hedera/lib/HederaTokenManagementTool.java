@@ -1,7 +1,6 @@
 package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Mnemonic;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
@@ -69,7 +68,7 @@ public class HederaTokenManagementTool extends HederaProcessTool {
     }
     
     @Override
-    protected Object runTool(Map props, Client client) 
+    protected Object runTool(Map props) 
             throws TimeoutException, RuntimeException {
         
         try {
@@ -264,7 +263,7 @@ public class HederaTokenManagementTool extends HederaProcessTool {
                     return null;
             }
 
-            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
+            storeGenericTxDataToWorkflowVariable(transactionRecord);
 
             return transactionRecord;
         } catch (PrecheckStatusException | ReceiptStatusException e) {

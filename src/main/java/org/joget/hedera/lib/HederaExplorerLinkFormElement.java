@@ -1,6 +1,5 @@
 package org.joget.hedera.lib;
 
-import com.hedera.hashgraph.sdk.Client;
 import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
@@ -10,10 +9,10 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaFormElement;
-import org.joget.hedera.model.NetworkType;
 import org.joget.hedera.model.explorer.Explorer;
 import org.joget.hedera.model.explorer.ExplorerFactory;
 import org.joget.hedera.service.BackendUtil;
+import org.joget.hedera.service.MirrorRestService;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
@@ -48,7 +47,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
     }
 
     @Override
-    public String renderElement(FormData formData, Map dataModel, Client client) {  
+    public String renderElement(FormData formData, Map dataModel) {  
         String explorerType = getPropertyString("explorerType");
         String valueType = getPropertyString("valueType");
         String getValueMode = getPropertyString("getValueMode");
@@ -90,35 +89,30 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
             return false;
         }
         
-        final NetworkType networkType = BackendUtil.getNetworkType(getProperties());
+        final MirrorRestService restService = new MirrorRestService(
+                BackendUtil.getBackendDefaultConfig(getProperties()),
+                client.getLedgerId()
+        );
         
         try {
             switch (valueType) {
                 case ADDRESS_TYPE : {
-                    JSONObject jsonResponse = BackendUtil.httpGet(
-                            networkType.getMirrorNodeUrl() + "accounts/" + retrievedValue
-                    );
+                    JSONObject jsonResponse = restService.get("accounts/" + retrievedValue);
                     return (jsonResponse != null && (jsonResponse.getString("account")).equals(retrievedValue));
                 }
                 case TOKEN_TYPE : {
-                    JSONObject jsonResponse = BackendUtil.httpGet(
-                            networkType.getMirrorNodeUrl() + "tokens/" + retrievedValue
-                    );
+                    JSONObject jsonResponse = restService.get("tokens/" + retrievedValue);
                     return (jsonResponse != null && (jsonResponse.getString("token_id")).equals(retrievedValue));
                 }
                 case TX_ID_TYPE: {
                     String formattedTxId = retrievedValue.replaceAll("@", "-");
                     formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
                     
-                    JSONObject jsonResponse = BackendUtil.httpGet(
-                            networkType.getMirrorNodeUrl() + "transactions/" + formattedTxId
-                    );
+                    JSONObject jsonResponse = restService.get("transactions/" + formattedTxId);
                     return (jsonResponse != null && (jsonResponse.getJSONArray("transactions").getJSONObject(0) != null));
                 }
                 case TOPIC_TYPE: {
-                    JSONObject jsonResponse = BackendUtil.httpGet(
-                            networkType.getMirrorNodeUrl() + "topics/" + retrievedValue + "/messages?encoding=utf-8"
-                    );
+                    JSONObject jsonResponse = restService.get("topics/" + retrievedValue + "/messages?encoding=utf-8");
                     return (jsonResponse != null && (jsonResponse.getJSONArray("messages").getJSONObject(0) != null));
                 }
                 default:
@@ -137,8 +131,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
             return "";
         }
         
-        final NetworkType networkType = BackendUtil.getNetworkType(getProperties());
-        Explorer explorer = new ExplorerFactory(networkType).createExplorer(explorerType);
+        Explorer explorer = new ExplorerFactory(client.getLedgerId()).createExplorer(explorerType);
         
         switch (valueType) {
             case ADDRESS_TYPE :

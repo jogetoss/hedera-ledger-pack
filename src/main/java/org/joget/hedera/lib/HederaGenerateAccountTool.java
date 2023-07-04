@@ -5,7 +5,6 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountInfo;
 import com.hedera.hashgraph.sdk.AccountInfoQuery;
 import com.hedera.hashgraph.sdk.BadMnemonicException;
-import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.KeyList;
 import com.hedera.hashgraph.sdk.Mnemonic;
@@ -21,7 +20,6 @@ import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
-import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.workflow.util.WorkflowUtil;
 
@@ -44,7 +42,7 @@ public class HederaGenerateAccountTool extends HederaProcessTool {
     }
 
     @Override
-    protected Object runTool(Map props, Client client) 
+    protected Object runTool(Map props) 
             throws TimeoutException, RuntimeException {
         
         try {
@@ -53,7 +51,7 @@ public class HederaGenerateAccountTool extends HederaProcessTool {
             final String formDefIdGetData = getPropertyString("formDefIdGetData");
             final String getMnemonicField = getPropertyString("getMnemonicField");
             final String accountIdsToSign = WorkflowUtil.processVariable(getPropertyString("accountIdsToSign"), "", wfAssignment);
-            final boolean isTest = BackendUtil.isTestnet(props);
+            final boolean isTest = client.getLedgerId().isTestnet() || client.getLedgerId().isPreviewnet();
             final boolean isMultiSig = "true".equals(getPropertyString("enableMultiSig"));
 
             String encryptedMnemonic = "";

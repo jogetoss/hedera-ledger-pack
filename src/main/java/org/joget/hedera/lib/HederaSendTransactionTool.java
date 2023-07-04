@@ -6,7 +6,6 @@ import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.workflow.util.WorkflowUtil;
-import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.BadMnemonicException;
 import com.hedera.hashgraph.sdk.Hbar;
@@ -85,7 +84,7 @@ public class HederaSendTransactionTool extends HederaProcessTool {
     }
     
     @Override
-    protected Object runTool(Map props, Client client) 
+    protected Object runTool(Map props) 
             throws TimeoutException, RuntimeException {
         
         try {
@@ -220,8 +219,8 @@ public class HederaSendTransactionTool extends HederaProcessTool {
                     .getRecord(client);
             }
 
-            storeGenericTxDataToWorkflowVariable(props, transactionRecord);
-            storeAdditionalDataToWorkflowVariable(props, transactionRecord);
+            storeGenericTxDataToWorkflowVariable(transactionRecord);
+            storeAdditionalDataToWorkflowVariable(transactionRecord);
 
             return transactionRecord;
         } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
@@ -229,7 +228,7 @@ public class HederaSendTransactionTool extends HederaProcessTool {
         }
     }
     
-    protected void storeAdditionalDataToWorkflowVariable(Map properties, TransactionRecord transactionRecord) {
+    protected void storeAdditionalDataToWorkflowVariable(TransactionRecord transactionRecord) {
         String wfScheduleId = getPropertyString("wfScheduleId");
         
         storeValuetoActivityVar(

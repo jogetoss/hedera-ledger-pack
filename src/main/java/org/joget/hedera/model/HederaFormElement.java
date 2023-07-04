@@ -19,6 +19,8 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
     protected WorkflowAssignment wfAssignment;
     protected WorkflowManager workflowManager;
     
+    protected Client client;
+    
     private void initUtils(Map props) {
         ApplicationContext ac = AppUtil.getApplicationContext();
         
@@ -40,7 +42,7 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
      * @param dataModel Model containing values to be displayed in the template.
      * @return A string representing the HTML element to render
      */
-    public abstract String renderElement(FormData formData, Map dataModel, Client client);
+    public abstract String renderElement(FormData formData, Map dataModel);
     
     @Override
     public String renderTemplate(FormData formData, Map dataModel) {        
@@ -56,17 +58,17 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
         
         try {
             if (FormUtil.isFormBuilderActive()) {
-                return renderElement(formData, dataModel, null);
+                return renderElement(formData, dataModel);
             }
             
-            final Client client = BackendUtil.getHederaClient(getProperties());
+            this.client = BackendUtil.getHederaClient(getProperties());
 
             if (client == null) {
                 LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
                 return "";
             }
             
-            return renderElement(formData, dataModel, client);
+            return renderElement(formData, dataModel);
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error executing form element plugin...");
         } finally {

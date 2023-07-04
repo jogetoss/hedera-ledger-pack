@@ -30,5 +30,30 @@
         }
     ],
     "value":"testnet"
+},
+{
+    "name":"restServiceType",
+    "label":"@@hedera.prop.restServiceType@@",
+    "description":"@@hedera.prop.restServiceType.desc@@",
+    "type":"selectbox",
+    "options" : [
+        {
+            "value" : "",
+            "label" : "@@hedera.prop.restServiceType.publicHedera@@"
+        },
+        {
+            "value" : "arkhia",
+            "label" : "@@hedera.prop.restServiceType.arkhia@@"
+        }
+    ],
+    "value":""
+},
+{
+    "name":"arkhiaApiKey",
+    "label":"@@hedera.prop.restServiceType.arkhiaApiKey@@",
+    "type":"password",
+    "required":"true",
+    "control_field":"restServiceType",
+    "control_value":"arkhia",
+    "control_use_regex":"false"
 }
-            
