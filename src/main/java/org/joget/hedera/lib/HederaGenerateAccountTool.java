@@ -1,9 +1,6 @@
 package org.joget.hedera.lib;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.AccountInfo;
-import com.hedera.hashgraph.sdk.AccountInfoQuery;
 import com.hedera.hashgraph.sdk.BadMnemonicException;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.KeyList;
@@ -100,16 +97,10 @@ public class HederaGenerateAccountTool extends HederaProcessTool {
                     .execute(client)
                     .getReceipt(client);
 
-            AccountId newAccountId = receipt.accountId;
-
-            AccountInfo newAccountInfo = new AccountInfoQuery()
-                    .setAccountId(newAccountId)
-                    .execute(client);
-
-            storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, newAccountInfo);
+            storeToForm(props, isTest, encryptedMnemonic, isMultiSig, accountSigners, receipt);
             storeAdditionalDataToWorkflowVariable(props, isTest, receipt);
 
-            return newAccountId;
+            return receipt;
         } catch (PrecheckStatusException | BadMnemonicException | ReceiptStatusException e) {
             throw new RuntimeException(e.getClass().getName() + " : " + e.getMessage());
         }
@@ -121,7 +112,7 @@ public class HederaGenerateAccountTool extends HederaProcessTool {
         newAccountTransaction.setInitialBalance(Hbar.from(100));
     }
     
-    protected void storeToForm(Map properties, boolean isTest, final String encryptedMnemonic, final boolean isMultiSig, final String accountSigners, final AccountInfo account) {
+    protected void storeToForm(Map properties, boolean isTest, final String encryptedMnemonic, final boolean isMultiSig, final String accountSigners, final TransactionReceipt receipt) {
         String formDefId = getPropertyString("formDefId");
         
         if (formDefId != null && formDefId.trim().length() > 0) {
@@ -135,7 +126,7 @@ public class HederaGenerateAccountTool extends HederaProcessTool {
             FormRow row = new FormRow();
             
             //Account ID set as Record ID
-            row.setId(account.accountId.toString());
+            row.setId(receipt.accountId.toString());
             row = addRow(row, accountMnemonicField, encryptedMnemonic);
             row = addRow(row, accountOwnerField, accountOwnerValue);
             row = addRow(row, isTestAccountField, String.valueOf(isTest));
