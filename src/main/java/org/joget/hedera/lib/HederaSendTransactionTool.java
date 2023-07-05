@@ -1,7 +1,5 @@
 package org.joget.hedera.lib;
 
-import com.hedera.hashgraph.sdk.AccountBalance;
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import java.util.Map;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
@@ -17,8 +15,6 @@ import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.ScheduleCreateTransaction;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
-import com.hedera.hashgraph.sdk.TokenInfo;
-import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.io.File;
@@ -34,8 +30,11 @@ import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FileUtil;
 import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
+import org.joget.hedera.service.MirrorRestService;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class HederaSendTransactionTool extends HederaProcessTool {
     
@@ -112,6 +111,8 @@ public class HederaSendTransactionTool extends HederaProcessTool {
             if ("nft".equals(paymentUnit) || "nativeTokens".equals(paymentUnit)) {
                 final String tokenId = WorkflowUtil.processVariable(getPropertyString("tokenId"), "", wfAssignment);
 
+                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
+                
                 //Auto-associate tokens with receiver here
                 final boolean enableTokenAutoAssociateWithReceiver = "true".equals(getPropertyString("enableTokenAutoAssociateWithReceiver"));
                 if (enableTokenAutoAssociateWithReceiver) {
@@ -120,11 +121,20 @@ public class HederaSendTransactionTool extends HederaProcessTool {
                     final PrivateKey receiverPrivateKey = AccountUtil.derivePrivateKeyFromMnemonic(Mnemonic.fromString(receiverAccountMnemonic));
 
                     //Check if token already associated before doing so
-                    AccountBalance accountBalances = new AccountBalanceQuery()
-                            .setAccountId(receiverAccount)
-                            .execute(client);
-
-                    if (accountBalances.tokens.get(TokenId.fromString(tokenId)) == null) {
+                    JSONObject jsonResponse = restService.get("balances?account.id=" + receiverAccountId);
+                    if (jsonResponse == null) {
+                        LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
+                    }
+                    JSONArray accountTokens = jsonResponse.getJSONArray("balances").getJSONObject(0).getJSONArray("tokens");
+                    boolean tokenFound = false;
+                    for (int i = 0; i < accountTokens.length(); i++) {
+                        JSONObject balanceObj = accountTokens.getJSONObject(i);
+                        if (balanceObj.getString("token_id").equals(tokenId)) {
+                            tokenFound = true;
+                            break;
+                        }
+                    }
+                    if (!tokenFound) {
                         new TokenAssociateTransaction()
                             .setAccountId(receiverAccount)
                             .setTokenIds(Collections.singletonList(TokenId.fromString(tokenId)))
@@ -147,11 +157,9 @@ public class HederaSendTransactionTool extends HederaProcessTool {
                     }
                     case "nativeTokens": {
                         //Auto-calc token decimals for transfer amount
-                        TokenInfo tokenInfo = new TokenInfoQuery()
-                            .setTokenId(TokenId.fromString(tokenId))
-                            .execute(client);
+                        JSONObject jsonResponse = restService.get("tokens/" + tokenId);
 
-                        int actualAmount = TransactionUtil.calcActualTokenAmountBasedOnDecimals(amount, tokenInfo.decimals);
+                        int actualAmount = TransactionUtil.calcActualTokenAmountBasedOnDecimals(amount, Integer.parseInt(jsonResponse.getString("decimals")));
 
                         transferTransaction
                                 .addTokenTransfer(TokenId.fromString(tokenId), senderAccount, Math.negateExact(actualAmount))
