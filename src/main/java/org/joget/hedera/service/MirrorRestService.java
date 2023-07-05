@@ -24,7 +24,7 @@ public class MirrorRestService {
     private final Map properties;
     
     public MirrorRestService(Map properties, LedgerId ledgerId) {
-        this.properties = properties;
+        this.properties = BackendUtil.getBackendDefaultConfig(properties);
         this.endpointUrl = createRest((String) properties.get("restServiceType")).getEndpoint(ledgerId);
     }
     

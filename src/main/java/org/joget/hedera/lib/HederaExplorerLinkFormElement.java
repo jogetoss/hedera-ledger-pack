@@ -89,10 +89,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
             return false;
         }
         
-        final MirrorRestService restService = new MirrorRestService(
-                BackendUtil.getBackendDefaultConfig(getProperties()),
-                client.getLedgerId()
-        );
+        final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
         
         try {
             switch (valueType) {

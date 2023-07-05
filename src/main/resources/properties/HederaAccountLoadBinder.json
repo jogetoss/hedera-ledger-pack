@@ -61,20 +61,14 @@
                 "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
-                "name":"ownedNftsField",
-                "label":"@@form.hederaAccountLoadBinder.mapToFields.ownedNftsField@@",
+                "name":"evmAddressField",
+                "label":"@@form.hederaAccountLoadBinder.mapToFields.evmAddressField@@",
                 "type" : "selectbox",
                 "options_callback" : "FormBuilder.getFieldOptions"
             },
             {
-                "name":"sendRecordThresholdField",
-                "label":"@@form.hederaAccountLoadBinder.mapToFields.sendRecordThresholdField@@",
-                "type" : "selectbox",
-                "options_callback" : "FormBuilder.getFieldOptions"
-            },
-            {
-                "name":"receiveRecordThresholdField",
-                "label":"@@form.hederaAccountLoadBinder.mapToFields.receiveRecordThresholdField@@",
+                "name":"maxAutoTokenAssociationsField",
+                "label":"@@form.hederaAccountLoadBinder.mapToFields.maxAutoTokenAssociationsField@@",
                 "type" : "selectbox",
                 "options_callback" : "FormBuilder.getFieldOptions"
             }
