@@ -12,8 +12,6 @@ import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
 import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
 import com.hedera.hashgraph.sdk.TokenId;
-import com.hedera.hashgraph.sdk.TokenInfo;
-import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenPauseTransaction;
 import com.hedera.hashgraph.sdk.TokenRevokeKycTransaction;
 import com.hedera.hashgraph.sdk.TokenUnfreezeTransaction;
@@ -29,9 +27,11 @@ import org.joget.apps.form.model.FormRowSet;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.HederaProcessTool;
 import org.joget.hedera.service.AccountUtil;
+import org.joget.hedera.service.MirrorRestService;
 import org.joget.hedera.service.PluginUtil;
 import org.joget.hedera.service.TransactionUtil;
 import org.joget.workflow.util.WorkflowUtil;
+import org.json.JSONObject;
 
 public class HederaTokenManagementTool extends HederaProcessTool {
     
@@ -240,11 +240,10 @@ public class HederaTokenManagementTool extends HederaProcessTool {
                     if (burnTokenType.equals("fungibleToken")) {
                         final String amountToBurn = row.getProperty(getPropertyString("amountToBurn"));
                         
-                        TokenInfo tokenInfo = new TokenInfoQuery()
-                                .setTokenId(TokenId.fromString(tokenId))
-                                .execute(client);
+                        final MirrorRestService restService = new MirrorRestService(props, client.getLedgerId());
+                        JSONObject jsonResponse = restService.get("tokens/" + tokenId);
                         
-                        tokenBurnTx.setAmount(TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToBurn, tokenInfo.decimals));
+                        tokenBurnTx.setAmount(TransactionUtil.calcActualTokenAmountBasedOnDecimals(amountToBurn, Integer.parseInt(jsonResponse.getString("decimals"))));
                     } else {
                         final String nftSerialNumberToBurn = row.getProperty(getPropertyString("nftSerialNumberToBurn"));
                         
