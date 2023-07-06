@@ -109,7 +109,7 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
                 }
                 case TOPIC_TYPE: {
                     JSONObject jsonResponse = restService.get("topics/" + retrievedValue + "/messages?encoding=utf-8");
-                    return (jsonResponse != null && (jsonResponse.getJSONArray("messages").getJSONObject(0) != null));
+                    return (jsonResponse != null && (jsonResponse.getJSONArray("messages") != null));
                 }
                 default:
                     LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
