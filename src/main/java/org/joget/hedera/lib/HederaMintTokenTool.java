@@ -195,7 +195,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
     private TokenCreateTransaction createGenericToken(FormRow row, AccountId minterAccount, PublicKey minterPubKey, PublicKey operatorPubKey) {
         final String tokenName = row.getProperty(getPropertyString("tokenName"));
         final String tokenSymbol = row.getProperty(getPropertyString("tokenSymbol"));
-        final String tokenMemo = row.getProperty(getPropertyString("tokenMemo"));
+        final String tokenMemo = getPropertyString("tokenMemo");
 //        final String maxFeeAmount = row.getProperty(getPropertyString("maxFeeAmount")); //Look into custom fees features in the future
 
         final String adminKey = getPropertyString("adminKey");
@@ -483,7 +483,7 @@ public class HederaMintTokenTool extends HederaProcessTool {
     }
     
     private FormRow addRow(FormRow row, String field, String value) {
-        if (row != null && !field.isEmpty()) {
+        if (row != null && !field.isEmpty() && value != null) {
             row.put(field, value);
         }
         

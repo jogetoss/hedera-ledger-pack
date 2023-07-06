@@ -102,9 +102,7 @@
                 "name":"tokenMemo",
                 "label":"@@process.hederaMintTokenTool.tokenMemo@@",
                 "description":"@@process.hederaMintTokenTool.tokenMemo.desc@@",
-                "type":"selectbox",
-                "options_ajax_on_change":"formDefId",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+                "type":"textfield"
             },
             {
                 "name":"amountToMint",
@@ -413,31 +411,6 @@
                 "required":"True"
             },
             {
-                "name":"tokenTypeField",
-                "label":"@@process.hederaMintTokenTool.tokenTypeField@@",
-                "description":"@@process.hederaMintTokenTool.tokenTypeField.desc@@",
-                "type":"selectbox",
-                "required":"True",
-                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
-            },
-            {
-                "name":"tokenNameField",
-                "label":"@@process.hederaMintTokenTool.tokenNameField@@",
-                "type":"selectbox",
-                "required":"True",
-                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
-            },
-            {
-                "name":"tokenSymbolField",
-                "label":"@@process.hederaMintTokenTool.tokenSymbolField@@",
-                "type":"selectbox",
-                "required":"True",
-                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
-                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
-            },
-            {
                 "name":"minterAccountField",
                 "label":"@@process.hederaMintTokenTool.minterAccountField@@",
                 "type":"selectbox",
@@ -446,10 +419,31 @@
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             },
             {
+                "name":"tokenTypeField",
+                "label":"@@process.hederaMintTokenTool.tokenTypeField@@",
+                "description":"@@process.hederaMintTokenTool.tokenTypeField.desc@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"tokenNameField",
+                "label":"@@process.hederaMintTokenTool.tokenNameField@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
+                "name":"tokenSymbolField",
+                "label":"@@process.hederaMintTokenTool.tokenSymbolField@@",
+                "type":"selectbox",
+                "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
+                "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
+            },
+            {
                 "name":"isTestnetField",
                 "label":"@@process.hederaMintTokenTool.isTestnetField@@",
                 "type":"selectbox",
-                "required":"True",
                 "options_ajax_on_change":"formDefId:formDefIdStoreTokenData",
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             }
@@ -500,7 +494,6 @@
                 "name":"isNftOnTestnetField",
                 "label":"@@process.hederaMintTokenTool.isNftOnTestnetField@@",
                 "type":"selectbox",
-                "required":"True",
                 "options_ajax_on_change":"formDefId:formDefIdStoreNftData",
                 "options_ajax":"[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
             }
