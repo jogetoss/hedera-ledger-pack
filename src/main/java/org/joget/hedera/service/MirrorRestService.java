@@ -25,13 +25,13 @@ public class MirrorRestService {
     
     public MirrorRestService(Map properties, LedgerId ledgerId) {
         this.properties = BackendUtil.getBackendDefaultConfig(properties);
-        this.endpointUrl = createRest((String) properties.get("restServiceType")).getEndpoint(ledgerId);
+        this.endpointUrl = createRest((String) properties.get("backendService")).getEndpoint(ledgerId);
     }
     
-    private ApiEndpoint createRest(String restServiceType) {
-        switch (restServiceType) {
-            case "":                    //For backwards compatibility
-            case DEFAULT_REST_SERVICE:
+    private ApiEndpoint createRest(String backendService) {
+        switch (backendService) {
+            case "":
+            case "publicHedera":
                 return new PublicHedera();
             case "arkhia" :
                 return new Arkhia();
@@ -43,7 +43,7 @@ public class MirrorRestService {
     
     public JSONObject get(String url) {
         HttpGet getRequest = new HttpGet(endpointUrl + url);
-        if ("arkhia".equalsIgnoreCase((String) properties.get("restServiceType"))) {
+        if ("arkhia".equalsIgnoreCase((String) properties.get("backendService"))) {
             getRequest.setHeader("x-api-key", (String) properties.get("arkhiaApiKey"));
         }
         return execute(getRequest);

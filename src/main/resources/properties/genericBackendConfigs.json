@@ -11,6 +11,32 @@
     "required":"true"
 },
 {
+    "name":"backendService",
+    "label":"@@hedera.prop.backendService@@",
+    "description":"@@hedera.prop.backendService.desc@@",
+    "type":"selectbox",
+    "options" : [
+        {
+            "value" : "publicHedera",
+            "label" : "@@hedera.prop.backendService.publicHedera@@"
+        },
+        {
+            "value" : "arkhia",
+            "label" : "@@hedera.prop.backendService.arkhia@@"
+        }
+    ],
+    "value":"publicHedera"
+},
+{
+    "name":"arkhiaApiKey",
+    "label":"@@hedera.prop.backendService.arkhiaApiKey@@",
+    "type":"password",
+    "required":"true",
+    "control_field":"backendService",
+    "control_value":"arkhia",
+    "control_use_regex":"false"
+},
+{
     "name":"networkType",
     "label":"@@hedera.prop.networkType@@",
     "description":"@@hedera.prop.networkType.desc@@",
@@ -29,31 +55,28 @@
             "label" : "@@hedera.prop.networkType.testnet@@"
         }
     ],
-    "value":"testnet"
+    "value":"testnet",
+    "control_field":"backendService",
+    "control_value":"publicHedera",
+    "control_use_regex":"false"
 },
 {
-    "name":"restServiceType",
-    "label":"@@hedera.prop.restServiceType@@",
-    "description":"@@hedera.prop.restServiceType.desc@@",
+    "name":"arkhiaNetworkType",
+    "label":"@@hedera.prop.networkType@@",
+    "description":"@@hedera.prop.networkType.desc@@",
     "type":"selectbox",
     "options" : [
         {
-            "value" : "",
-            "label" : "@@hedera.prop.restServiceType.publicHedera@@"
+            "value" : "mainnet",
+            "label" : "@@hedera.prop.networkType.mainnet@@"
         },
         {
-            "value" : "arkhia",
-            "label" : "@@hedera.prop.restServiceType.arkhia@@"
+            "value" : "testnet",
+            "label" : "@@hedera.prop.networkType.testnet@@"
         }
     ],
-    "value":""
-},
-{
-    "name":"arkhiaApiKey",
-    "label":"@@hedera.prop.restServiceType.arkhiaApiKey@@",
-    "type":"password",
-    "required":"true",
-    "control_field":"restServiceType",
+    "value":"testnet",
+    "control_field":"backendService",
     "control_value":"arkhia",
     "control_use_regex":"false"
 }
