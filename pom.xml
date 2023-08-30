@@ -6,7 +6,7 @@
     <packaging>bundle</packaging>
     <version>8.0.0</version>
     <name>hedera_ledger_pack</name>
-    <url>http://www.joget.org</url>
+    <url>https://www.joget.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>com.hedera.hashgraph</groupId>
             <artifactId>sdk</artifactId>
-            <version>2.27.0</version>
+            <version>2.28.0</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
