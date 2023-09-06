@@ -108,7 +108,7 @@ public class HederaTopicManagementTool extends HederaProcessTool {
                     
                     topicCreateTransaction = topicCreateTransaction.freezeWith(client);
                     
-                    if ("custom".equalsIgnoreCase(getPropertyString("adminKey"))) {
+                    if ("custom".equalsIgnoreCase(getPropertyString("createTopicAdminKey"))) {
                         topicCreateTransaction = topicCreateTransaction.sign(getPrivateKey(getPropertyString("adminAccountMnemonic")));
                     }
                             
