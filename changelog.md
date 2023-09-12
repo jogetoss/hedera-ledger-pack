@@ -1,8 +1,34 @@
 # Changelog
 
-## Q2 2023 (In Progress)
+## Q3 2023
+#### Added
+- Added: Hedera Default Backend Configurator
+- Modified: cleanup explorer logic as factory
+- Modified: Explorer Link - Added Topic ID value type
+- Modified: Backend - Added support for Arkhia as querying backend
+- Modified: Separated endpoint definitions
+- Modified: Account Load Binder - Changed ledger query to mirror node query
+- Modified: Generate Account - Removed unnecessary ledger query
+- Modified: Send Transaction - Changed ledger queries to mirror node queries
+- Modified: Token Burn - Changed ledger query to mirror node query
+- Modified: Mint Token - Removed unnecessary required fields to save to form
+- Modified: Backend - Allow set custom provider to client's mirror network
+- Modified: Support Java 17
+
+#### Fixes
+- Fixed: Explorer Link - Error for topic with no messages
+- Fixed: Mint Token - NPE if token memo is not set
+- Fixed: Topic Management - Invalid signature when using custom admin key for topic creation
+
+## Q2 2023
+#### Added
+- Modified: Send Transaction - Support files integrity checksum in tx memo
+- Added: Hedera Topic Management Tool
+
 #### Fixes
 - Bump json from 20220924 to 20230227 (Ref: https://github.com/advisories/GHSA-3vqj-43w4-2q58 & https://github.com/stleary/JSON-java/pull/723)
+- Fixed: Explorer Link Element - Element disappear in Form Builder
+- Fixed: BackendUtil - redundant parsing since values already parsed
 
 ## Q1 2023
 #### Added
