@@ -6,6 +6,11 @@ Do see [documentation and sample app](https://dev.joget.org/community/display/ma
 
 > :warning: **This project is in early development stages and not ready for production use.**
 
+# Pre-requisites
+
+- Requires Joget DX8 (minimum **v8.0.5**) and higher.
+- Requires Joget to run only on Java version 17 (JDK17)
+
 # Changelog
 
 See changelog [here](changelog.md).
