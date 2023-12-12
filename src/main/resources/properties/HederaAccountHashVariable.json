@@ -1,0 +1,129 @@
+{
+    "optionGroup": {
+        "@@assist.hedera@@": [
+            {
+                "value": "#hedera.account[ACCOUNT_ID].VALUE#",
+                "label": "@@assist.hedera.hashWithFormId@@",
+                "syntax": [
+                    "#hedera.account",
+                    {
+                        "placeholder": "ACCOUNT_ID",
+                        "required": true,
+                        "prefix":"[",
+                        "postfix":"]"
+                    },
+                    ".",
+                    {
+                        "placeholder": "VALUE",
+                        "option": "valueData",
+                        "required": true
+                    },
+                    "#"
+                ]
+            }
+        ]
+    },
+    "optionField": {
+        "valueData": {
+            "name": "valueData",
+            "type": "selectbox",
+            "label": "@@assist.valueData@@",
+            "options": [
+                {
+                    "value": "hbarBalance",
+                    "label": "@@assist.hedera.account.hbarBalance@@"
+                },
+                {
+                    "value": "tokenBalance[TOKEN_ID]",
+                    "label": "@@assist.hedera.account.tokenBalance@@",
+                    "syntax": [
+                        "tokenBalance",
+                        {
+                            "placeholder": "TOKEN_ID",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        }
+                    ]
+
+                },
+                {
+                    "value": "allTokens",
+                    "label": "@@assist.hedera.account.allTokens@@"
+                },
+                {
+                    "value": "accountMemo",
+                    "label": "@@assist.hedera.account.accountMemo@@"
+                },
+                {
+                    "value": "accountIsDeleted",
+                    "label": "@@assist.hedera.account.accountIsDeleted@@"
+                },
+                {
+                    "value": "receiverSignatureRequired",
+                    "label": "@@assist.hedera.account.receiverSignatureRequired@@"
+                },
+                {
+                    "value": "evmAddress",
+                    "label": "@@assist.hedera.account.evmAddress@@"
+                },
+                {
+                    "value": "maxAutoTokenAssociations",
+                    "label": "@@assist.hedera.account.maxAutoTokenAssociations@@"
+                },
+                {
+                    "value": "allowances",
+                    "label": "@@assist.hedera.account.allowances@@"
+                },
+                {
+                    "value": "alias",
+                    "label": "@@assist.hedera.account.alias@@"
+                },
+                {
+                    "value": "autoRenewPeriod",
+                    "label": "@@assist.hedera.account.autoRenewPeriod@@"
+                },
+                {
+                    "value": "createdTimestamp",
+                    "label": "@@assist.hedera.account.createdTimestamp@@"
+                },
+                {
+                    "value": "declineReward",
+                    "label": "@@assist.hedera.account.declineReward@@"
+                },
+                {
+                    "value": "ethereumNonce",
+                    "label": "@@assist.hedera.account.ethereumNonce@@"
+                },
+                {
+                    "value": "expiryTimestamp",
+                    "label": "@@assist.hedera.account.expiryTimestamp@@"
+                },
+                {
+                    "value": "publicKeyType",
+                    "label": "@@assist.hedera.account.publicKeyType@@"
+                },
+                {
+                    "value": "publicKey",
+                    "label": "@@assist.hedera.account.publicKey@@"
+                },
+                {
+                    "value": "pendingReward",
+                    "label": "@@assist.hedera.account.pendingReward@@"
+                },
+                {
+                    "value": "stakedAccountID",
+                    "label": "@@assist.hedera.account.stakedAccountID@@"
+                },
+                {
+                    "value": "stakedNodeID",
+                    "label": "@@assist.hedera.account.stakedNodeID@@"
+                },
+                {
+                    "value": "stakePeriodStart",
+                    "label": "@@assist.hedera.account.stakePeriodStart@@"
+                }
+            ]
+        }
+    }
+}
