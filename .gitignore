@@ -83,7 +83,7 @@ build/
 *.pidb
 *.log
 *.scc
-*.vscode
+
 
 # Visual C++ cache files
 ipch/
