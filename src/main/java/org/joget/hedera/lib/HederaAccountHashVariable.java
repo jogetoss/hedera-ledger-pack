@@ -1,5 +1,6 @@
 package org.joget.hedera.lib;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.joget.apps.app.service.AppUtil;
@@ -8,6 +9,8 @@ import org.joget.hedera.model.HederaHashVariable;
 import org.joget.hedera.service.MirrorRestService;
 import org.joget.hedera.service.PluginUtil;
 import org.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HbarUnit;
@@ -46,14 +49,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
         }
 
-        final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-        JSONObject jsonResponse = restService.get("accounts/" + accountID);
-        LogUtil.info(HederaHashVariable.class.getName(), "jsonresponse from hash var: " + jsonResponse);
-
-        if (jsonResponse == null) {
-            LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-            return null;
-        }
+        JSONObject jsonResponse = getMirrorResponse(client, accountID);
 
         String variableName = variableKey;
 
@@ -71,6 +67,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         String attributeValue = "";
 
         if ((attribute != null && !attribute.isEmpty())) {
+            String tempValue = "";
             try {
                 switch (attribute.toLowerCase()) {
                     case "evmaddress":
@@ -94,25 +91,28 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                                 .toString(HbarUnit.HBAR);
                         attributeValue = hbarBalance;
                         break;
+
                     case "allowances":
-                        attributeValue = String.valueOf(jsonResponse.get("allowances"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
+                        if (jsonResponse.has("allowances") && !jsonResponse.isNull("allowances")) {
+                            attributeValue = jsonResponse.get("allowances").toString();
+                        } else
                             attributeValue = "Does Not Exist";
-                        }
+
                         break;
+
                     case "alias":
-                        attributeValue = String.valueOf(jsonResponse.get("alias"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
+                        if (jsonResponse.has("alias") && !jsonResponse.isNull("alias")) {
+                            attributeValue = jsonResponse.get("alias").toString();
+                        } else
                             attributeValue = "Does Not Exist";
-                        }
+
                         break;
+
                     case "autorenewperiod":
-                        attributeValue = String.valueOf(jsonResponse.getInt("auto_renew_period"));
+                        attributeValue = (epochRenewPeriod(String.valueOf(jsonResponse.getInt("auto_renew_period"))));
                         break;
                     case "createdtimestamp":
-                        attributeValue = jsonResponse.getString("created_timestamp");
+                        attributeValue = epochTimetoDate(jsonResponse.getString("created_timestamp"));
                         break;
                     case "declinereward":
                         attributeValue = String.valueOf(jsonResponse.getBoolean("decline_reward"));
@@ -121,7 +121,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                         attributeValue = String.valueOf(jsonResponse.getInt("ethereum_nonce"));
                         break;
                     case "expirytimestamp":
-                        attributeValue = jsonResponse.getString("expiry_timestamp");
+                        attributeValue = epochTimetoDate(jsonResponse.getString("expiry_timestamp"));
                         break;
                     case "publickeytype":
                         attributeValue = jsonResponse.getJSONObject("key").getString("_type");
@@ -132,37 +132,48 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                     case "pendingreward":
                         attributeValue = String.valueOf(jsonResponse.getInt("pending_reward"));
                         break;
+
                     case "rewards":
-                        attributeValue = String.valueOf(jsonResponse.get("rewards"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
+                        if (jsonResponse.has("rewards") && !jsonResponse.isNull("rewards")) {
+                            attributeValue = jsonResponse.get("rewards").toString();
+                        } else
                             attributeValue = "Does Not Exist";
-                        }
+
                         break;
+
                     case "stakedaccountid":
-                        attributeValue = String.valueOf(jsonResponse.get("staked_account_id"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
+                        if (jsonResponse.has("staked_account_id") && !jsonResponse.isNull("staked_account_id")) {
+                            attributeValue = jsonResponse.get("staked_account_id").toString();
+                        } else
                             attributeValue = "Does Not Exist";
-                        }
+
                         break;
+
                     case "stakednodeid":
-                        attributeValue = String.valueOf(jsonResponse.get("staked_node_id"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
-                            attributeValue = "Does Not Exist   ";
-                        }
+                        if (jsonResponse.has("staked_node_id") && !jsonResponse.isNull("staked_node_id")) {
+                            attributeValue = jsonResponse.get("staked_node_id").toString();
+                        } else
+                            attributeValue = "Does Not Exist";
+
                         break;
+
                     case "stakeperiodstart":
-                        attributeValue = String.valueOf(jsonResponse.get("stake_period_start"));
-                        if (attributeValue.equals(JSONObject.NULL) || attributeValue == null
-                                || attributeValue.isEmpty()) {
-                            attributeValue = "null";
-                        }
+                        if (jsonResponse.has("staked_period_start") && !jsonResponse.isNull("staked_period_start")) {
+                            attributeValue = jsonResponse.get("staked_period_start").toString();
+                        } else
+                            attributeValue = "Does Not Exist";
+
                         break;
+
                     case "alltokens":
-                        attributeValue = jsonResponse.getJSONObject("balance").getJSONArray("tokens").toString();
+                        tempValue = jsonResponse.getJSONObject("balance").getJSONArray("tokens").toString();
+                        if (tempValue.equals(JSONObject.NULL) || tempValue == null
+                                || tempValue.isEmpty()) {
+                            attributeValue = "Does Not Exist";
+                        } else
+                            attributeValue = tempValue;
                         break;
+
                     default:
 
                         JSONArray accountTokens = jsonResponse.getJSONObject("balance").getJSONArray("tokens");
@@ -174,9 +185,11 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
                             if (tokenId.equals(tokenID)) {
                                 tokenBalance = token.get("balance").toString();
-                            }
 
-                            attributeValue = tokenBalance;
+                                attributeValue = tokenBalance;
+                                break;
+                            } else
+                                attributeValue = "Does Not Exist";
 
                         }
 
@@ -190,6 +203,61 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         }
 
         return attributeValue;
+
+    }
+
+    private JSONObject getMirrorResponse(Client client, String accountID) {
+
+        final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
+        JSONObject jsonResponse = restService.get("accounts/" + accountID);
+        LogUtil.info(HederaHashVariable.class.getName(), "jsonresponse success: " + jsonResponse);
+
+        if (jsonResponse == null) {
+            LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
+            return null;
+        }
+        return jsonResponse;
+    }
+
+    public String epochRenewPeriod(String epochTime) {
+        String date = "";
+        try {
+            if (!epochTime.contains(".")) {
+                long epoch = Integer.valueOf(epochTime);
+
+                Duration duration = Duration.ofSeconds(epoch);
+
+                long days = duration.toDays();
+
+                date = days + " Days";
+            }
+
+        } catch (Exception e) {
+            LogUtil.error(HederaAccountHashVariable.class.getName(), e,
+                    "Epoch Time Error " + epochTime);
+        }
+
+        return date;
+    }
+
+    public String epochTimetoDate(String epochTime) {
+
+        String date = " ";
+
+        try {
+            if (epochTime.contains(".")) {
+                double epoch = Double.valueOf(epochTime);
+
+                date = new java.text.SimpleDateFormat("dd-MM-yyyy hh:mm:ss a z")
+                        .format(new java.util.Date((long) epoch * 1000)).toUpperCase();
+            }
+
+        } catch (Exception e) {
+            LogUtil.error(HederaAccountHashVariable.class.getName(), e,
+                    "Epoch Time Error " + epochTime);
+        }
+
+        return date;
 
     }
 
@@ -238,6 +306,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         syntax.add("hedera.account.publicKeyType");
         syntax.add("hedera.account.publicKey");
         syntax.add("hedera.account.pendingReward");
+        syntax.add("hedera.account.rewards");
         syntax.add("hedera.account.stakedAccountID");
         syntax.add("hedera.account.stakedNodeID");
         syntax.add("hedera.account.stakePeriodStart");

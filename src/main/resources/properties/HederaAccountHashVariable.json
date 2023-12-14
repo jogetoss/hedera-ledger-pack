@@ -112,6 +112,10 @@
                     "label": "@@assist.hedera.account.pendingReward@@"
                 },
                 {
+                    "value": "reward",
+                    "label": "@@assist.hedera.account.reward@@"
+                },
+                {
                     "value": "stakedAccountID",
                     "label": "@@assist.hedera.account.stakedAccountID@@"
                 },
