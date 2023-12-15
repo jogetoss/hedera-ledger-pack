@@ -9,8 +9,6 @@ import org.joget.hedera.model.HederaHashVariable;
 import org.joget.hedera.service.MirrorRestService;
 import org.joget.hedera.service.PluginUtil;
 import org.json.JSONObject;
-import org.springframework.cache.annotation.Cacheable;
-
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HbarUnit;
@@ -22,8 +20,9 @@ public class HederaAccountHashVariable extends HederaHashVariable {
     protected String processHashVariable(Client client, String variableKey) {
 
         String accountID = "";
-        String attribute = "";
         String tokenID = null;
+        String attributeValue = "";
+
         if (variableKey.contains("[") && variableKey.contains("]")) {
 
             // Retrieve and remove Account ID from variableKey
@@ -51,20 +50,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
         JSONObject jsonResponse = getMirrorResponse(client, accountID);
 
-        String variableName = variableKey;
-
-        // Detect the attribute in variableKey
-        for (String v : availableSyntax()) {
-            v = v.replaceAll("hedera.account", "");
-            LogUtil.debug(HederaHashVariable.class.getName(), "Modified v: " + v);
-
-            if (variableName != null && variableName.equalsIgnoreCase(v)) {
-                attribute = v.substring(1);
-                LogUtil.debug(HederaHashVariable.class.getName(), "attribute: " + attribute);
-            }
-        }
-
-        String attributeValue = "";
+        String attribute = getAttribute(variableKey);
 
         if ((attribute != null && !attribute.isEmpty())) {
             String tempValue = "";
@@ -85,29 +71,6 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                     case "maxautotokenassociations":
                         attributeValue = String.valueOf(jsonResponse.getInt("max_automatic_token_associations"));
                         break;
-                    case "hbarbalance":
-                        String hbarBalance = Hbar
-                                .from(jsonResponse.getJSONObject("balance").getBigDecimal("balance"), HbarUnit.TINYBAR)
-                                .toString(HbarUnit.HBAR);
-                        attributeValue = hbarBalance;
-                        break;
-
-                    case "allowances":
-                        if (jsonResponse.has("allowances") && !jsonResponse.isNull("allowances")) {
-                            attributeValue = jsonResponse.get("allowances").toString();
-                        } else
-                            attributeValue = "Does Not Exist";
-
-                        break;
-
-                    case "alias":
-                        if (jsonResponse.has("alias") && !jsonResponse.isNull("alias")) {
-                            attributeValue = jsonResponse.get("alias").toString();
-                        } else
-                            attributeValue = "Does Not Exist";
-
-                        break;
-
                     case "autorenewperiod":
                         attributeValue = (epochRenewPeriod(String.valueOf(jsonResponse.getInt("auto_renew_period"))));
                         break;
@@ -131,6 +94,29 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                         break;
                     case "pendingreward":
                         attributeValue = String.valueOf(jsonResponse.getInt("pending_reward"));
+                        break;
+
+                    case "hbarbalance":
+                        String hbarBalance = Hbar
+                                .from(jsonResponse.getJSONObject("balance").getBigDecimal("balance"), HbarUnit.TINYBAR)
+                                .toString(HbarUnit.HBAR);
+                        attributeValue = hbarBalance;
+                        break;
+
+                    case "allowances":
+                        if (jsonResponse.has("allowances") && !jsonResponse.isNull("allowances")) {
+                            attributeValue = jsonResponse.get("allowances").toString();
+                        } else
+                            attributeValue = "Does Not Exist";
+
+                        break;
+
+                    case "alias":
+                        if (jsonResponse.has("alias") && !jsonResponse.isNull("alias")) {
+                            attributeValue = jsonResponse.get("alias").toString();
+                        } else
+                            attributeValue = "Does Not Exist";
+
                         break;
 
                     case "rewards":
@@ -206,12 +192,26 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
     }
 
+    private String getAttribute(String variableKey) {
+
+        // Detect the attribute in variableKey
+        String attribute ="";
+        for (String v : availableSyntax()) {
+            v = v.replaceAll("hedera.account", "");
+            LogUtil.debug(HederaHashVariable.class.getName(), "Modified v: " + v);
+
+            if (variableKey != null && variableKey.equalsIgnoreCase(v)) {
+                attribute = v.substring(1);
+                LogUtil.debug(HederaHashVariable.class.getName(), "attribute: " + attribute);
+            }
+        }
+        return attribute;
+    }
+
     private JSONObject getMirrorResponse(Client client, String accountID) {
 
         final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
         JSONObject jsonResponse = restService.get("accounts/" + accountID);
-        LogUtil.info(HederaHashVariable.class.getName(), "jsonresponse success: " + jsonResponse);
-
         if (jsonResponse == null) {
             LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
             return null;
