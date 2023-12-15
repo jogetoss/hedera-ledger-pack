@@ -56,8 +56,8 @@
                     "label": "@@assist.hedera.account.accountMemo@@"
                 },
                 {
-                    "value": "accountIsDeleted",
-                    "label": "@@assist.hedera.account.accountIsDeleted@@"
+                    "value": "isAccountDeleted",
+                    "label": "@@assist.hedera.account.isAccountDeleted@@"
                 },
                 {
                     "value": "receiverSignatureRequired",
@@ -112,8 +112,8 @@
                     "label": "@@assist.hedera.account.pendingReward@@"
                 },
                 {
-                    "value": "reward",
-                    "label": "@@assist.hedera.account.reward@@"
+                    "value": "rewards",
+                    "label": "@@assist.hedera.account.rewards@@"
                 },
                 {
                     "value": "stakedAccountID",
