@@ -15,7 +15,6 @@ import com.hedera.hashgraph.sdk.HbarUnit;
 import java.text.SimpleDateFormat;
 import org.json.JSONArray;
 
-
 public class HederaAccountHashVariable extends HederaHashVariable {
 
     @Override
@@ -25,7 +24,6 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         String tokenID = null;
 
         if (variableKey.contains("[") && variableKey.contains("]")) {
-
             // Retrieve and remove Account ID from variableKey
             accountID = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
             variableKey = variableKey.replace("[" + accountID + "]", "");
@@ -54,8 +52,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
             return null;
         }
         
-        String attribute = getAttribute(variableKey);
-
+        final String attribute = getAttribute(variableKey);
         if (attribute != null && !attribute.isEmpty()) {
             try {
                 return switch (attribute.toLowerCase()) {
@@ -78,35 +75,35 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                                 .toString(HbarUnit.HBAR);
                     case "allowances" -> 
                         jsonResponse.has("allowances") && !jsonResponse.isNull("allowances")
-                                ? jsonResponse.get("allowances").toString()
+                                ? jsonResponse.getString("allowances")
                                 : "Does Not Exist";
                     case "alias" -> 
                         jsonResponse.has("alias") && !jsonResponse.isNull("alias")
-                                ? jsonResponse.get("alias").toString()
+                                ? jsonResponse.getString("alias")
                                 : "Does Not Exist";
                     case "rewards" -> 
                         jsonResponse.has("rewards") && !jsonResponse.isNull("rewards")
-                                ? jsonResponse.get("rewards").toString()
+                                ? jsonResponse.getString("rewards")
                                 : "Does Not Exist";
                     case "stakedaccountid" ->
                         jsonResponse.has("staked_account_id") && !jsonResponse.isNull("staked_account_id")
-                                ? jsonResponse.get("staked_account_id").toString()
+                                ? jsonResponse.getString("staked_account_id")
                                 : "Does Not Exist";
                     case "stakednodeid" -> 
                         jsonResponse.has("staked_node_id") && !jsonResponse.isNull("staked_node_id")
-                                ? jsonResponse.get("staked_node_id").toString()
+                                ? jsonResponse.getString("staked_node_id")
                                 : "Does Not Exist";
                     case "stakeperiodstart" ->
                         jsonResponse.has("staked_period_start") && !jsonResponse.isNull("staked_period_start")
-                                ? jsonResponse.get("staked_period_start").toString()
+                                ? jsonResponse.getString("staked_period_start")
                                 : "Does Not Exist";
                     case "tokenbalance" -> {
                         JSONArray accountTokens = jsonResponse.getJSONObject("balance").getJSONArray("tokens");
 
                         for (int i = 0; i < accountTokens.length(); i++) {
                             JSONObject token = accountTokens.getJSONObject(i);
-                            if ((token.get("token_id").toString()).equals(tokenID)) {
-                                yield token.get("balance").toString();
+                            if ((token.getString("token_id")).equals(tokenID)) {
+                                yield token.getString("balance");
                             }
                         }
                         
@@ -126,7 +123,6 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         // Detect the attribute in variableKey
         for (String v : availableSyntax()) {
             v = v.replaceAll("hedera.account", "");
-
             if (variableKey != null && variableKey.equalsIgnoreCase(v)) {
                 return v.substring(1);
             }
@@ -135,12 +131,12 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         return null;
     }
 
-    public String epochRenewPeriod(String epochTime) {
+    private String epochRenewPeriod(String epochTime) {
         try {
             if (!epochTime.contains(".")) {
-                long epoch = Integer.valueOf(epochTime);
-                Duration duration = Duration.ofSeconds(epoch);
-                long days = duration.toDays();
+                long days = Duration
+                        .ofSeconds(Integer.parseInt(epochTime))
+                        .toDays();
 
                 return days + " Days";
             }
@@ -151,13 +147,12 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         return null;
     }
 
-    public String epochTimetoDate(String epochTime) {
+    private String epochTimetoDate(String epochTime) {
         try {
             if (epochTime.contains(".")) {
-                double epoch = Double.valueOf(epochTime);
-
                 return new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a z")
-                        .format(new java.util.Date((long) epoch * 1000)).toUpperCase();
+                        .format(new java.util.Date((long) Double.parseDouble(epochTime) * 1000))
+                        .toUpperCase();
             }
         } catch (Exception e) {
             LogUtil.error(getClassName(), e, "Epoch Time Error " + epochTime);
