@@ -31,6 +31,10 @@ public class Activator implements BundleActivator {
         
         //Form Element plugins
         registrationList.add(context.registerService(HederaExplorerLinkFormElement.class.getName(), new HederaExplorerLinkFormElement(), null));
+
+        //Hash Variable plugins
+        registrationList.add(context.registerService(HederaAccountHashVariable.class.getName(), new HederaAccountHashVariable(), null));
+
     }
 
     public void stop(BundleContext context) {
