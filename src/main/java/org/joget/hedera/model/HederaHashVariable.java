@@ -13,9 +13,7 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
             throws TimeoutException, RuntimeException;
 
     @Override
-    public String processHashVariable(String variableKey) {
-        String result = null;
-        // if variableKey contains unprocessing hash variable as username
+    public String processHashVariable(String variableKey) {        
         if (variableKey.startsWith("[") && variableKey.contains("]")) {
             return null;
         }
@@ -27,17 +25,13 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
             final Client client = BackendUtil.getHederaClient(getProperties());
 
             if (client != null) {
-                result = processHashVariable(client, variableKey);
+                return processHashVariable(client, variableKey);
             }
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing hash variable plugin due to timeout.");
-        } catch (RuntimeException ex) { // Compatibility workaround for MultiTenantPluginManager - avoid using SDK's
-                                        // custom exceptions
-            final String exceptionMessage = ex.getMessage();
-
-            if (exceptionMessage.contains("PrecheckStatusException")) {
-                LogUtil.error(getClassName(), ex,
-                        "Error executing hash variable plugin due to failed transaction prechecks.");
+        } catch (RuntimeException ex) { // Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
+            if (ex.getMessage().contains("PrecheckStatusException")) {
+                LogUtil.error(getClassName(), ex, "Error executing hash variable plugin due to failed transaction prechecks.");
             } else {
                 LogUtil.error(getClassName(), ex, "Unhandled RuntimeException occured...");
             }
@@ -47,7 +41,7 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
 
-        return result;
+        return null;
     }
 
     @Override
