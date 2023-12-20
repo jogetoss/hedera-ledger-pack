@@ -103,7 +103,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                         for (int i = 0; i < accountTokens.length(); i++) {
                             JSONObject token = accountTokens.getJSONObject(i);
                             if ((token.getString("token_id")).equals(tokenID)) {
-                                yield token.getString("balance");
+                                yield String.valueOf(token.getInt("balance"));
                             }
                         }
                         
