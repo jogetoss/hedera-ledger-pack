@@ -13,6 +13,8 @@ import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HbarUnit;
 import java.text.SimpleDateFormat;
+import javax.servlet.http.HttpServletRequest;
+import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONArray;
 
 public class HederaAccountHashVariable extends HederaHashVariable {
@@ -39,17 +41,25 @@ public class HederaAccountHashVariable extends HederaHashVariable {
             variableKey = variableKey.substring((variableKey.indexOf(temp[1]) - 1));
 
             if (variableKey.isEmpty()) {
-                LogUtil.debug(getClassName(), "#hedera." + "account" + "[" + accountID + "]." + variableKey + "# is NULL");
                 return null;
             }
         }
 
-        final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-        final JSONObject jsonResponse = restService.get("accounts/" + accountID);
-        if (jsonResponse == null) {
-            LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-            
-            return null;
+        //If same account ID is already loaded on the existing context, read from cached request instead
+        HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String accountAttrKey = accountID + "-accountHashVar";
+        
+        JSONObject jsonResponse;
+        if (request.getAttribute(accountAttrKey) != null) {
+            jsonResponse = (JSONObject) request.getAttribute(accountAttrKey);
+        } else {
+            final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
+            jsonResponse = restService.get("accounts/" + accountID);
+            if (jsonResponse == null) {
+                LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
+                return null;
+            }
+            request.setAttribute(accountAttrKey, jsonResponse);
         }
         
         final String attribute = getAttribute(variableKey);
@@ -168,29 +178,31 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
     @Override
     public Collection<String> availableSyntax() {
+        final String syntaxPrefix = getPrefix() + ".account.";
+        
         Collection<String> syntax = new ArrayList<String>();
-        syntax.add("hedera.account.allowances");
-        syntax.add("hedera.account.allTokens");
-        syntax.add("hedera.account.tokenBalance");
-        syntax.add("hedera.account.hbarBalance");
-        syntax.add("hedera.account.accountMemo");
-        syntax.add("hedera.account.isAccountDeleted");
-        syntax.add("hedera.account.receiverSignatureRequired");
-        syntax.add("hedera.account.evmAddress");
-        syntax.add("hedera.account.maxAutoTokenAssociations");
-        syntax.add("hedera.account.alias");
-        syntax.add("hedera.account.autoRenewPeriod");
-        syntax.add("hedera.account.createdTimestamp");
-        syntax.add("hedera.account.declineReward");
-        syntax.add("hedera.account.ethereumNonce");
-        syntax.add("hedera.account.expiryTimestamp");
-        syntax.add("hedera.account.publicKeyType");
-        syntax.add("hedera.account.publicKey");
-        syntax.add("hedera.account.pendingReward");
-        syntax.add("hedera.account.rewards");
-        syntax.add("hedera.account.stakedAccountID");
-        syntax.add("hedera.account.stakedNodeID");
-        syntax.add("hedera.account.stakePeriodStart");
+        syntax.add(syntaxPrefix + "allowances");
+        syntax.add(syntaxPrefix + "allTokens");
+        syntax.add(syntaxPrefix + "tokenBalance");
+        syntax.add(syntaxPrefix + "hbarBalance");
+        syntax.add(syntaxPrefix + "accountMemo");
+        syntax.add(syntaxPrefix + "isAccountDeleted");
+        syntax.add(syntaxPrefix + "receiverSignatureRequired");
+        syntax.add(syntaxPrefix + "evmAddress");
+        syntax.add(syntaxPrefix + "maxAutoTokenAssociations");
+        syntax.add(syntaxPrefix + "alias");
+        syntax.add(syntaxPrefix + "autoRenewPeriod");
+        syntax.add(syntaxPrefix + "createdTimestamp");
+        syntax.add(syntaxPrefix + "declineReward");
+        syntax.add(syntaxPrefix + "ethereumNonce");
+        syntax.add(syntaxPrefix + "expiryTimestamp");
+        syntax.add(syntaxPrefix + "publicKeyType");
+        syntax.add(syntaxPrefix + "publicKey");
+        syntax.add(syntaxPrefix + "pendingReward");
+        syntax.add(syntaxPrefix + "rewards");
+        syntax.add(syntaxPrefix + "stakedAccountID");
+        syntax.add(syntaxPrefix + "stakedNodeID");
+        syntax.add(syntaxPrefix + "stakePeriodStart");
 
         return syntax;
     }
