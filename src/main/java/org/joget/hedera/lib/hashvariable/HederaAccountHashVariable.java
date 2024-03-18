@@ -1,4 +1,4 @@
-package org.joget.hedera.lib;
+package org.joget.hedera.lib.hashvariable;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -209,7 +209,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
     @Override
     public String getPropertyAssistantDefinition() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/HederaAccountHashVariable.json", null, true, PluginUtil.MESSAGE_PATH);
+        return AppUtil.readPluginResource(getClassName(), "/properties/hashvariable/HederaAccountHashVariable.json", null, true, PluginUtil.MESSAGE_PATH);
     }
     
     @Override

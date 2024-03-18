@@ -2,7 +2,8 @@ package org.joget.hedera.lib;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.joget.hedera.lib.plugindefaultproperties.HederaDefaultBackendConfigurator;
+import org.joget.hedera.lib.plugindefaultproperties.*;
+import org.joget.hedera.lib.hashvariable.*;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -34,7 +35,6 @@ public class Activator implements BundleActivator {
 
         //Hash Variable plugins
         registrationList.add(context.registerService(HederaAccountHashVariable.class.getName(), new HederaAccountHashVariable(), null));
-
     }
 
     public void stop(BundleContext context) {
