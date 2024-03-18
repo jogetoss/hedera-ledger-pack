@@ -3,6 +3,7 @@ package org.joget.hedera.model;
 import com.hedera.hashgraph.sdk.Client;
 import java.util.concurrent.TimeoutException;
 import org.joget.apps.app.model.DefaultHashVariablePlugin;
+import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.service.BackendUtil;
 import org.joget.hedera.service.PluginUtil;
@@ -13,7 +14,11 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
             throws TimeoutException, RuntimeException;
 
     @Override
-    public String processHashVariable(String variableKey) {        
+    public String processHashVariable(String variableKey) {
+        if (FormUtil.isFormBuilderActive()) {
+            return null;
+        }
+        
         if (variableKey.startsWith("[") && variableKey.contains("]")) {
             return null;
         }
