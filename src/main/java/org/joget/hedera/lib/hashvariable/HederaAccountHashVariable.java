@@ -23,7 +23,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
     protected String processHashVariable(Client client, String variableKey) {
 
         String accountID = "";
-        String tokenID = null;
+        String tokenID = "";
 
         if (variableKey.contains("[") && variableKey.contains("]")) {
             // Retrieve and remove Account ID from variableKey
