@@ -2,10 +2,10 @@
     "optionGroup": {
         "@@assist.hedera@@": [
             {
-                "value": "#hedera.account[ACCOUNT_ID].VALUE#",
-                "label": "@@assist.hedera.hashWithFormId@@",
+                "value": "#hedera-account.[ACCOUNT_ID].VALUE#",
+                "label": "@@assist.hedera.account.desc@@",
                 "syntax": [
-                    "#hedera.account",
+                    "#hedera-account.",
                     {
                         "placeholder": "ACCOUNT_ID",
                         "required": true,

@@ -18,10 +18,6 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
         if (FormUtil.isFormBuilderActive()) {
             return null;
         }
-        
-        if (variableKey.startsWith("[") && variableKey.contains("]")) {
-            return null;
-        }
 
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());

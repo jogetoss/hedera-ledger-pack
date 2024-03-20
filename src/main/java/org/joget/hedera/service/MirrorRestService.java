@@ -41,6 +41,22 @@ public class MirrorRestService {
         }
     }
     
+    public JSONObject getAccountData(String accountId) {
+        return get("accounts/" + accountId);
+    }
+    
+    public JSONObject getTokenData(String tokenId) {
+        return get("tokens/" + tokenId);
+    }
+    
+    public JSONObject getTxData(String txId) {
+        return get("transactions/" + txId);
+    }
+    
+    public JSONObject getTopicData(String topicId) {
+        return get("topics/" + topicId);
+    }
+    
     public JSONObject get(String url) {
         HttpGet getRequest = new HttpGet(endpointUrl + url);
         if ("arkhia".equalsIgnoreCase((String) properties.get("backendService"))) {
