@@ -21,7 +21,6 @@ public class HederaAccountHashVariable extends HederaHashVariable {
 
     @Override
     protected String processHashVariable(Client client, String variableKey) {
-
         if (!variableKey.contains("[") || !variableKey.contains("]")) {
             return null;
         }
@@ -58,7 +57,6 @@ public class HederaAccountHashVariable extends HederaHashVariable {
             }
             request.setAttribute(accountAttrKey, jsonResponse);
         }
-        
 
         try {
             return switch (attribute.toLowerCase()) {
@@ -118,7 +116,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
                 default -> null;
             };
         } catch (Exception e) {
-            LogUtil.error(getClassName(), e, "Error retrieving user attribute " + attribute);
+            LogUtil.error(getClassName(), e, "Error retrieving account attribute " + attribute);
         }
 
         return null;
