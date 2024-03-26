@@ -1,6 +1,6 @@
 {
     "optionGroup": {
-        "@@assist.hedera@@": [
+        "@@assist.hedera.topic@@": [
             {
                 "value": "#hedera-topic.[TOPIC_ID].VALUE#",
                 "label": "@@assist.hedera.topic.desc@@",

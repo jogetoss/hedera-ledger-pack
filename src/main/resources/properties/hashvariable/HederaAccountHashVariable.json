@@ -1,6 +1,6 @@
 {
     "optionGroup": {
-        "@@assist.hedera@@": [
+        "@@assist.hedera.account@@": [
             {
                 "value": "#hedera-account.[ACCOUNT_ID].VALUE#",
                 "label": "@@assist.hedera.account.desc@@",
