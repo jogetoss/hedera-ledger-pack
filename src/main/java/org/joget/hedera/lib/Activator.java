@@ -35,6 +35,7 @@ public class Activator implements BundleActivator {
 
         //Hash Variable plugins
         registrationList.add(context.registerService(HederaAccountHashVariable.class.getName(), new HederaAccountHashVariable(), null));
+        registrationList.add(context.registerService(HederaTopicHashVariable.class.getName(), new HederaTopicHashVariable(), null));
     }
 
     public void stop(BundleContext context) {

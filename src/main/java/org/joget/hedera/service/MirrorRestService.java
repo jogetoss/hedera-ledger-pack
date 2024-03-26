@@ -53,8 +53,12 @@ public class MirrorRestService {
         return get("transactions/" + txId);
     }
     
-    public JSONObject getTopicData(String topicId) {
-        return get("topics/" + topicId);
+    public JSONObject getAllTopicMessages(String topicId) {
+        return get("topics/" + topicId + "/messages");
+    }
+    
+    public JSONObject getTopicMessage(String topicId, String sequenceNumber) {
+        return get("topics/" + topicId + "/messages/" + sequenceNumber);
     }
     
     public JSONObject get(String url) {

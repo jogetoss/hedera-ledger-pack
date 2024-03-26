@@ -1,0 +1,109 @@
+{
+    "optionGroup": {
+        "@@assist.hedera@@": [
+            {
+                "value": "#hedera-topic.[TOPIC_ID].VALUE#",
+                "label": "@@assist.hedera.topic.desc@@",
+                "syntax": [
+                    "#hedera-topic.",
+                    {
+                        "placeholder": "TOPIC_ID",
+                        "required": true,
+                        "prefix":"[",
+                        "postfix":"]"
+                    },
+                    ".",
+                    {
+                        "placeholder": "VALUE",
+                        "option": "valueData",
+                        "required": true
+                    },
+                    "#"
+                ]
+            }
+        ]
+    },
+    "optionField": {
+        "valueData": {
+            "name": "valueData",
+            "type": "selectbox",
+            "label": "@@assist.valueData@@",
+            "options": [
+                {
+                    "value": "allMessages",
+                    "label": "@@assist.hedera.topic.allMessages@@"
+                },
+                {
+                    "value": "consensusTimestamp",
+                    "label": "@@assist.hedera.topic.message.consensusTimestamp@@",
+                    "syntax": [
+                        "message",
+                        {
+                            "placeholder": "SEQUENCE_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".consensusTimestamp"
+                    ]
+                },
+                {
+                    "value": "messageContent",
+                    "label": "@@assist.hedera.topic.message.messageContent@@",
+                    "syntax": [
+                        "message",
+                        {
+                            "placeholder": "SEQUENCE_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".messageContent"
+                    ]
+                },
+                {
+                    "value": "payerAccountId",
+                    "label": "@@assist.hedera.topic.message.payerAccountId@@",
+                    "syntax": [
+                        "message",
+                        {
+                            "placeholder": "SEQUENCE_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".payerAccountId"
+                    ]
+                },
+                {
+                    "value": "runningHash",
+                    "label": "@@assist.hedera.topic.message.runningHash@@",
+                    "syntax": [
+                        "message",
+                        {
+                            "placeholder": "SEQUENCE_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".runningHash"
+                    ]
+                },
+                {
+                    "value": "runningHashVersion",
+                    "label": "@@assist.hedera.topic.message.runningHashVersion@@",
+                    "syntax": [
+                        "message",
+                        {
+                            "placeholder": "SEQUENCE_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".runningHashVersion"
+                    ]
+                }
+            ]
+        }
+    }
+}
