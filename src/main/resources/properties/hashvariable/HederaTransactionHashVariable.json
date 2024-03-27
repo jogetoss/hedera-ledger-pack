@@ -1,0 +1,111 @@
+{
+    "optionGroup": {
+        "@@assist.hedera.tx@@": [
+            {
+                "value": "#hedera-tx.[TRANSACTION_ID].VALUE#",
+                "label": "@@assist.hedera.tx.desc@@",
+                "syntax": [
+                    "#hedera-tx.",
+                    {
+                        "placeholder": "TRANSACTION_ID",
+                        "required": true,
+                        "prefix":"[",
+                        "postfix":"]"
+                    },
+                    ".",
+                    {
+                        "placeholder": "VALUE",
+                        "option": "valueData",
+                        "required": true
+                    },
+                    "#"
+                ]
+            }
+        ]
+    },
+    "optionField": {
+        "valueData": {
+            "name": "valueData",
+            "type": "selectbox",
+            "label": "@@assist.valueData@@",
+            "options": [
+                {
+                    "value": "assessedCustomFees",
+                    "label": "@@assist.hedera.tx.assessedCustomFees@@"
+                },
+                {
+                    "value": "chargedTxFee",
+                    "label": "@@assist.hedera.tx.chargedTxFee@@"
+                },
+                {
+                    "value": "consensusTimestamp",
+                    "label": "@@assist.hedera.tx.consensusTimestamp@@"
+                },
+                {
+                    "value": "entityId",
+                    "label": "@@assist.hedera.tx.entityId@@"
+                },
+                {
+                    "value": "maxFee",
+                    "label": "@@assist.hedera.tx.maxFee@@"
+                },
+                {
+                    "value": "memo",
+                    "label": "@@assist.hedera.tx.memo@@"
+                },
+                {
+                    "value": "txType",
+                    "label": "@@assist.hedera.tx.txType@@"
+                },
+                {
+                    "value": "nftTransfers",
+                    "label": "@@assist.hedera.tx.nftTransfers@@"
+                },
+                {
+                    "value": "node",
+                    "label": "@@assist.hedera.tx.node@@"
+                },
+                {
+                    "value": "nonce",
+                    "label": "@@assist.hedera.tx.nonce@@"
+                },
+                {
+                    "value": "parentConsensusTimestamp",
+                    "label": "@@assist.hedera.tx.parentConsensusTimestamp@@"
+                },
+                {
+                    "value": "result",
+                    "label": "@@assist.hedera.tx.result@@"
+                },
+                {
+                    "value": "isScheduled",
+                    "label": "@@assist.hedera.tx.isScheduled@@"
+                },
+                {
+                    "value": "stakingRewardTransfers",
+                    "label": "@@assist.hedera.tx.stakingRewardTransfers@@"
+                },
+                {
+                    "value": "txHash",
+                    "label": "@@assist.hedera.tx.txHash@@"
+                },
+                {
+                    "value": "tokenTransfers",
+                    "label": "@@assist.hedera.tx.tokenTransfers@@"
+                },
+                {
+                    "value": "transfers",
+                    "label": "@@assist.hedera.tx.transfers@@"
+                },
+                {
+                    "value": "validDurationSeconds",
+                    "label": "@@assist.hedera.tx.validDurationSeconds@@"
+                },
+                {
+                    "value": "validStartTimestamp",
+                    "label": "@@assist.hedera.tx.validStartTimestamp@@"
+                }
+            ]
+        }
+    }
+}
