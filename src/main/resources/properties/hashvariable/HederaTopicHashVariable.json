@@ -15,7 +15,7 @@
                     ".",
                     {
                         "placeholder": "VALUE",
-                        "option": "valueData",
+                        "option": "hederaTopicValue",
                         "required": true
                     },
                     "#"
@@ -24,8 +24,8 @@
         ]
     },
     "optionField": {
-        "valueData": {
-            "name": "valueData",
+        "hederaTopicValue": {
+            "name": "hederaTopicValue",
             "type": "selectbox",
             "label": "@@assist.valueData@@",
             "options": [
