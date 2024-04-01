@@ -20,6 +20,11 @@ import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+* @deprecated
+* For more flexibility in app design, use the various Hash Variable plugins available in this plugin pack to retrieve data from the Hedera mirror node.
+*/
+@Deprecated
 public class HederaAccountLoadBinder extends HederaFormBinder implements FormLoadElementBinder {
 
     @Override
