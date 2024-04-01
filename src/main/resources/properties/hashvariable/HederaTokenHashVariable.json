@@ -1,0 +1,151 @@
+{
+    "optionGroup": {
+        "@@assist.hedera.token@@": [
+            {
+                "value": "#hedera-token.[TOKEN_ID].VALUE#",
+                "label": "@@assist.hedera.token.desc@@",
+                "syntax": [
+                    "#hedera-token.",
+                    {
+                        "placeholder": "TOKEN_ID",
+                        "required": true,
+                        "prefix":"[",
+                        "postfix":"]"
+                    },
+                    ".",
+                    {
+                        "placeholder": "VALUE",
+                        "option": "hederaTokenValue",
+                        "required": true
+                    },
+                    "#"
+                ]
+            }
+        ]
+    },
+    "optionField": {
+        "hederaTokenValue": {
+            "name": "hederaTokenValue",
+            "type": "selectbox",
+            "label": "@@assist.valueData@@",
+            "options": [
+                {
+                    "value": "adminKey",
+                    "label": "@@assist.hedera.token.adminKey@@"
+                },
+                {
+                    "value": "autoRenewAccount",
+                    "label": "@@assist.hedera.token.autoRenewAccount@@"
+                },
+                {
+                    "value": "autoRenewPeriod",
+                    "label": "@@assist.hedera.token.autoRenewPeriod@@"
+                },
+                {
+                    "value": "createdTimestamp",
+                    "label": "@@assist.hedera.token.createdTimestamp@@"
+                },
+                {
+                    "value": "isDeleted",
+                    "label": "@@assist.hedera.token.isDeleted@@"
+                },
+                {
+                    "value": "decimals",
+                    "label": "@@assist.hedera.token.decimals@@"
+                },
+                {
+                    "value": "expiryTimestamp",
+                    "label": "@@assist.hedera.token.expiryTimestamp@@"
+                },
+                {
+                    "value": "feeScheduleKey",
+                    "label": "@@assist.hedera.token.feeScheduleKey@@"
+                },
+                {
+                    "value": "isFreezeByDefault",
+                    "label": "@@assist.hedera.token.isFreezeByDefault@@"
+                },
+                {
+                    "value": "freezeKey",
+                    "label": "@@assist.hedera.token.freezeKey@@"
+                },
+                {
+                    "value": "initialSupply",
+                    "label": "@@assist.hedera.token.initialSupply@@"
+                },
+                {
+                    "value": "kycKey",
+                    "label": "@@assist.hedera.token.kycKey@@"
+                },
+                {
+                    "value": "maxSupply",
+                    "label": "@@assist.hedera.token.maxSupply@@"
+                },
+                {
+                    "value": "memo",
+                    "label": "@@assist.hedera.token.memo@@"
+                },
+                {
+                    "value": "modifiedTimestamp",
+                    "label": "@@assist.hedera.token.modifiedTimestamp@@"
+                },
+                {
+                    "value": "name",
+                    "label": "@@assist.hedera.token.name@@"
+                },
+                {
+                    "value": "pauseKey",
+                    "label": "@@assist.hedera.token.pauseKey@@"
+                },
+                {
+                    "value": "pauseStatus",
+                    "label": "@@assist.hedera.token.pauseStatus@@"
+                },
+                {
+                    "value": "supplyKey",
+                    "label": "@@assist.hedera.token.supplyKey@@"
+                },
+                {
+                    "value": "supplyType",
+                    "label": "@@assist.hedera.token.supplyType@@"
+                },
+                {
+                    "value": "symbol",
+                    "label": "@@assist.hedera.token.symbol@@"
+                },
+                {
+                    "value": "totalSupply",
+                    "label": "@@assist.hedera.token.totalSupply@@"
+                },
+                {
+                    "value": "treasuryAccountId",
+                    "label": "@@assist.hedera.token.treasuryAccountId@@"
+                },
+                {
+                    "value": "type",
+                    "label": "@@assist.hedera.token.type@@"
+                },
+                {
+                    "value": "wipeKey",
+                    "label": "@@assist.hedera.token.wipeKey@@"
+                },
+                {
+                    "value": "customFees.createdTimestamp",
+                    "label": "@@assist.hedera.token.customFees.createdTimestamp@@"
+                },
+                {
+                    "value": "customFees.fixedFees",
+                    "label": "@@assist.hedera.token.customFees.fixedFees@@"
+                },
+                {
+                    "value": "customFees.fractionalFees",
+                    "label": "@@assist.hedera.token.customFees.fractionalFees@@"
+                },
+                {
+                    "value": "customFees.royaltyFees",
+                    "label": "@@assist.hedera.token.customFees.royaltyFees@@"
+                }
+            ]
+        }
+    }
+}
