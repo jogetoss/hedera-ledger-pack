@@ -1,6 +1,7 @@
 package org.joget.hedera.lib.hashvariable;
 
 import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.TokenId;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,8 +26,16 @@ public class HederaTokenHashVariable extends HederaHashVariable {
             return null;
         }
         
-        // Retrieve and remove Token ID from variableKey
+        // Retrieve Token ID from variableKey
         final String tokenId = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
+        
+        // Check for valid Token ID before proceeding
+        try {
+            TokenId.fromString(tokenId);
+        } catch (Exception e) {
+            LogUtil.debug(getClassName(), "Invalid token ID of --> " + tokenId);
+            return null;
+        }
         
         final String attribute = variableKey.replace("[" + tokenId + "].", "");
         
