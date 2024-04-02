@@ -23,10 +23,10 @@ public class HederaTopicHashVariable extends HederaHashVariable {
             return null;
         }
         
-        // Retrieve and remove Topic ID from variableKey
+        // Retrieve Topic ID from variableKey
         final String topicId = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
         
-        // Check for valid Tx ID before proceeding
+        // Check for valid Topic ID before proceeding
         try {
             TopicId.fromString(topicId);
         } catch (Exception e) {
