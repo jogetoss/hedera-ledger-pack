@@ -56,17 +56,17 @@ public abstract class HederaFormElement extends Element implements FormBuilderPa
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
-        try {
+        try (final Client tempClient = BackendUtil.getHederaClient(getProperties())) {
             if (FormUtil.isFormBuilderActive()) {
                 return renderElement(formData, dataModel);
             }
             
-            this.client = BackendUtil.getHederaClient(getProperties());
-
-            if (client == null) {
+            if (tempClient == null) {
                 LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
                 return "";
             }
+            
+            this.client = tempClient;
             
             return renderElement(formData, dataModel);
         } catch (Exception ex) {

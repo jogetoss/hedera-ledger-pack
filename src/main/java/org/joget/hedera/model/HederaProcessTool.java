@@ -79,13 +79,13 @@ public abstract class HederaProcessTool extends DefaultApplicationPlugin {
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
-        try {
-            this.client = BackendUtil.getHederaClient(props);
-            
-            if (client == null) {
+        try (final Client tempClient = BackendUtil.getHederaClient(props)) {
+            if (tempClient == null) {
                 LogUtil.warn(getClassName(), "Unable to initialize hedera client. Aborting plugin execution.");
                 return null;
             }
+            
+            this.client = tempClient;
             
             if (!isInputDataValidWithClient(props, client)) {
                 LogUtil.debug(getClassName(), "Invalid input(s) detected. Aborting plugin execution.");

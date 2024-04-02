@@ -39,23 +39,19 @@ public abstract class HederaFormBinder extends FormBinder implements FormLoadBin
             return null;
         }
         
-        FormRowSet rows = new FormRowSet();
-        
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         
-        try {
-            final Client client = BackendUtil.getHederaClient(getProperties());
-            
-            if (client != null) {
-                rows = loadData(client, element, primaryKey, formData);
+        try (final Client client = BackendUtil.getHederaClient(getProperties())) {
+            if (client == null) {
+                LogUtil.warn(getClassName(), "Unable to initialize backend client.");
+                return null;
             }
+            return loadData(client, element, primaryKey, formData);
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing form binder plugin due to timeout.");
-        } catch (RuntimeException ex) { //Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
-            final String exceptionMessage = ex.getMessage();
-            
-            if (exceptionMessage.contains("PrecheckStatusException")) {
+        } catch (RuntimeException ex) { // Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
+            if (ex.getMessage().contains("PrecheckStatusException")) {
                 LogUtil.error(getClassName(), ex, "Error executing form binder plugin due to failed transaction prechecks.");
             } else {
                 LogUtil.error(getClassName(), ex, "Unhandled RuntimeException occured...");
@@ -66,7 +62,7 @@ public abstract class HederaFormBinder extends FormBinder implements FormLoadBin
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
         
-        return rows;
+        return new FormRowSet();
     }
     
     @Override

@@ -21,13 +21,13 @@ public abstract class HederaHashVariable extends DefaultHashVariablePlugin {
 
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-
-        try {
-            final Client client = BackendUtil.getHederaClient(getProperties());
-
-            if (client != null) {
-                return processHashVariable(client, variableKey);
+        
+        try (final Client client = BackendUtil.getHederaClient(getProperties())) {
+            if (client == null) {
+                LogUtil.warn(getClassName(), "Unable to initialize backend client.");
+                return null;
             }
+            return processHashVariable(client, variableKey);
         } catch (TimeoutException ex) {
             LogUtil.error(getClassName(), ex, "Error executing hash variable plugin due to timeout.");
         } catch (RuntimeException ex) { // Compatibility workaround for MultiTenantPluginManager - avoid using SDK's custom exceptions
