@@ -3,6 +3,7 @@ package org.joget.hedera.lib.hashvariable;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HbarUnit;
+import com.hedera.hashgraph.sdk.TransactionId;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -23,11 +24,18 @@ public class HederaTransactionHashVariable extends HederaHashVariable {
             return null;
         }
         
-        // Retrieve and remove Tx ID from variableKey
+        // Retrieve Tx ID from variableKey
         final String transactionId = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
-        variableKey = variableKey.replace("[" + transactionId + "]", "");
         
-        final String attribute = variableKey.replace(".", "");
+        // Check for valid Tx ID before proceeding
+        try {
+            TransactionId.fromString(transactionId);
+        } catch (Exception e) {
+            LogUtil.debug(getClassName(), "Invalid transaction ID of --> " + transactionId);
+            return null;
+        }
+        
+        final String attribute = variableKey.replace("[" + transactionId + "]", "").replace(".", "");
         
         //If same tx ID is already loaded on the existing context, read from cached request instead
         final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
