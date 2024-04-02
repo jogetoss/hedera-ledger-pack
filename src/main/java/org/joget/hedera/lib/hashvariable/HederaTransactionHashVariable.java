@@ -18,6 +18,7 @@ import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
 
 public class HederaTransactionHashVariable extends HederaHashVariable {
+    
     @Override
     protected String processHashVariable(Client client, String variableKey) {
         if (!variableKey.contains("[") || !variableKey.contains("]")) {

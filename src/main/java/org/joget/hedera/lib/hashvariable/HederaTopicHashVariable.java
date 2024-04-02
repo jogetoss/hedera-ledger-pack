@@ -1,6 +1,7 @@
 package org.joget.hedera.lib.hashvariable;
 
 import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.TopicId;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -24,6 +25,15 @@ public class HederaTopicHashVariable extends HederaHashVariable {
         
         // Retrieve and remove Topic ID from variableKey
         final String topicId = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
+        
+        // Check for valid Tx ID before proceeding
+        try {
+            TopicId.fromString(topicId);
+        } catch (Exception e) {
+            LogUtil.debug(getClassName(), "Invalid topic ID of --> " + topicId);
+            return null;
+        }
+        
         variableKey = variableKey.replace("[" + topicId + "]", "");
         
         // Retrieve Sequence Number if exist in variableKey
