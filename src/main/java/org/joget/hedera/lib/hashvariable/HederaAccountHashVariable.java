@@ -1,5 +1,6 @@
 package org.joget.hedera.lib.hashvariable;
 
+import com.hedera.hashgraph.sdk.AccountId;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +26,17 @@ public class HederaAccountHashVariable extends HederaHashVariable {
             return null;
         }
         
-        // Retrieve and remove Account ID from variableKey
+        // Retrieve Account ID from variableKey
         final String accountID = variableKey.substring(variableKey.indexOf("[") + 1, variableKey.indexOf("]"));
+        
+        // Check for valid Account ID before proceeding
+        try {
+            AccountId.fromString(accountID);
+        } catch (Exception e) {
+            LogUtil.debug(getClassName(), "Invalid account ID of --> " + accountID);
+            return null;
+        }
+        
         variableKey = variableKey.replace("[" + accountID + "]", "");
 
         // Retrieve Token ID if exist in variableKey
