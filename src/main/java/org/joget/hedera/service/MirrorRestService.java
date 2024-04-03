@@ -29,16 +29,14 @@ public class MirrorRestService {
     }
     
     private ApiEndpoint createRest(String backendService) {
-        switch (backendService) {
-            case "":
-            case "publicHedera":
-                return new PublicHedera();
-            case "arkhia" :
-                return new Arkhia();
-            default:
+        return switch (backendService) {
+            case "", "publicHedera" -> new PublicHedera();
+            case "arkhia" -> new Arkhia();
+            default -> {
                 LogUtil.warn(getClassName(), "Unknown rest service type found!");
-                return null;
-        }
+                yield null;
+            }
+        };
     }
     
     public JSONObject getAccountData(String accountId) {
@@ -47,6 +45,10 @@ public class MirrorRestService {
     
     public JSONObject getTokenData(String tokenId) {
         return get("tokens/" + tokenId);
+    }
+    
+    public JSONObject getNftData(String tokenId, String nftSerialNumber) {
+        return get("tokens/" + tokenId + "/nfts/" + nftSerialNumber);
     }
     
     public JSONObject getTxData(String txId) {

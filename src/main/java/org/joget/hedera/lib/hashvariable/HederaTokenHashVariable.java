@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.TokenId;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -37,23 +38,58 @@ public class HederaTokenHashVariable extends HederaHashVariable {
             return null;
         }
         
-        final String attribute = variableKey.replace("[" + tokenId + "].", "");
+        variableKey = variableKey.replace("[" + tokenId + "].", "");
+        
+        // Retrieve Sequence Number if exist in variableKey
+        String nftSerialNumber = "";
+        if (variableKey.startsWith("nft")) {
+            if (!variableKey.contains("[") || !variableKey.contains("]")) {
+                return null;
+            }
+            nftSerialNumber = variableKey.substring(variableKey.lastIndexOf("[") + 1, variableKey.lastIndexOf("]"));
+            if (nftSerialNumber.isBlank() || !nftSerialNumber.chars().allMatch(Character::isDigit)) {
+                return null;
+            }
+            
+            variableKey = variableKey.replace("[" + nftSerialNumber + "]", "");
+        }
+        
+        final String attribute = variableKey;
         
         //If same account ID is already loaded on the existing context, read from cached request instead
         final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
         final String tokenAttrKey = tokenId + "-tokenHashVar";
+        final String tokenNftAttrKey = tokenId + "-" + nftSerialNumber + "-tokenNftHashVar";
         
         JSONObject jsonResponse;
-        if (request.getAttribute(tokenAttrKey) != null) {
-            jsonResponse = (JSONObject) request.getAttribute(tokenAttrKey);
-        } else {
-            final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-            jsonResponse = restService.getTokenData(tokenId);
-            if (jsonResponse == null) {
-                LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                return null;
+        if (attribute.startsWith("nft")) {
+            if (request.getAttribute(tokenNftAttrKey) != null) {
+                jsonResponse = (JSONObject) request.getAttribute(tokenNftAttrKey);
+            } else {
+                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
+                jsonResponse = restService.getNftData(tokenId, nftSerialNumber);
+                if (jsonResponse == null) {
+                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
+                    return null;
+                }
+                request.setAttribute(tokenNftAttrKey, jsonResponse);
             }
-            request.setAttribute(tokenAttrKey, jsonResponse);
+            
+            if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+                return "NFT does not exist";
+            }
+        } else {
+            if (request.getAttribute(tokenAttrKey) != null) {
+                jsonResponse = (JSONObject) request.getAttribute(tokenAttrKey);
+            } else {
+                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
+                jsonResponse = restService.getTokenData(tokenId);
+                if (jsonResponse == null) {
+                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
+                    return null;
+                }
+                request.setAttribute(tokenAttrKey, jsonResponse);
+            }
         }
         
         try {
@@ -129,6 +165,19 @@ public class HederaTokenHashVariable extends HederaHashVariable {
                     jsonResponse.getJSONObject("custom_fees").has("royalty_fees")
                             ? String.valueOf(jsonResponse.getJSONObject("custom_fees").getJSONArray("royalty_fees"))
                             : "not applicable";
+                case "nft.accountId" -> jsonResponse.getString("account_id");
+                case "nft.createdTimestamp" -> epochTimeToDate(jsonResponse.getString("created_timestamp"));
+                case "nft.delegatingSpender" -> 
+                    !jsonResponse.isNull("delegating_spender")
+                            ? jsonResponse.getString("delegating_spender")
+                            : "none";
+                case "nft.isDeleted" -> String.valueOf(jsonResponse.getBoolean("deleted"));
+                case "nft.metadata" -> new String(Base64.getDecoder().decode(jsonResponse.getString("metadata")));
+                case "nft.modifiedTimestamp" -> epochTimeToDate(jsonResponse.getString("modified_timestamp"));
+                case "nft.spender" -> 
+                    !jsonResponse.isNull("spender")
+                            ? jsonResponse.getString("spender")
+                            : "none";
                 default -> null;
             };
         } catch (Exception e) {
@@ -211,6 +260,13 @@ public class HederaTokenHashVariable extends HederaHashVariable {
         syntax.add(syntaxPrefix + "customFees.fixedFees");
         syntax.add(syntaxPrefix + "customFees.fractionalFees");
         syntax.add(syntaxPrefix + "customFees.royaltyFees");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].accountId");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].createdTimestamp");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].delegatingSpender");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].isDeleted");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].metadata");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].modifiedTimestamp");
+        syntax.add(syntaxPrefix + "nft[SERIAL_NUMBER].spender");
 
         return syntax;
     }

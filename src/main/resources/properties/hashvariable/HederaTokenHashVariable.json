@@ -144,6 +144,111 @@
                 {
                     "value": "customFees.royaltyFees",
                     "label": "@@assist.hedera.token.customFees.royaltyFees@@"
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].accountId",
+                    "label": "@@assist.hedera.token.nft.accountId@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".accountId"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].createdTimestamp",
+                    "label": "@@assist.hedera.token.nft.createdTimestamp@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".createdTimestamp"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].delegatingSpender",
+                    "label": "@@assist.hedera.token.nft.delegatingSpender@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".delegatingSpender"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].isDeleted",
+                    "label": "@@assist.hedera.token.nft.isDeleted@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".isDeleted"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].metadata",
+                    "label": "@@assist.hedera.token.nft.metadata@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".metadata"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].modifiedTimestamp",
+                    "label": "@@assist.hedera.token.nft.modifiedTimestamp@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".modifiedTimestamp"
+                    ]
+
+                },
+                {
+                    "value": "nft[SERIAL_NUMBER].spender",
+                    "label": "@@assist.hedera.token.nft.spender@@",
+                    "syntax": [
+                        "nft",
+                        {
+                            "placeholder": "SERIAL_NUMBER",
+                            "required": true,
+                            "prefix":"[",
+                            "postfix":"]"
+                        },
+                        ".spender"
+                    ]
+
                 }
             ]
         }
