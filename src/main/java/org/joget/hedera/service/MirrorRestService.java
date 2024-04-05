@@ -55,6 +55,10 @@ public class MirrorRestService {
         return get("transactions/" + txId);
     }
     
+    public JSONObject getScheduleData(String scheduleId) {
+        return get("schedules/" + scheduleId);
+    }
+    
     public JSONObject getAllTopicMessages(String topicId) {
         return get("topics/" + topicId + "/messages");
     }

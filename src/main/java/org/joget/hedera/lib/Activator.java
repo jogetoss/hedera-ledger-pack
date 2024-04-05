@@ -38,6 +38,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(HederaTopicHashVariable.class.getName(), new HederaTopicHashVariable(), null));
         registrationList.add(context.registerService(HederaTransactionHashVariable.class.getName(), new HederaTransactionHashVariable(), null));
         registrationList.add(context.registerService(HederaTokenHashVariable.class.getName(), new HederaTokenHashVariable(), null));
+        registrationList.add(context.registerService(HederaScheduleHashVariable.class.getName(), new HederaScheduleHashVariable(), null));
     }
 
     public void stop(BundleContext context) {

@@ -1,0 +1,79 @@
+{
+    "optionGroup": {
+        "@@assist.hedera.schedule@@": [
+            {
+                "value": "#hedera-schedule.[SCHEDULE_ID].VALUE#",
+                "label": "@@assist.hedera.schedule.desc@@",
+                "syntax": [
+                    "#hedera-schedule.",
+                    {
+                        "placeholder": "SCHEDULE_ID",
+                        "required": true,
+                        "prefix":"[",
+                        "postfix":"]"
+                    },
+                    ".",
+                    {
+                        "placeholder": "VALUE",
+                        "option": "hederaScheduleValue",
+                        "required": true
+                    },
+                    "#"
+                ]
+            }
+        ]
+    },
+    "optionField": {
+        "hederaScheduleValue": {
+            "name": "hederaScheduleValue",
+            "type": "selectbox",
+            "label": "@@assist.valueData@@",
+            "options": [
+                {
+                    "value": "adminKey",
+                    "label": "@@assist.hedera.schedule.adminKey@@"
+                },
+                {
+                    "value": "consensusTimestamp",
+                    "label": "@@assist.hedera.schedule.consensusTimestamp@@"
+                },
+                {
+                    "value": "creatorAccountId",
+                    "label": "@@assist.hedera.schedule.creatorAccountId@@"
+                },
+                {
+                    "value": "isDeleted",
+                    "label": "@@assist.hedera.schedule.isDeleted@@"
+                },
+                {
+                    "value": "executedTimestamp",
+                    "label": "@@assist.hedera.schedule.executedTimestamp@@"
+                },
+                {
+                    "value": "expirationTime",
+                    "label": "@@assist.hedera.schedule.expirationTime@@"
+                },
+                {
+                    "value": "memo",
+                    "label": "@@assist.hedera.schedule.memo@@"
+                },
+                {
+                    "value": "payerAccountId",
+                    "label": "@@assist.hedera.schedule.payerAccountId@@"
+                },
+                {
+                    "value": "signatures",
+                    "label": "@@assist.hedera.schedule.signatures@@"
+                },
+                {
+                    "value": "transactionBody",
+                    "label": "@@assist.hedera.schedule.transactionBody@@"
+                },
+                {
+                    "value": "waitForExpiry",
+                    "label": "@@assist.hedera.schedule.waitForExpiry@@"
+                }
+            ]
+        }
+    }
+}
