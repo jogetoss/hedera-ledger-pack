@@ -67,6 +67,10 @@ public class HederaAccountHashVariable extends HederaHashVariable {
             }
             request.setAttribute(accountAttrKey, jsonResponse);
         }
+        
+        if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+            return "Account ID does not exist";
+        }
 
         try {
             return switch (attribute.toLowerCase()) {
