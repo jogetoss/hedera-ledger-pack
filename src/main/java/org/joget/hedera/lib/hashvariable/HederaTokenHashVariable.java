@@ -56,7 +56,7 @@ public class HederaTokenHashVariable extends HederaHashVariable {
         
         final String attribute = variableKey;
         
-        //If same account ID is already loaded on the existing context, read from cached request instead
+        //If same token ID is already loaded on the existing context, read from cached request instead
         final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
         final String tokenAttrKey = tokenId + "-tokenHashVar";
         final String tokenNftAttrKey = tokenId + "-" + nftSerialNumber + "-tokenNftHashVar";
