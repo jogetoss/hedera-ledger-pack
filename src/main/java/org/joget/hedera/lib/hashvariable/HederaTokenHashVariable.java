@@ -90,6 +90,10 @@ public class HederaTokenHashVariable extends HederaHashVariable {
                 }
                 request.setAttribute(tokenAttrKey, jsonResponse);
             }
+            
+            if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+                return "Token ID does not exist";
+            }
         }
         
         try {
