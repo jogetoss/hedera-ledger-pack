@@ -66,6 +66,10 @@ public class HederaTopicHashVariable extends HederaHashVariable {
                 }
                 request.setAttribute(topicAttrKey, jsonResponse);
             }
+            
+            if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+                return "Topic ID does not exist";
+            }
         } else {
             if (request.getAttribute(topicMsgSeqNumAttrKey) != null) {
                 jsonResponse = (JSONObject) request.getAttribute(topicMsgSeqNumAttrKey);
@@ -77,6 +81,10 @@ public class HederaTopicHashVariable extends HederaHashVariable {
                     return null;
                 }
                 request.setAttribute(topicMsgSeqNumAttrKey, jsonResponse);
+            }
+            
+            if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+                return "Topic message does not exist";
             }
         }
         
