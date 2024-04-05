@@ -61,6 +61,10 @@ public class HederaTransactionHashVariable extends HederaHashVariable {
             request.setAttribute(txAttrKey, jsonResponse);
         }
         
+        if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
+            return "Transaction ID does not exist";
+        }
+        
         jsonResponse = jsonResponse.getJSONArray("transactions").getJSONObject(0);
         
         try {
