@@ -56,40 +56,15 @@ public class HederaTokenHashVariable extends HederaHashVariable {
         
         final String attribute = variableKey;
         
-        //If same token ID is already loaded on the existing context, read from cached request instead
-        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
-        final String tokenAttrKey = tokenId + "-tokenHashVar";
-        final String tokenNftAttrKey = tokenId + "-" + nftSerialNumber + "-tokenNftHashVar";
-        
         JSONObject jsonResponse;
         if (attribute.startsWith("nft")) {
-            if (request.getAttribute(tokenNftAttrKey) != null) {
-                jsonResponse = (JSONObject) request.getAttribute(tokenNftAttrKey);
-            } else {
-                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-                jsonResponse = restService.getNftData(tokenId, nftSerialNumber);
-                if (jsonResponse == null) {
-                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                    return null;
-                }
-                request.setAttribute(tokenNftAttrKey, jsonResponse);
-            }
+            jsonResponse = getNftData(client, tokenId, nftSerialNumber);
             
             if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
                 return "NFT does not exist";
             }
         } else {
-            if (request.getAttribute(tokenAttrKey) != null) {
-                jsonResponse = (JSONObject) request.getAttribute(tokenAttrKey);
-            } else {
-                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-                jsonResponse = restService.getTokenData(tokenId);
-                if (jsonResponse == null) {
-                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                    return null;
-                }
-                request.setAttribute(tokenAttrKey, jsonResponse);
-            }
+            jsonResponse = getTokenData(client, tokenId);
             
             if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
                 return "Token ID does not exist";
@@ -223,6 +198,36 @@ public class HederaTokenHashVariable extends HederaHashVariable {
         }
 
         return null;
+    }
+    
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getTokenData(Client client, String tokenId) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = tokenId + "-tokenHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getTokenData(tokenId);
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
+    }
+    
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getNftData(Client client, String tokenId, String nftSerialNumber) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = tokenId + "-" + nftSerialNumber + "-tokenNftHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getNftData(tokenId, nftSerialNumber);
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
     }
     
     @Override

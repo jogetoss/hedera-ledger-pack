@@ -38,28 +38,7 @@ public class HederaTransactionHashVariable extends HederaHashVariable {
         
         final String attribute = variableKey.replace("[" + transactionId + "]", "").replace(".", "");
         
-        //If same tx ID is already loaded on the existing context, read from cached request instead
-        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
-        final String txAttrKey = transactionId + "-txHashVar";
-        
-        JSONObject jsonResponse;
-        if (request.getAttribute(txAttrKey) != null) {
-            jsonResponse = (JSONObject) request.getAttribute(txAttrKey);
-        } else {
-            final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-            jsonResponse = restService.getTxData(
-                    (
-                        transactionId.substring(0, transactionId.lastIndexOf("."))
-                        + "-"
-                        + transactionId.substring(transactionId.lastIndexOf(".") + 1)
-                    ).replace("@", "-")
-            );
-            if (jsonResponse == null) {
-                LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                return null;
-            }
-            request.setAttribute(txAttrKey, jsonResponse);
-        }
+        JSONObject jsonResponse = getData(client, transactionId);
         
         if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
             return "Transaction ID does not exist";
@@ -125,6 +104,27 @@ public class HederaTransactionHashVariable extends HederaHashVariable {
         }
 
         return null;
+    }
+    
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getData(Client client, String transactionId) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = transactionId + "-txHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getTxData(
+                (
+                    transactionId.substring(0, transactionId.lastIndexOf("."))
+                    + "-"
+                    + transactionId.substring(transactionId.lastIndexOf(".") + 1)
+                ).replace("@", "-")
+        );
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
     }
     
     @Override

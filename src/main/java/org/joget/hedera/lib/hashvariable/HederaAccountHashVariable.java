@@ -51,22 +51,7 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         
         final String attribute = variableKey.replace(".", "");
 
-        //If same account ID is already loaded on the existing context, read from cached request instead
-        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
-        final String accountAttrKey = accountID + "-accountHashVar";
-        
-        JSONObject jsonResponse;
-        if (request.getAttribute(accountAttrKey) != null) {
-            jsonResponse = (JSONObject) request.getAttribute(accountAttrKey);
-        } else {
-            final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-            jsonResponse = restService.getAccountData(accountID);
-            if (jsonResponse == null) {
-                LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                return null;
-            }
-            request.setAttribute(accountAttrKey, jsonResponse);
-        }
+        final JSONObject jsonResponse = getData(client, accountID);
         
         if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
             return "Account ID does not exist";
@@ -166,6 +151,21 @@ public class HederaAccountHashVariable extends HederaHashVariable {
         return null;
     }
 
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getData(Client client, String accountId) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = accountId + "-accountHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getAccountData(accountId);
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
+    }
+    
     @Override
     public String getPrefix() {
         return "hedera-account";

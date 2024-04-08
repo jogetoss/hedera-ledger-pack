@@ -48,40 +48,15 @@ public class HederaTopicHashVariable extends HederaHashVariable {
         
         final String attribute = variableKey.replace(".", "");
         
-        //If same topic ID is already loaded on the existing context, read from cached request instead
-        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
-        final String topicAttrKey = topicId + "-topicHashVar";
-        final String topicMsgSeqNumAttrKey = topicId + "-" + sequenceNumber + "-topicMsgSeqNumHashVar";
-        
         JSONObject jsonResponse;
         if (attribute.equals("allMessages")) {
-            if (request.getAttribute(topicAttrKey) != null) {
-                jsonResponse = (JSONObject) request.getAttribute(topicAttrKey);
-            } else {
-                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-                jsonResponse = restService.getAllTopicMessages(topicId);
-                if (jsonResponse == null) {
-                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                    return null;
-                }
-                request.setAttribute(topicAttrKey, jsonResponse);
-            }
+            jsonResponse = getAllMessages(client, topicId);
             
             if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
                 return "Topic ID does not exist";
             }
         } else {
-            if (request.getAttribute(topicMsgSeqNumAttrKey) != null) {
-                jsonResponse = (JSONObject) request.getAttribute(topicMsgSeqNumAttrKey);
-            } else {
-                final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
-                jsonResponse = restService.getTopicMessage(topicId, sequenceNumber);
-                if (jsonResponse == null) {
-                    LogUtil.warn(getClassName(), "Error retrieving data from mirror node.");
-                    return null;
-                }
-                request.setAttribute(topicMsgSeqNumAttrKey, jsonResponse);
-            }
+            jsonResponse = getMessageData(client, topicId, sequenceNumber);
             
             if (jsonResponse.has("_status") && jsonResponse.getJSONObject("_status").getJSONArray("messages").getJSONObject(0).getString("message").equals("Not found")) {
                 return "Topic message does not exist";
@@ -117,6 +92,36 @@ public class HederaTopicHashVariable extends HederaHashVariable {
         }
 
         return null;
+    }
+    
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getAllMessages(Client client, String topicId) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = topicId + "-topicHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getAllTopicMessages(topicId);
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
+    }
+    
+    //If same value already loaded on the existing context, read from cached request instead
+    private JSONObject getMessageData(Client client, String topicId, String sequenceNumber) {
+        final HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        final String attrKey = topicId + "-" + sequenceNumber + "-topicMsgSeqNumHashVar";
+        
+        if (request.getAttribute(attrKey) != null) {
+            return (JSONObject) request.getAttribute(attrKey);
+        }
+        
+        JSONObject jsonResponse = new MirrorRestService(getProperties(), client.getLedgerId()).getTopicMessage(topicId, sequenceNumber);
+        request.setAttribute(attrKey, jsonResponse);
+        
+        return jsonResponse;
     }
     
     @Override
