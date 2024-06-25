@@ -1,14 +1,12 @@
 package org.joget.hedera.service;
 
 import com.hedera.hashgraph.sdk.LedgerId;
-import java.io.IOException;
 import java.util.Map;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.joget.commons.util.LogUtil;
 import org.joget.hedera.model.api.ApiEndpoint;
 import org.joget.hedera.model.api.rest.Arkhia;
@@ -75,36 +73,21 @@ public class MirrorRestService {
         return execute(getRequest);
     }
     
-    private JSONObject execute(HttpRequestBase request) {
-        CloseableHttpClient httpClient = null;      
-        try {
-            httpClient = HttpClients.createDefault();
-            
-            HttpResponse response = httpClient.execute(request);
-            String jsonResponse = EntityUtils.toString(response.getEntity(), "UTF-8");
+    private JSONObject execute(HttpUriRequestBase request) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            String jsonResponse = httpClient.execute(request, response -> EntityUtils.toString(response.getEntity(), "UTF-8"));
             
             if (jsonResponse == null || jsonResponse.isEmpty()) {
                 return null;
             }
-            
+
             if (jsonResponse.startsWith("[") && jsonResponse.endsWith("]")) {
                 jsonResponse = "{ \"response\" : " + jsonResponse + " }";
             }
-            
+
             return new JSONObject(jsonResponse);
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error executing HTTP request...");
-        } finally {
-            try {
-                if (request != null) {
-                    request.releaseConnection();
-                }
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-            } catch (IOException ex) {
-                LogUtil.error(getClassName(), ex, "");
-            }
         }
         
         return null;
