@@ -48,7 +48,7 @@ public class HederaTopicManagementTool extends HederaProcessTool {
             TransactionRecord transactionRecord;
             
             switch (OperationType.fromString(getPropertyString("operationType"))) {
-                case SUBMIT_MESSAGE: {
+                case SUBMIT_MESSAGE -> {
                     final TopicId topicId = TopicId.fromString(getPropertyString("topicId"));
                     final String message = getPropertyString("message");
                     TopicMessageSubmitTransaction topicMessageSubmitTransaction = new TopicMessageSubmitTransaction()
@@ -78,19 +78,16 @@ public class HederaTopicManagementTool extends HederaProcessTool {
                             getPropertyString("wfTopicCurrentHash"), 
                             new String(Hex.encode(transactionRecord.receipt.topicRunningHash.toByteArray()))
                     );
-                    break;
                 }
-                case CREATE_TOPIC: {
+                case CREATE_TOPIC -> {
                     TopicCreateTransaction topicCreateTransaction = new TopicCreateTransaction();
                     
                     switch (getPropertyString("createTopicAdminKey")) {
-                        case "operator": {
+                        case "operator" -> {
                             topicCreateTransaction.setAdminKey(client.getOperatorPublicKey());
-                            break;
                         }
-                        case "custom": {
+                        case "custom" -> {
                             topicCreateTransaction.setAdminKey(getPublicKey(getPropertyString("adminAccountMnemonic")));
-                            break;
                         }
                     }
                     
@@ -126,51 +123,43 @@ public class HederaTopicManagementTool extends HederaProcessTool {
                             getPropertyString("wfSubmitKey"), 
                             encryptedSubmitKey
                     );
-                    break;
                 }
-                case UPDATE_TOPIC: {
+                case UPDATE_TOPIC -> {
                     final TopicId topicId = TopicId.fromString(getPropertyString("topicId"));
                     TopicUpdateTransaction topicUpdateTransaction = new TopicUpdateTransaction().setTopicId(topicId);
                     
                     switch (getPropertyString("modifyAdminKey")) {
-                        case "remove": {
+                        case "remove" -> {
                             topicUpdateTransaction.clearAdminKey();
-                            break;
                         }
-                        case "replaceToOperator": {
+                        case "replaceToOperator" -> {
                             topicUpdateTransaction.setAdminKey(client.getOperatorPublicKey());
-                            break;
                         }
-                        case "replaceToCustom": {
+                        case "replaceToCustom" -> {
                             topicUpdateTransaction.setAdminKey(getPublicKey(getPropertyString("newAdminAccountMnemonic")));
-                            break;
                         }
                     }
                     
                     String encryptedSubmitKey = null;
                     switch (getPropertyString("modifySubmitKey")) {
-                        case "remove": {
+                        case "remove" -> {
                             topicUpdateTransaction.clearSubmitKey();
                             encryptedSubmitKey = "";
-                            break;
                         }
-                        case "replace": {
+                        case "replace" -> {
                             PrivateKey newSubmitKey = PrivateKey.generateED25519();
                             topicUpdateTransaction.setSubmitKey(newSubmitKey);
                             encryptedSubmitKey = PluginUtil.encrypt(newSubmitKey.toStringDER());
-                            break;
                         }
                     }
                     
                     switch (getPropertyString("modifyTopicMemo")) {
-                        case "remove": {
+                        case "remove" -> {
                             topicUpdateTransaction.clearTopicMemo();
-                            break;
                         }
-                        case "replace": {
+                        case "replace" -> {
                             final String newTopicMemo = WorkflowUtil.processVariable(getPropertyString("newTopicMemo"), "", wfAssignment).trim();
                             topicUpdateTransaction.setTopicMemo(newTopicMemo);
-                            break;
                         }
                     }
                     
@@ -193,9 +182,8 @@ public class HederaTopicManagementTool extends HederaProcessTool {
                             getPropertyString("wfReplacedSubmitKey"), 
                             encryptedSubmitKey
                     );
-                    break;
                 }
-                case DELETE_TOPIC: {
+                case DELETE_TOPIC -> {
                     final TopicId topicId = TopicId.fromString(getPropertyString("topicId"));
                     TopicDeleteTransaction topicDeleteTransaction = new TopicDeleteTransaction()
                             .setTopicId(topicId)
@@ -208,11 +196,11 @@ public class HederaTopicManagementTool extends HederaProcessTool {
                     transactionRecord = topicDeleteTransaction
                             .execute(client)
                             .getRecord(client);
-                    break;
                 }
-                default:
+                default -> {
                     LogUtil.warn(getClassName(), "Unknown topic management operation type!");
                     return null;
+                }
             }
             
             storeGenericTxDataToWorkflowVariable(transactionRecord);

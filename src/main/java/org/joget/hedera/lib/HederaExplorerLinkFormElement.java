@@ -56,24 +56,24 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
         if (FormUtil.isFormBuilderActive()) { // Don't need to unnecessarily retrieve value when in Form Builder
             retrievedValue = "";
         } else {
-            switch (getValueMode) {
-                case "fieldId" :
+            retrievedValue = switch (getValueMode) {
+                case "fieldId" -> {
                     String fieldId = getPropertyString("getFieldId");
 
                     Form form = FormUtil.findRootForm(this);
                     Element fieldElement = FormUtil.findElement(fieldId, form, formData);
 
-                    retrievedValue = FormUtil.getElementPropertyValue(fieldElement, formData);
-                    break;
-                case "hashVariable" :
+                    yield FormUtil.getElementPropertyValue(fieldElement, formData);
+                }
+                case "hashVariable" -> {
                     String textHashVariable = getPropertyString("textHashVariable");
-                    retrievedValue = WorkflowUtil.processVariable(textHashVariable, "", wfAssignment);
-                    break;
-                default:
+                    yield WorkflowUtil.processVariable(textHashVariable, "", wfAssignment);
+                }
+                default -> {
                     String workflowVariable = getPropertyString("workflowVariable");
-                    retrievedValue = workflowManager.getProcessVariable(wfAssignment.getProcessId(), workflowVariable);
-                    break;
-            }
+                    yield workflowManager.getProcessVariable(wfAssignment.getProcessId(), workflowVariable);
+                }
+            };
         }
         
         dataModel.put("element", this);
@@ -91,30 +91,31 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
         final MirrorRestService restService = new MirrorRestService(getProperties(), client.getLedgerId());
         
         try {
-            switch (valueType) {
-                case ADDRESS_TYPE : {
+            return switch (valueType) {
+                case ADDRESS_TYPE -> {
                     JSONObject jsonResponse = restService.get("accounts/" + retrievedValue);
-                    return (jsonResponse != null && (jsonResponse.getString("account")).equals(retrievedValue));
+                    yield (jsonResponse != null && (jsonResponse.getString("account")).equals(retrievedValue));
                 }
-                case TOKEN_TYPE : {
+                case TOKEN_TYPE -> {
                     JSONObject jsonResponse = restService.get("tokens/" + retrievedValue);
-                    return (jsonResponse != null && (jsonResponse.getString("token_id")).equals(retrievedValue));
+                    yield (jsonResponse != null && (jsonResponse.getString("token_id")).equals(retrievedValue));
                 }
-                case TX_ID_TYPE: {
+                case TX_ID_TYPE -> {
                     String formattedTxId = retrievedValue.replaceAll("@", "-");
                     formattedTxId = formattedTxId.substring(0, formattedTxId.lastIndexOf(".")) + "-" + formattedTxId.substring(formattedTxId.lastIndexOf(".") + 1);
                     
                     JSONObject jsonResponse = restService.get("transactions/" + formattedTxId);
-                    return (jsonResponse != null && (jsonResponse.getJSONArray("transactions").getJSONObject(0) != null));
+                    yield (jsonResponse != null && (jsonResponse.getJSONArray("transactions").getJSONObject(0) != null));
                 }
-                case TOPIC_TYPE: {
+                case TOPIC_TYPE -> {
                     JSONObject jsonResponse = restService.get("topics/" + retrievedValue + "/messages?encoding=utf-8");
-                    return (jsonResponse != null && (jsonResponse.getJSONArray("messages") != null));
+                    yield (jsonResponse != null && (jsonResponse.getJSONArray("messages") != null));
                 }
-                default:
+                default -> {
                     LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
-                    return false;
-            }
+                    yield false;
+                }
+            };
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "Error retrieving data from mirror node.");
         }
@@ -129,19 +130,16 @@ public class HederaExplorerLinkFormElement extends HederaFormElement implements 
         
         Explorer explorer = new ExplorerFactory(client.getLedgerId()).createExplorer(explorerType);
         
-        switch (valueType) {
-            case ADDRESS_TYPE :
-                return explorer.getAccountUrl(retrievedValue);
-            case TOKEN_TYPE :
-                return explorer.getTokenUrl(retrievedValue);
-            case TX_ID_TYPE:
-                return explorer.getTransactionUrl(retrievedValue);
-            case TOPIC_TYPE:
-                return explorer.getTopicUrl(retrievedValue);
-            default:
+        return switch (valueType) {
+            case ADDRESS_TYPE -> explorer.getAccountUrl(retrievedValue);
+            case TOKEN_TYPE -> explorer.getTokenUrl(retrievedValue);
+            case TX_ID_TYPE -> explorer.getTransactionUrl(retrievedValue);
+            case TOPIC_TYPE -> explorer.getTopicUrl(retrievedValue);
+            default -> {
                 LogUtil.warn(getClassName(), "Unknown explorer function selection found!");
-                return null;
-        }
+                yield null;
+            }
+        };
     }
     
     @Override
